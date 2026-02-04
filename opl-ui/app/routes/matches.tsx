@@ -78,12 +78,16 @@ function MatchCard({ match, players, onView }: MatchCardProps) {
 export default function MatchesPage() {
   const navigate = useNavigate();
   const today = new Date().toISOString().split('T')[0];
+  const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [dateRange, setDateRange] = useState({ start: today, end: nextWeek });
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [scheduleData, setScheduleData] = useState({ division: 1, start_date: today });
 
-  const { data: matches, isLoading: matchesLoading, error: matchesError } = useMatches({ date: selectedDate });
+  const { data: matches, isLoading: matchesLoading, error: matchesError } = useMatches({
+    start_date: dateRange.start,
+    end_date: dateRange.end,
+  });
   const { data: players, isLoading: playersLoading } = usePlayers();
   const scheduleRoundRobin = useScheduleRoundRobin();
 
@@ -125,10 +129,21 @@ export default function MatchesPage() {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
         <CalendarTodayIcon color="action" />
         <TextField
+          label="From"
           type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+          value={dateRange.start}
+          onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
           size="small"
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+        <Typography color="text.secondary">to</Typography>
+        <TextField
+          label="To"
+          type="date"
+          value={dateRange.end}
+          onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
+          size="small"
+          slotProps={{ inputLabel: { shrink: true } }}
         />
       </Box>
 
@@ -140,7 +155,7 @@ export default function MatchesPage() {
         <Card>
           <CardContent>
             <Typography color="text.secondary" align="center">
-              No matches scheduled for this date
+              No matches scheduled for this date range
             </Typography>
           </CardContent>
         </Card>

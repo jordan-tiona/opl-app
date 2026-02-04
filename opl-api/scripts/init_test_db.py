@@ -20,14 +20,17 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 def init_players_table(num_players: int):
     print(f"Creating {num_players} players...")
     fake = Faker()
+    divisions = [1] * (num_players // 2) + [2] * (num_players - num_players // 2)
+    random.shuffle(divisions)
     with Session(engine) as session:
-        for _ in range(num_players):
+        for i in range(num_players):
             session.add(Player(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 phone=fake.phone_number(),
                 email=fake.email(),
                 games_played=0,
+                division_id=divisions[i],
             ))
         session.commit()
     print(f"  Done. {num_players} players created.")

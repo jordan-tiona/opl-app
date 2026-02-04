@@ -38,9 +38,10 @@ export const api = {
   },
 
   matches: {
-    list: (params: { date?: string; player_id?: number; match_id?: number }): Promise<Match[]> => {
+    list: (params: { start_date?: string; end_date?: string; player_id?: number; match_id?: number }): Promise<Match[]> => {
       const searchParams = new URLSearchParams();
-      if (params.date) searchParams.set('date', params.date);
+      if (params.start_date) searchParams.set('start_date', params.start_date);
+      if (params.end_date) searchParams.set('end_date', params.end_date);
       if (params.player_id) searchParams.set('player_id', params.player_id.toString());
       if (params.match_id) searchParams.set('match_id', params.match_id.toString());
       return fetchJson(`${API_BASE}/matches/?${searchParams.toString()}`);

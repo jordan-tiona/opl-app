@@ -37,23 +37,26 @@ router = APIRouter(
 
 @router.get("/", response_model=list[Match])
 def get_matches(
-    date: date_type | None = None,
+    start_date: date_type | None = None,
+    end_date: date_type | None = None,
     player_id: int | None = None,
     match_id: int | None = None,
     session: Session = Depends(get_session),
 ):
-    if date is None and player_id is None and match_id is None:
-        raise HTTPException(status_code=422, detail="At least one of date, player_id, or match_id is required")
+    if start_date is None and player_id is None and match_id is None:
+        raise HTTPException(status_code=422, detail="At least one of start_date, player_id, or match_id is required")
 
     query = select(Match)
     if match_id is not None:
         query = query.where(Match.match_id == match_id)
     if player_id is not None:
         query = query.where(or_(Match.player1_id == player_id, Match.player2_id == player_id))
-    if date is not None:
-        query = query.where(func.date(Match.scheduled_date) == date)
+    if start_date is not None:
+        query = query.where(func.date(Match.scheduled_date) >= start_date)
+    if end_date is not None:
+        query = query.where(func.date(Match.scheduled_date) <= end_date)
 
-    return session.exec(query).all()
+    return session.exec(query.order_by(Match.scheduled_date)).all()
 
 
 @router.post("/schedule-round-robin/", response_model=list[Match])

@@ -6,7 +6,7 @@ import type { Player, PlayerInput, GameInput, ScheduleInput } from './types';
 export const queryKeys = {
   players: ['players'] as const,
   player: (id: number) => ['players', id] as const,
-  matches: (params: { date?: string; player_id?: number }) => ['matches', params] as const,
+  matches: (params: { start_date?: string; end_date?: string; player_id?: number }) => ['matches', params] as const,
   match: (id: number) => ['matches', id] as const,
   games: (matchId: number) => ['games', matchId] as const,
 };
@@ -52,11 +52,11 @@ export function useUpdatePlayer() {
 }
 
 // Match queries
-export function useMatches(params: { date?: string; player_id?: number }) {
+export function useMatches(params: { start_date?: string; end_date?: string; player_id?: number }) {
   return useQuery({
     queryKey: queryKeys.matches(params),
     queryFn: () => api.matches.list(params),
-    enabled: !!(params.date || params.player_id),
+    enabled: !!(params.start_date || params.player_id),
   });
 }
 
