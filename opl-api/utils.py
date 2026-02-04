@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from math import floor
 
 from routers.match import Match
 from routers.player import Player
@@ -47,3 +48,8 @@ def schedule_round_robin(players: list[Player], start_date: datetime) -> list[Ma
                 ))
 
     return matches
+
+def calculate_rating_change(winner_robustness: int, loser_robustness: int, balls_remaining: int) -> tuple[int, int]:
+    winner_change = floor(18 * (0.943 ** winner_robustness)) + balls_remaining
+    loser_change = -(floor(18 * (0.943 ** loser_robustness)) + balls_remaining)
+    return (winner_change, loser_change)

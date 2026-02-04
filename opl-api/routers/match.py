@@ -89,9 +89,12 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     if not db_match:
         raise HTTPException(status_code=404, detail="Match not found")
 
+    from utils import calculate_rating_change
+
     for game_input in games:
         winner = session.get(Player, game_input.winner_id)
         loser = session.get(Player, game_input.loser_id)
+
         session.add(Game(
             match_id=match_id,
             winner_id=game_input.winner_id,
@@ -101,6 +104,14 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
             balls_remaining=game_input.balls_remaining,
             played_date=datetime.now(),
         ))
+
+        winner_change, loser_change = calculate_rating_change(
+            winner.games_played, loser.games_played, game_input.balls_remaining
+        )
+        winner.rating += winner_change
+        loser.rating += loser_change
+        winner.games_played += 1
+        loser.games_played += 1
 
     db_match.completed = True
     session.add(db_match)
