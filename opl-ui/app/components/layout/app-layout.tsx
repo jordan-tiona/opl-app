@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { Sidebar, DRAWER_WIDTH } from './Sidebar';
+import { Sidebar, DRAWER_WIDTH } from './sidebar';
 
 interface AppLayoutProps {
   children: React.ReactNode;

@@ -11,7 +11,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from './theme';
-import { AppLayout } from './components/layout/AppLayout';
+import { AppLayout } from './components/layout/app-layout';
 import './app.css';
 
 const queryClient = new QueryClient({

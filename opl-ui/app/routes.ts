@@ -1,10 +1,9 @@
 import { type RouteConfig, index, route } from '@react-router/dev/routes';
 
 export default [
-  index('routes/_index.tsx'),
-  route('players', 'routes/players.tsx'),
-  route('players/:id', 'routes/players.$id.tsx'),
-  route('matches', 'routes/matches.tsx'),
-  route('matches/:id', 'routes/matches.$id.tsx'),
+  index('routes/dashboard.tsx'),
+  route('players', 'routes/players-table.tsx'),
+  route('players/:id', 'routes/player.tsx'),
+  route('matches', 'routes/matches-table.tsx'),
   route('standings', 'routes/standings.tsx'),
 ] satisfies RouteConfig;
