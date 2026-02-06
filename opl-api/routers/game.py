@@ -15,6 +15,8 @@ class Game(SQLModel, table=True):
     loser_id: int = Field(foreign_key="players.player_id")
     winner_rating: int
     loser_rating: int
+    winner_rating_change: int
+    loser_rating_change: int
     balls_remaining: int
     played_date: datetime
 

@@ -49,6 +49,9 @@ def init_matches_table(start_date: datetime):
 
 
 def init_games_table():
+    from sqlalchemy import or_
+    from utils import calculate_rating_change
+
     print("Generating games for completed matches...")
     with Session(engine) as session:
         matches = session.exec(select(Match)).all()
@@ -61,18 +64,54 @@ def init_games_table():
 
             for _ in range(random.randint(2, 3)):
                 winner, loser = random.sample([p1, p2], 2)
+                balls_remaining = random.randint(1, 8)
+
+                winner_change, loser_change = calculate_rating_change(
+                    winner.games_played, loser.games_played, balls_remaining
+                )
+
                 session.add(Game(
                     match_id=match.match_id,
                     winner_id=winner.player_id,
                     loser_id=loser.player_id,
                     winner_rating=winner.rating,
                     loser_rating=loser.rating,
-                    balls_remaining=random.randint(1, 8),
+                    winner_rating_change=winner_change,
+                    loser_rating_change=loser_change,
+                    balls_remaining=balls_remaining,
                     played_date=datetime.now(),
                 ))
+
+                winner.rating += winner_change
+                loser.rating += loser_change
+                winner.games_played += 1
+                loser.games_played += 1
                 num_games += 1
 
             match.completed = True
+
+            # Update ratings in uncompleted matches for both players
+            uncompleted_matches = session.exec(
+                select(Match).where(
+                    Match.completed == False,
+                    or_(
+                        Match.player1_id == p1.player_id,
+                        Match.player2_id == p1.player_id,
+                        Match.player1_id == p2.player_id,
+                        Match.player2_id == p2.player_id,
+                    )
+                )
+            ).all()
+
+            for m in uncompleted_matches:
+                if m.player1_id == p1.player_id:
+                    m.player1_rating = p1.rating
+                if m.player2_id == p1.player_id:
+                    m.player2_rating = p1.rating
+                if m.player1_id == p2.player_id:
+                    m.player1_rating = p2.rating
+                if m.player2_id == p2.player_id:
+                    m.player2_rating = p2.rating
 
         session.commit()
     print(f"  Done. {len(completed_matches)} matches completed, {num_games} games created.")

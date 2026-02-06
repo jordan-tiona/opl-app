@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useGames } from '~/lib/queries';
+import { getMatchWeight } from '~/lib/utils';
 import { GameResults } from './game-results';
 import { GameRecorder } from './game-recorder';
 import type { Match, Player } from '~/lib/types';
@@ -34,6 +35,7 @@ export function MatchAccordion({ match, players, expanded, onToggle }: MatchAcco
   const player2 = players.find((p) => p.player_id === match.player2_id);
 
   const { data: existingGames } = useGames(expanded ? match.match_id : 0);
+  const [p1Weight, p2Weight] = getMatchWeight(match.player1_rating, match.player2_rating);
 
   return (
     <Accordion expanded={expanded} onChange={onToggle}>
@@ -43,9 +45,12 @@ export function MatchAccordion({ match, players, expanded, onToggle }: MatchAcco
             {formatDate(match.scheduled_date)}
           </Typography>
           <Typography sx={{ flex: 1 }}>
-            {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'}
+            {player1 ? `${player1.first_name} ${player1.last_name} (${match.player1_rating})` : 'Unknown'}
             {' vs '}
-            {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'}
+            {player2 ? `${player2.first_name} ${player2.last_name} (${match.player2_rating})` : 'Unknown'}
+          </Typography>
+          <Typography color="text.secondary" sx={{ minWidth: 50, textAlign: 'center' }}>
+            {p1Weight}-{p2Weight}
           </Typography>
           <Chip
             label={match.completed ? 'Completed' : 'Scheduled'}
@@ -60,24 +65,25 @@ export function MatchAccordion({ match, players, expanded, onToggle }: MatchAcco
             <Typography variant="h6">
               {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'}
             </Typography>
-            {player1 && (
-              <Typography variant="body2" color="text.secondary">
-                Rating: {player1.rating}
-              </Typography>
-            )}
+            <Typography variant="body2" color="text.secondary">
+              Rating: {match.player1_rating}
+            </Typography>
           </Box>
-          <Typography variant="h6" color="text.secondary">
-            VS
-          </Typography>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" color="text.secondary">
+              VS
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {p1Weight}-{p2Weight}
+            </Typography>
+          </Box>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6">
               {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'}
             </Typography>
-            {player2 && (
-              <Typography variant="body2" color="text.secondary">
-                Rating: {player2.rating}
-              </Typography>
-            )}
+            <Typography variant="body2" color="text.secondary">
+              Rating: {match.player2_rating}
+            </Typography>
           </Box>
         </Box>
 

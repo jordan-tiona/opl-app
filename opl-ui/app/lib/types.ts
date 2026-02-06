@@ -13,6 +13,8 @@ export interface Match {
   match_id: number;
   player1_id: number;
   player2_id: number;
+  player1_rating: number;
+  player2_rating: number;
   scheduled_date: string;
   completed: boolean;
 }
@@ -24,6 +26,8 @@ export interface Game {
   loser_id: number;
   winner_rating: number;
   loser_rating: number;
+  winner_rating_change: number;
+  loser_rating_change: number;
   balls_remaining: number;
   played_date: string;
 }

@@ -15,6 +15,8 @@ class Match(SQLModel, table=True):
     match_id: Optional[int] = Field(primary_key=True)
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int = Field(foreign_key="players.player_id")
+    player1_rating: int
+    player2_rating: int
     scheduled_date: datetime
     completed: bool
 
@@ -98,19 +100,22 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
         winner = session.get(Player, game_input.winner_id)
         loser = session.get(Player, game_input.loser_id)
 
+        winner_change, loser_change = calculate_rating_change(
+            winner.games_played, loser.games_played, game_input.balls_remaining
+        )
+
         session.add(Game(
             match_id=match_id,
             winner_id=game_input.winner_id,
             loser_id=game_input.loser_id,
             winner_rating=winner.rating,
             loser_rating=loser.rating,
+            winner_rating_change=winner_change,
+            loser_rating_change=loser_change,
             balls_remaining=game_input.balls_remaining,
             played_date=datetime.now(),
         ))
 
-        winner_change, loser_change = calculate_rating_change(
-            winner.games_played, loser.games_played, game_input.balls_remaining
-        )
         winner.rating += winner_change
         loser.rating += loser_change
         winner.games_played += 1
@@ -118,6 +123,33 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
 
     db_match.completed = True
     session.add(db_match)
+
+    # Update ratings in uncompleted matches for both players
+    player1 = session.get(Player, db_match.player1_id)
+    player2 = session.get(Player, db_match.player2_id)
+
+    uncompleted_matches = session.exec(
+        select(Match).where(
+            Match.completed == False,
+            or_(
+                Match.player1_id == player1.player_id,
+                Match.player2_id == player1.player_id,
+                Match.player1_id == player2.player_id,
+                Match.player2_id == player2.player_id,
+            )
+        )
+    ).all()
+
+    for m in uncompleted_matches:
+        if m.player1_id == player1.player_id:
+            m.player1_rating = player1.rating
+        if m.player2_id == player1.player_id:
+            m.player2_rating = player1.rating
+        if m.player1_id == player2.player_id:
+            m.player1_rating = player2.rating
+        if m.player2_id == player2.player_id:
+            m.player2_rating = player2.rating
+
     session.commit()
     session.refresh(db_match)
     return db_match

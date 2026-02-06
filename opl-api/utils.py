@@ -43,6 +43,8 @@ def schedule_round_robin(players: list[Player], start_date: datetime) -> list[Ma
                 matches.append(Match(
                     player1_id=home.player_id,
                     player2_id=away.player_id,
+                    player1_rating=home.rating,
+                    player2_rating=away.rating,
                     scheduled_date=round_date,
                     completed=False,
                 ))
