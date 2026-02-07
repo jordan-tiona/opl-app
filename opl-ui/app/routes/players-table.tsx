@@ -39,7 +39,7 @@ const initialFormState: PlayerInput = {
   email: '',
 };
 
-export default function PlayersPage() {
+export const PlayersPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: players, isLoading, error } = usePlayers();
   const createPlayer = useCreatePlayer();

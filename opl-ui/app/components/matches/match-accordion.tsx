@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -27,18 +28,20 @@ interface MatchAccordionProps {
   match: Match;
   players: Player[];
   expanded: boolean;
-  onToggle: () => void;
+  onToggle: (matchId: number) => void;
 }
 
-export function MatchAccordion({ match, players, expanded, onToggle }: MatchAccordionProps) {
+export const MatchAccordion: React.FC<MatchAccordionProps> = memo(({ match, players, expanded, onToggle }: MatchAccordionProps) => {
   const player1 = players.find((p) => p.player_id === match.player1_id);
   const player2 = players.find((p) => p.player_id === match.player2_id);
 
   const { data: existingGames } = useGames(expanded ? match.match_id : 0);
   const [p1Weight, p2Weight] = getMatchWeight(match.player1_rating, match.player2_rating);
 
+  const handleToggle = useCallback(() => onToggle(match.match_id), [onToggle, match.match_id]);
+
   return (
-    <Accordion expanded={expanded} onChange={onToggle}>
+    <Accordion expanded={expanded} onChange={handleToggle} slotProps={{ transition: { unmountOnExit: true } }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', pr: 2 }}>
           <Typography color="text.secondary" sx={{ minWidth: 140 }}>
@@ -97,4 +100,4 @@ export function MatchAccordion({ match, players, expanded, onToggle }: MatchAcco
       </AccordionDetails>
     </Accordion>
   );
-}
+});

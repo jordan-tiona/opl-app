@@ -7,6 +7,7 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
+import type React from 'react';
 
 interface ScheduleDialogProps {
   open: boolean;
@@ -17,14 +18,14 @@ interface ScheduleDialogProps {
   isPending: boolean;
 }
 
-export function ScheduleDialog({
+export const ScheduleDialog: React.FC<ScheduleDialogProps> = ({
   open,
   onClose,
   scheduleData,
   onScheduleDataChange,
   onSubmit,
   isPending,
-}: ScheduleDialogProps) {
+}: ScheduleDialogProps) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Schedule Round Robin</DialogTitle>

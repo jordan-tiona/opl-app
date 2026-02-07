@@ -17,7 +17,7 @@ import {
 import { usePlayer, useUpdatePlayer } from '~/lib/queries';
 import type { Player } from '~/lib/types';
 
-export default function PlayerDetailPage() {
+export const PlayerDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const playerId = Number(id);

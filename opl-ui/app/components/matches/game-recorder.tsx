@@ -27,18 +27,19 @@ interface GameRecorderProps {
   player2: Player;
 }
 
-export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
+export const GameRecorder: React.FC<GameRecorderProps> = ({ matchId, player1, player2 }: GameRecorderProps) => {
   const completeMatch = useCompleteMatch();
   const [games, setGames] = useState<GameScore[]>([]);
   const [p1Weight, p2Weight] = getMatchWeight(player1.rating, player2.rating);
-  const p1Options = Array.from({ length: p1Weight + 1 }, (_, i) => i);
-  const p2Options = Array.from({ length: p2Weight + 1 }, (_, i) => i);
+  const p1Options = Array.from({ length: p1Weight + 1 }, (_, i) => String(i));
+  const p2Options = Array.from({ length: p2Weight + 1 }, (_, i) => String(i));
   const lastGameRef = useRef<HTMLInputElement>(null);
   const [focusLastGame, setFocusLastGame] = useState(false);
 
   useEffect(() => {
     if (focusLastGame && lastGameRef.current) {
       lastGameRef.current.focus();
+      lastGameRef.current.select();
       setFocusLastGame(false);
     }
   }, [focusLastGame, games.length]);
@@ -52,9 +53,10 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
     setGames((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateScore = (index: number, player: 'player1Score' | 'player2Score', value: number) => {
+  const updateScore = (index: number, player: 'player1Score' | 'player2Score', value: string | number) => {
+    const numValue = Math.max(0, Number(value) || 0);
     setGames((prev) =>
-      prev.map((game, i) => (i === index ? { ...game, [player]: value } : game))
+      prev.map((game, i) => (i === index ? { ...game, [player]: numValue } : game))
     );
   };
 
@@ -91,14 +93,9 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle1" fontWeight={600}>
-          Record Games
-        </Typography>
-        <Button startIcon={<AddIcon />} onClick={addGame} size="small">
-          Add Game
-        </Button>
-      </Box>
+      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+        Record Games
+      </Typography>
 
       {games.length === 0 ? (
         <Typography color="text.secondary" align="center" sx={{ py: 2 }}>
@@ -117,11 +114,15 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
                   {player1.first_name} {player1.last_name}
                 </Typography>
                 <Autocomplete
+                  freeSolo
+                  autoSelect
                   size="small"
                   options={p1Options}
-                  value={game.player1Score}
+                  value={String(game.player1Score)}
                   onChange={(_, value) => updateScore(index, 'player1Score', value ?? 0)}
-                  getOptionLabel={(option) => String(option)}
+                  onInputChange={(_, value, reason) => {
+                    if (reason === 'input') updateScore(index, 'player1Score', value);
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -134,11 +135,15 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
                 />
                 <Typography fontWeight={600}>:</Typography>
                 <Autocomplete
+                  freeSolo
+                  autoSelect
                   size="small"
                   options={p2Options}
-                  value={game.player2Score}
+                  value={String(game.player2Score)}
                   onChange={(_, value) => updateScore(index, 'player2Score', value ?? 0)}
-                  getOptionLabel={(option) => String(option)}
+                  onInputChange={(_, value, reason) => {
+                    if (reason === 'input') updateScore(index, 'player2Score', value);
+                  }}
                   renderInput={(params) => (
                     <TextField {...params} error={!valid && game.player2Score > 0} />
                   )}
@@ -148,7 +153,7 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
                 <Typography sx={{ minWidth: 120 }}>
                   {player2.first_name} {player2.last_name}
                 </Typography>
-                <IconButton color="error" size="small" onClick={() => removeGame(index)}>
+                <IconButton color="error" size="small" onClick={() => removeGame(index)} tabIndex={-1}>
                   <DeleteIcon />
                 </IconButton>
               </Box>
@@ -157,8 +162,11 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
         </Box>
       )}
 
-      {games.length > 0 && (
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button startIcon={<AddIcon />} onClick={addGame} size="small">
+          Add Game
+        </Button>
+        {games.length > 0 && (
           <Button
             variant="contained"
             startIcon={<SaveIcon />}
@@ -168,8 +176,8 @@ export function GameRecorder({ matchId, player1, player2 }: GameRecorderProps) {
           >
             {completeMatch.isPending ? 'Saving...' : 'Complete Match'}
           </Button>
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 }

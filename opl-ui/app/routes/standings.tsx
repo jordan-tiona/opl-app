@@ -16,7 +16,7 @@ import {
 import { EmojiEvents as EmojiEventsIcon } from '@mui/icons-material';
 import { usePlayers } from '~/lib/queries';
 
-function getRankColor(rank: number): 'warning' | 'default' | 'primary' | undefined {
+const getRankColor = (rank: number): 'warning' | 'default' | 'primary' | undefined => {
   switch (rank) {
     case 1:
       return 'warning'; // Gold
@@ -29,7 +29,7 @@ function getRankColor(rank: number): 'warning' | 'default' | 'primary' | undefin
   }
 }
 
-export default function StandingsPage() {
+export const StandingsPage: React.FC = () => {
   const { data: players, isLoading, error } = usePlayers();
 
   const sortedPlayers = useMemo(() => {

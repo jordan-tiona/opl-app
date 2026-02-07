@@ -43,6 +43,7 @@ def get_matches(
     end_date: date_type | None = None,
     player_id: int | None = None,
     match_id: int | None = None,
+    completed: bool | None = None,
     session: Session = Depends(get_session),
 ):
     if start_date is None and player_id is None and match_id is None:
@@ -57,6 +58,8 @@ def get_matches(
         query = query.where(func.date(Match.scheduled_date) >= start_date)
     if end_date is not None:
         query = query.where(func.date(Match.scheduled_date) <= end_date)
+    if completed is not None:
+        query = query.where(Match.completed == completed)
 
     return session.exec(query.order_by(Match.scheduled_date)).all()
 

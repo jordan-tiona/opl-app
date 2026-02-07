@@ -6,10 +6,10 @@
  * @param player2Rating - Rating of player 2
  * @returns Tuple of [player1Weight, player2Weight]
  */
-export function getMatchWeight(
+export const getMatchWeight = (
   player1Rating: number,
   player2Rating: number
-): [number, number] {
+): [number, number] => {
   const diff = Math.abs(player1Rating - player2Rating);
 
   let highWeight: number;

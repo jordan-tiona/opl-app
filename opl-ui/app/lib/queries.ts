@@ -6,20 +6,20 @@ import type { Player, PlayerInput, GameInput, ScheduleInput } from './types';
 export const queryKeys = {
   players: ['players'] as const,
   player: (id: number) => ['players', id] as const,
-  matches: (params: { start_date?: string; end_date?: string; player_id?: number }) => ['matches', params] as const,
+  matches: (params: { start_date?: string; end_date?: string; player_id?: number; completed?: boolean }) => ['matches', params] as const,
   match: (id: number) => ['matches', id] as const,
   games: (matchId: number) => ['games', matchId] as const,
 };
 
 // Player queries
-export function usePlayers() {
+export const usePlayers = () => {
   return useQuery({
     queryKey: queryKeys.players,
     queryFn: api.players.list,
   });
 }
 
-export function usePlayer(id: number) {
+export const usePlayer = (id: number) => {
   return useQuery({
     queryKey: queryKeys.player(id),
     queryFn: () => api.players.get(id),
@@ -27,7 +27,7 @@ export function usePlayer(id: number) {
   });
 }
 
-export function useCreatePlayer() {
+export const useCreatePlayer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -38,7 +38,7 @@ export function useCreatePlayer() {
   });
 }
 
-export function useUpdatePlayer() {
+export const useUpdatePlayer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -52,7 +52,7 @@ export function useUpdatePlayer() {
 }
 
 // Match queries
-export function useMatches(params: { start_date?: string; end_date?: string; player_id?: number }) {
+export const useMatches = (params: { start_date?: string; end_date?: string; player_id?: number; completed?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.matches(params),
     queryFn: () => api.matches.list(params),
@@ -60,7 +60,7 @@ export function useMatches(params: { start_date?: string; end_date?: string; pla
   });
 }
 
-export function useMatch(id: number) {
+export const useMatch = (id: number) => {
   return useQuery({
     queryKey: queryKeys.match(id),
     queryFn: () => api.matches.get(id),
@@ -69,20 +69,21 @@ export function useMatch(id: number) {
   });
 }
 
-export function useCompleteMatch() {
+export const useCompleteMatch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, games }: { id: number; games: GameInput[] }) =>
       api.matches.complete(id, games),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.players });
     },
   });
 }
 
-export function useScheduleRoundRobin() {
+export const useScheduleRoundRobin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -94,7 +95,7 @@ export function useScheduleRoundRobin() {
 }
 
 // Game queries
-export function useGames(matchId: number) {
+export const useGames = (matchId: number) => {
   return useQuery({
     queryKey: queryKeys.games(matchId),
     queryFn: () => api.games.list(matchId),

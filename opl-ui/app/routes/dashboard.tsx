@@ -20,7 +20,7 @@ interface StatCardProps {
   color: string;
 }
 
-function StatCard({ title, value, icon, color }: StatCardProps) {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }: StatCardProps) => {
   return (
     <Card>
       <CardContent>
@@ -51,7 +51,7 @@ function StatCard({ title, value, icon, color }: StatCardProps) {
   );
 }
 
-export default function Dashboard() {
+export const Dashboard: React.FC = () => {
   const { data: players, isLoading } = usePlayers();
 
   const totalPlayers = players?.length ?? 0;

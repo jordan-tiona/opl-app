@@ -8,7 +8,7 @@ interface GameResultsProps {
   players: Player[];
 }
 
-export function GameResults({ games, players }: GameResultsProps) {
+export const GameResults: React.FC<GameResultsProps> = ({ games, players }: GameResultsProps) => {
   return (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
