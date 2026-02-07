@@ -2,15 +2,13 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
-  Button,
   Card,
   CardContent,
   CircularProgress,
   Typography,
 } from '@mui/material';
-import { Schedule as ScheduleIcon } from '@mui/icons-material';
-import { useMatches, usePlayers, useScheduleRoundRobin } from '~/lib/queries';
-import { MatchAccordion, MatchFilters, ScheduleDialog } from '~/components/matches';
+import { useMatches, usePlayers } from '~/lib/queries';
+import { MatchAccordion, MatchFilters } from '~/components/matches';
 import type { CompletionFilter } from '~/components/matches/match-filters';
 import type { Player } from '~/lib/types';
 
@@ -22,8 +20,6 @@ const MatchesPage: React.FC = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [divisionId, setDivisionId] = useState<number | null>(null);
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
-  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
-  const [scheduleData, setScheduleData] = useState({ division: 1, start_date: today });
   const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
 
   const handleToggle = useCallback((matchId: number) => {
@@ -42,17 +38,8 @@ const MatchesPage: React.FC = () => {
 
   const { data: matches, isLoading: matchesLoading, error: matchesError } = useMatches(matchParams);
   const { data: players, isLoading: playersLoading } = usePlayers();
-  const scheduleRoundRobin = useScheduleRoundRobin();
 
   const isLoading = matchesLoading || playersLoading;
-
-  const handleSchedule = async () => {
-    await scheduleRoundRobin.mutateAsync({
-      division: scheduleData.division,
-      start_date: `${scheduleData.start_date}T00:00:00`,
-    });
-    setScheduleDialogOpen(false);
-  };
 
   const sortedMatches = useMemo(() => {
     if (!matches) return [];
@@ -84,13 +71,6 @@ const MatchesPage: React.FC = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h3">Matches</Typography>
-        <Button
-          variant="contained"
-          startIcon={<ScheduleIcon />}
-          onClick={() => setScheduleDialogOpen(true)}
-        >
-          Schedule Round Robin
-        </Button>
       </Box>
 
       <MatchFilters
@@ -131,14 +111,6 @@ const MatchesPage: React.FC = () => {
         </Box>
       )}
 
-      <ScheduleDialog
-        open={scheduleDialogOpen}
-        onClose={() => setScheduleDialogOpen(false)}
-        scheduleData={scheduleData}
-        onScheduleDataChange={setScheduleData}
-        onSubmit={handleSchedule}
-        isPending={scheduleRoundRobin.isPending}
-      />
     </Box>
   );
 };

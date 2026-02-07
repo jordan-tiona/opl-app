@@ -44,3 +44,13 @@ export interface ScheduleInput {
 }
 
 export type PlayerInput = Omit<Player, 'player_id'>;
+
+export interface Division {
+  division_id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  match_time: string;
+}
+
+export type DivisionInput = Omit<Division, 'division_id'>;

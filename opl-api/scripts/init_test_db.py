@@ -12,9 +12,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from routers.player import Player
 from routers.match import Match
 from routers.game import Game
+from routers.division import Division
 
 DATABASE_URL = "sqlite:///opl_db.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+
+def init_divisions_table():
+    print("Creating divisions...")
+    with Session(engine) as session:
+        session.add(Division(
+            name="Tuesday OPL",
+            start_date="2026-03-03",
+            end_date="2026-06-02",
+            match_time="19:00",
+        ))
+        session.add(Division(
+            name="Wednesday OPL",
+            start_date="2026-03-04",
+            end_date="2026-06-03",
+            match_time="19:00",
+        ))
+        session.commit()
+    print("  Done. 2 divisions created.")
 
 
 def init_players_table(num_players: int):
@@ -130,6 +150,8 @@ if __name__ == "__main__":
     SQLModel.metadata.create_all(engine)
     print("  Done.\n")
 
+    init_divisions_table()
+    print()
     init_players_table(args.num_players)
     print()
     init_matches_table(start_date)

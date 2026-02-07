@@ -1,4 +1,4 @@
-import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput } from './types';
+import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput, Division, DivisionInput } from './types';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -72,5 +72,23 @@ export const api = {
   games: {
     list: (matchId: number): Promise<Game[]> =>
       fetchJson(`${API_BASE}/games/?match_id=${matchId}`),
+  },
+
+  divisions: {
+    list: (): Promise<Division[]> => fetchJson(`${API_BASE}/divisions/`),
+
+    get: (id: number): Promise<Division> => fetchJson(`${API_BASE}/divisions/${id}/`),
+
+    create: (data: DivisionInput): Promise<Division> =>
+      fetchJson(`${API_BASE}/divisions/`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    update: (id: number, data: Partial<Division>): Promise<Division> =>
+      fetchJson(`${API_BASE}/divisions/${id}/`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
   },
 };

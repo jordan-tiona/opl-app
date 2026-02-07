@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from './api';
-import type { Player, PlayerInput, GameInput, ScheduleInput } from './types';
+import type { Player, PlayerInput, GameInput, ScheduleInput, Division, DivisionInput } from './types';
 
 // Query keys
 export const queryKeys = {
@@ -9,6 +9,8 @@ export const queryKeys = {
   matches: (params: { start_date?: string; end_date?: string; player_id?: number; completed?: boolean }) => ['matches', params] as const,
   match: (id: number) => ['matches', id] as const,
   games: (matchId: number) => ['games', matchId] as const,
+  divisions: ['divisions'] as const,
+  division: (id: number) => ['divisions', id] as const,
 };
 
 // Player queries
@@ -90,6 +92,46 @@ export const useScheduleRoundRobin = () => {
     mutationFn: (data: ScheduleInput) => api.matches.scheduleRoundRobin(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
+    },
+  });
+}
+
+// Division queries
+export const useDivisions = () => {
+  return useQuery({
+    queryKey: queryKeys.divisions,
+    queryFn: api.divisions.list,
+  });
+}
+
+export const useDivision = (id: number) => {
+  return useQuery({
+    queryKey: queryKeys.division(id),
+    queryFn: () => api.divisions.get(id),
+    enabled: !!id,
+  });
+}
+
+export const useCreateDivision = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: DivisionInput) => api.divisions.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.divisions });
+    },
+  });
+}
+
+export const useUpdateDivision = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Division> }) =>
+      api.divisions.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.divisions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.division(id) });
     },
   });
 }

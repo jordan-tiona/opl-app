@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   Autocomplete,
   Box,
@@ -10,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
+import { useDivisions } from '~/lib/queries';
 import type { Player } from '~/lib/types';
 
 export type CompletionFilter = 'all' | 'completed' | 'scheduled';
@@ -37,10 +37,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
   onCompletionFilterChange,
   players,
 }: MatchFiltersProps) => {
-  const divisions = useMemo(() => {
-    const ids = new Set(players.map((p) => p.division_id).filter((id): id is number => id !== null));
-    return Array.from(ids).sort((a, b) => a - b);
-  }, [players]);
+  const { data: divisions } = useDivisions();
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 3 }}>
@@ -94,9 +91,9 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
           }
         >
           <MenuItem value="">All</MenuItem>
-          {divisions.map((id) => (
-            <MenuItem key={id} value={String(id)}>
-              Division {id}
+          {divisions?.map((d) => (
+            <MenuItem key={d.division_id} value={String(d.division_id)}>
+              {d.name}
             </MenuItem>
           ))}
         </Select>

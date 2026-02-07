@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
+  EmojiEvents as EmojiEventsIcon,
   Leaderboard as LeaderboardIcon,
   People as PeopleIcon,
   Sports as SportsIcon,
@@ -22,6 +23,7 @@ export const DRAWER_WIDTH = 240;
 const navItems = [
   { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
   { label: 'Players', path: '/players', icon: <PeopleIcon /> },
+  { label: 'Divisions', path: '/divisions', icon: <EmojiEventsIcon /> },
   { label: 'Matches', path: '/matches', icon: <SportsIcon /> },
   { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
 ];
