@@ -142,3 +142,5 @@ const MatchesPage: React.FC = () => {
     </Box>
   );
 };
+
+export default MatchesPage

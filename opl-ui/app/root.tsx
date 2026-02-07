@@ -90,3 +90,5 @@ export const ErrorBoundary = ({ error }: Route.ErrorBoundaryProps) => {
     </main>
   );
 }
+
+export default App

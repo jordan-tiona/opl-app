@@ -223,3 +223,5 @@ export const PlayersPage: React.FC = () => {
     </Box>
   );
 }
+
+export default PlayersPage

@@ -168,3 +168,5 @@ export const PlayerDetailPage = () => {
     </Box>
   );
 }
+
+export default PlayerDetailPage

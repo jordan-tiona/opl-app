@@ -123,3 +123,5 @@ export const StandingsPage: React.FC = () => {
     </Box>
   );
 }
+
+export default StandingsPage
