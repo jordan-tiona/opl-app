@@ -1,0 +1,68 @@
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { CredentialResponse } from '@react-oauth/google';
+import type { User } from './types';
+import { api } from './api';
+
+const STORAGE_KEY = 'opl_auth_token';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (response: CredentialResponse) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      api.auth.me()
+        .then(setUser)
+        .catch(() => localStorage.removeItem(STORAGE_KEY))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const login = async (response: CredentialResponse) => {
+    const credential = response.credential;
+    if (!credential) {
+      return { success: false, error: 'No credential received' };
+    }
+
+    try {
+      const result = await api.auth.login(credential);
+      localStorage.setItem(STORAGE_KEY, result.token);
+      setUser(result.user);
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      return { success: false, error: message };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

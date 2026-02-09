@@ -3,6 +3,7 @@ from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routers.auth import router as auth_router
 from routers.player import router as player_router
 from routers.match import router as match_router
 from routers.game import router as game_router
@@ -18,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(player_router)
 app.include_router(match_router)
 app.include_router(game_router)

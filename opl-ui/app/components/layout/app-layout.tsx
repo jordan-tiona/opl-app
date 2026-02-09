@@ -1,4 +1,6 @@
 import Box from '@mui/material/Box';
+import { useAuth } from '~/lib/auth';
+import { LoginPage } from '~/routes/login';
 import { Sidebar, DRAWER_WIDTH } from './sidebar';
 
 interface AppLayoutProps {
@@ -6,6 +8,16 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -16,8 +28,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           p: 3,
           bgcolor: 'background.default',
           minHeight: '100vh',
-          ml: `${DRAWER_WIDTH}px`,
-          width: `calc(100% - ${DRAWER_WIDTH}px)`,
         }}
       >
         {children}

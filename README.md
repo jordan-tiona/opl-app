@@ -21,6 +21,11 @@ yarn dev
 
 The UI will be available at http://localhost:5173.
 
+## Shortcut script to start both
+```bash
+./start.sh
+```
+
 ## Scripts
 
 ### Initialize Test Database

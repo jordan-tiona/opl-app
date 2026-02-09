@@ -10,7 +10,9 @@ import type { Route } from './+types/root';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { theme } from './theme';
+import { AuthProvider } from './lib/auth';
 import { AppLayout } from './components/layout/app-layout';
 import './app.css';
 
@@ -43,14 +45,18 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
 export const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppLayout>
-          <Outlet />
-        </AppLayout>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_OPL_CLIENT_ID}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AuthProvider>
+            <AppLayout>
+              <Outlet />
+            </AppLayout>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 }
 

@@ -1,8 +1,13 @@
+import { useMemo } from 'react';
 import {
   Box,
   Card,
   CardContent,
   Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
   Typography,
 } from '@mui/material';
 import {
@@ -11,7 +16,54 @@ import {
   Sports as SportsIcon,
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
-import { usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers, useScores } from '~/lib/queries';
+import type { Division, Player } from '~/lib/types';
+
+interface DivisionLeadersProps {
+  division: Division;
+  players: Player[];
+}
+
+const DivisionLeaders: React.FC<DivisionLeadersProps> = ({ division, players }: DivisionLeadersProps) => {
+  const { data: scores } = useScores(division.division_id);
+
+  const divisionPlayers = useMemo(
+    () => new Map(players.filter((p) => p.division_id === division.division_id).map((p) => [p.player_id, p])),
+    [players, division.division_id],
+  );
+
+  const leaders = useMemo(() => {
+    if (!scores) return [];
+    return [...scores]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map((s) => ({ player: divisionPlayers.get(s.player_id)!, score: s.score }))
+      .filter((entry) => entry.player != null);
+  }, [scores, divisionPlayers]);
+
+  if (leaders.length === 0) return null;
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          {division.name}
+        </Typography>
+        <Table size="small">
+          <TableBody>
+            {leaders.map(({ player, score }, index) => (
+              <TableRow key={player.player_id} sx={{ '&:last-child td': { border: 0 } }}>
+                <TableCell sx={{ pl: 0, width: 24, color: 'text.secondary' }}>{index + 1}</TableCell>
+                <TableCell sx={{ pl: 0 }}>{player.first_name} {player.last_name}</TableCell>
+                <TableCell align="right" sx={{ pr: 0 }}>{score}pts</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
 
 interface StatCardProps {
   title: string;
@@ -53,6 +105,13 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }: StatCa
 
 export const Dashboard: React.FC = () => {
   const { data: players, isLoading } = usePlayers();
+  const { data: divisions } = useDivisions();
+
+  const activeDivisions = useMemo(() => {
+    if (!divisions) return [];
+    const today = new Date().toISOString().slice(0, 10);
+    return divisions.filter((d) => d.end_date >= today);
+  }, [divisions]);
 
   const totalPlayers = players?.length ?? 0;
   const totalGames = players?.reduce((sum, p) => sum + p.games_played, 0) ?? 0;
@@ -106,6 +165,21 @@ export const Dashboard: React.FC = () => {
           />
         </Grid>
       </Grid>
+
+      {activeDivisions.length > 0 && players && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Division Leaders
+          </Typography>
+          <Grid container spacing={3}>
+            {activeDivisions.map((division) => (
+              <Grid size={{ xs: 12, sm: 6 }} key={division.division_id}>
+                <DivisionLeaders division={division} players={players} />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
 
       {players && players.length > 0 && (
         <Card sx={{ mt: 4 }}>

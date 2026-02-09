@@ -13,6 +13,7 @@ from routers.player import Player
 from routers.match import Match
 from routers.game import Game
 from routers.division import Division
+from routers.user import User
 
 DATABASE_URL = "sqlite:///opl_db.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -44,16 +45,19 @@ def init_players_table(num_players: int):
     random.shuffle(divisions)
     with Session(engine) as session:
         for i in range(num_players):
-            session.add(Player(
+            player = Player(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 phone=fake.phone_number(),
                 email=fake.email(),
                 games_played=0,
                 division_id=divisions[i],
-            ))
+            )
+            session.add(player)
+            session.flush()
+            session.add(User(email=player.email, player_id=player.player_id))
         session.commit()
-    print(f"  Done. {num_players} players created.")
+    print(f"  Done. {num_players} players and users created.")
 
 
 def init_matches_table(start_date: datetime):
@@ -156,6 +160,12 @@ if __name__ == "__main__":
     print("Dropping and recreating tables...")
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
+    print("  Done.\n")
+
+    print("Creating admin user...")
+    with Session(engine) as session:
+        session.add(User(email="tionajordan@gmail.com", is_admin=True))
+        session.commit()
     print("  Done.\n")
 
     init_divisions_table()

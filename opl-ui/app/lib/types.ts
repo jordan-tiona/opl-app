@@ -62,3 +62,13 @@ export interface PlayerScore {
   player_id: number;
   score: number;
 }
+
+export interface User {
+  user_id: number;
+  email: string;
+  google_id: string | null;
+  name: string | null;
+  picture: string | null;
+  is_admin: boolean;
+  player_id: number | null;
+}

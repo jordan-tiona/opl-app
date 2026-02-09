@@ -1,8 +1,10 @@
 import { useLocation, useNavigate } from 'react-router';
 import {
+  Avatar,
   Box,
   Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -14,9 +16,11 @@ import {
   Dashboard as DashboardIcon,
   EmojiEvents as EmojiEventsIcon,
   Leaderboard as LeaderboardIcon,
+  Logout as LogoutIcon,
   People as PeopleIcon,
   Sports as SportsIcon,
 } from '@mui/icons-material';
+import { useAuth } from '~/lib/auth';
 
 export const DRAWER_WIDTH = 240;
 
@@ -31,6 +35,7 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -49,6 +54,8 @@ export function Sidebar() {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -58,7 +65,7 @@ export function Sidebar() {
         </Typography>
       </Box>
       <Divider />
-      <List sx={{ px: 1, py: 2 }}>
+      <List sx={{ px: 1, py: 2, flexGrow: 1 }}>
         {navItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
@@ -84,6 +91,21 @@ export function Sidebar() {
           </ListItem>
         ))}
       </List>
+
+      {user && (
+        <>
+          <Divider />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}>
+            <Avatar src={user.picture ?? undefined} sx={{ width: 32, height: 32 }} />
+            <Typography variant="body2" noWrap sx={{ flexGrow: 1 }}>
+              {user.name ?? user.email}
+            </Typography>
+            <IconButton size="small" onClick={logout}>
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </>
+      )}
     </Drawer>
   );
 }

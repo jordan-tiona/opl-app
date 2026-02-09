@@ -3,7 +3,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import SQLModel, Field, Session, select
 
+from auth import get_current_user, require_admin
 from database import get_session
+from routers.user import User
 
 
 class Player(SQLModel, table=True):
@@ -24,12 +26,12 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[Player])
-def get_players(session: Session = Depends(get_session)):
+def get_players(session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
     return session.exec(select(Player)).all()
 
 
 @router.get("/{player_id}/", response_model=Player)
-def get_player(player_id: int, session: Session = Depends(get_session)):
+def get_player(player_id: int, session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
     player = session.get(Player, player_id)
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
@@ -37,15 +39,22 @@ def get_player(player_id: int, session: Session = Depends(get_session)):
 
 
 @router.post("/", response_model=Player)
-def create_player(player: Player, session: Session = Depends(get_session)):
+def create_player(player: Player, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     session.add(player)
     session.commit()
     session.refresh(player)
+
+    # Create a User for this player's email
+    existing_user = session.exec(select(User).where(User.email == player.email)).first()
+    if not existing_user:
+        session.add(User(email=player.email, player_id=player.player_id))
+        session.commit()
+
     return player
 
 
 @router.put("/{player_id}/", response_model=Player)
-def update_player(player_id: int, player: Player, session: Session = Depends(get_session)):
+def update_player(player_id: int, player: Player, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_player = session.get(Player, player_id)
     if not db_player:
         raise HTTPException(status_code=404, detail="Player not found")

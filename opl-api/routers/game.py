@@ -4,7 +4,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import SQLModel, Field, Session, select
 
+from auth import get_current_user, require_admin
 from database import get_session
+from routers.user import User
 
 
 class Game(SQLModel, table=True):
@@ -31,6 +33,7 @@ def get_games(
     game_id: int | None = None,
     match_id: int | None = None,
     session: Session = Depends(get_session),
+    _user: User = Depends(get_current_user),
 ):
     if game_id is None and match_id is None:
         raise HTTPException(status_code=422, detail="At least one of game_id or match_id is required")
@@ -45,7 +48,7 @@ def get_games(
 
 
 @router.put("/{game_id}/", response_model=Game)
-def update_game(game_id: int, game: Game, session: Session = Depends(get_session)):
+def update_game(game_id: int, game: Game, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_game = session.get(Game, game_id)
     if not db_game:
         raise HTTPException(status_code=404, detail="Game not found")

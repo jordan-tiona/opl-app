@@ -1,24 +1,48 @@
-import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput, Division, DivisionInput, PlayerScore } from './types';
+import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput, Division, DivisionInput, PlayerScore, User } from './types';
 
 const API_BASE = 'http://localhost:8000';
+const STORAGE_KEY = 'opl_auth_token';
+
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem(STORAGE_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
       ...options?.headers,
     },
   });
 
+  if (response.status === 401) {
+    localStorage.removeItem(STORAGE_KEY);
+    window.location.reload();
+    throw new Error('Session expired');
+  }
+
   if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.detail || `API error: ${response.status} ${response.statusText}`);
   }
 
   return response.json();
 }
 
 export const api = {
+  auth: {
+    login: (credential: string): Promise<{ token: string; user: User }> =>
+      fetchJson(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({ credential }),
+      }),
+
+    me: (): Promise<User> => fetchJson(`${API_BASE}/auth/me`),
+  },
+
   players: {
     list: (): Promise<Player[]> => fetchJson(`${API_BASE}/players/`),
 

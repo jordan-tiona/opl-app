@@ -4,9 +4,12 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   Divider,
   IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
   Typography,
 } from '@mui/material';
 import {
@@ -95,19 +98,20 @@ export const DivisionCard = ({ division, players }: DivisionCardProps) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <EmojiEventsIcon fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
-                Top scores
+                Division leaders
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {topPlayersByScore.map(({ player, score }) => (
-                <Chip
-                  key={player.player_id}
-                  label={`${player.first_name} ${player.last_name} (${score}pts)`}
-                  size="small"
-                  variant="outlined"
-                />
-              ))}
-            </Box>
+            <Table size="small">
+              <TableBody>
+                {topPlayersByScore.map(({ player, score }, index) => (
+                  <TableRow key={player.player_id} sx={{ '&:last-child td': { border: 0 } }}>
+                    <TableCell sx={{ pl: 0, width: 24, color: 'text.secondary' }}>{index + 1}</TableCell>
+                    <TableCell sx={{ pl: 0 }}>{player.first_name} {player.last_name}</TableCell>
+                    <TableCell align="right" sx={{ pr: 0 }}>{score}pts</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </Box>
         )}
       </CardContent>

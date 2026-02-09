@@ -3,7 +3,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import SQLModel, Field, Session, select
 
+from auth import get_current_user, require_admin
 from database import get_session
+from routers.user import User
 
 
 class Division(SQLModel, table=True):
@@ -21,12 +23,12 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[Division])
-def get_divisions(session: Session = Depends(get_session)):
+def get_divisions(session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
     return session.exec(select(Division)).all()
 
 
 @router.get("/{division_id}/", response_model=Division)
-def get_division(division_id: int, session: Session = Depends(get_session)):
+def get_division(division_id: int, session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
     division = session.get(Division, division_id)
     if not division:
         raise HTTPException(status_code=404, detail="Division not found")
@@ -34,7 +36,7 @@ def get_division(division_id: int, session: Session = Depends(get_session)):
 
 
 @router.post("/", response_model=Division)
-def create_division(division: Division, session: Session = Depends(get_session)):
+def create_division(division: Division, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     session.add(division)
     session.commit()
     session.refresh(division)
@@ -42,7 +44,7 @@ def create_division(division: Division, session: Session = Depends(get_session))
 
 
 @router.put("/{division_id}/", response_model=Division)
-def update_division(division_id: int, division: Division, session: Session = Depends(get_session)):
+def update_division(division_id: int, division: Division, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_division = session.get(Division, division_id)
     if not db_division:
         raise HTTPException(status_code=404, detail="Division not found")

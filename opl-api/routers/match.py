@@ -5,9 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
 from sqlmodel import SQLModel, Field, Session, select
 
+from auth import get_current_user, require_admin
 from database import get_session
 from routers.player import Player
 from routers.game import Game
+from routers.user import User
 
 
 class Match(SQLModel, table=True):
@@ -54,6 +56,7 @@ def get_matches(
     division_id: int | None = None,
     completed: bool | None = None,
     session: Session = Depends(get_session),
+    _user: User = Depends(get_current_user),
 ):
     if start_date is None and player_id is None and match_id is None and division_id is None:
         raise HTTPException(status_code=422, detail="At least one of start_date, player_id, match_id, or division_id is required")
@@ -79,6 +82,7 @@ def get_matches(
 def get_scores(
     division_id: int,
     session: Session = Depends(get_session),
+    _user: User = Depends(get_current_user),
 ):
     matches = session.exec(
         select(Match).where(Match.division_id == division_id, Match.completed == True)
@@ -109,6 +113,7 @@ def get_scores(
 def schedule_round_robin(
     body: ScheduleInput,
     session: Session = Depends(get_session),
+    _admin: User = Depends(require_admin),
 ):
     from utils import schedule_round_robin as generate_schedule
 
@@ -132,7 +137,7 @@ def schedule_round_robin(
 
 
 @router.post("/", response_model=Match)
-def create_match(match: Match, session: Session = Depends(get_session)):
+def create_match(match: Match, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     session.add(match)
     session.commit()
     session.refresh(match)
@@ -140,7 +145,7 @@ def create_match(match: Match, session: Session = Depends(get_session)):
 
 
 @router.put("/{match_id}/", response_model=Match)
-def update_match(match_id: int, games: list[GameInput], session: Session = Depends(get_session)):
+def update_match(match_id: int, games: list[GameInput], session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_match = session.get(Match, match_id)
     if not db_match:
         raise HTTPException(status_code=404, detail="Match not found")
