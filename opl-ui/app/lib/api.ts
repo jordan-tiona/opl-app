@@ -1,4 +1,4 @@
-import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput, Division, DivisionInput } from './types';
+import type { Player, PlayerInput, Match, Game, GameInput, ScheduleInput, Division, DivisionInput, PlayerScore } from './types';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -38,12 +38,13 @@ export const api = {
   },
 
   matches: {
-    list: (params: { start_date?: string; end_date?: string; player_id?: number; match_id?: number; completed?: boolean }): Promise<Match[]> => {
+    list: (params: { start_date?: string; end_date?: string; player_id?: number; match_id?: number; division_id?: number; completed?: boolean }): Promise<Match[]> => {
       const searchParams = new URLSearchParams();
       if (params.start_date) searchParams.set('start_date', params.start_date);
       if (params.end_date) searchParams.set('end_date', params.end_date);
       if (params.player_id) searchParams.set('player_id', params.player_id.toString());
       if (params.match_id) searchParams.set('match_id', params.match_id.toString());
+      if (params.division_id) searchParams.set('division_id', params.division_id.toString());
       if (params.completed !== undefined) searchParams.set('completed', params.completed.toString());
       return fetchJson(`${API_BASE}/matches/?${searchParams.toString()}`);
     },
@@ -67,6 +68,9 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+
+    scores: (divisionId: number): Promise<PlayerScore[]> =>
+      fetchJson(`${API_BASE}/matches/scores/?division_id=${divisionId}`),
   },
 
   games: {

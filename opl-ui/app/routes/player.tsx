@@ -7,6 +7,10 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from '@mui/material';
@@ -14,7 +18,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
-import { usePlayer, useUpdatePlayer } from '~/lib/queries';
+import { useDivisions, usePlayer, useUpdatePlayer } from '~/lib/queries';
 import type { Player } from '~/lib/types';
 
 export const PlayerDetailPage = () => {
@@ -23,6 +27,7 @@ export const PlayerDetailPage = () => {
   const playerId = Number(id);
 
   const { data: player, isLoading, error } = usePlayer(playerId);
+  const { data: divisions } = useDivisions();
   const updatePlayer = useUpdatePlayer();
 
   const [formData, setFormData] = useState<Partial<Player>>({});
@@ -153,14 +158,27 @@ export const PlayerDetailPage = () => {
                 onChange={handleInputChange}
                 fullWidth
               />
-              <TextField
-                label="Division ID"
-                name="division_id"
-                type="number"
-                value={formData.division_id ?? ''}
-                onChange={handleInputChange}
-                fullWidth
-              />
+              <FormControl fullWidth>
+                <InputLabel>Division</InputLabel>
+                <Select
+                  value={formData.division_id != null ? String(formData.division_id) : ''}
+                  label="Division"
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      division_id: e.target.value === '' ? null : Number(e.target.value),
+                    }));
+                    setHasChanges(true);
+                  }}
+                >
+                  <MenuItem value="">None</MenuItem>
+                  {divisions?.map((d) => (
+                    <MenuItem key={d.division_id} value={String(d.division_id)}>
+                      {d.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
           </Box>
         </CardContent>

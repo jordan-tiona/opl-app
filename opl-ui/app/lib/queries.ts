@@ -6,7 +6,7 @@ import type { Player, PlayerInput, GameInput, ScheduleInput, Division, DivisionI
 export const queryKeys = {
   players: ['players'] as const,
   player: (id: number) => ['players', id] as const,
-  matches: (params: { start_date?: string; end_date?: string; player_id?: number; completed?: boolean }) => ['matches', params] as const,
+  matches: (params: { start_date?: string; end_date?: string; player_id?: number; division_id?: number; completed?: boolean }) => ['matches', params] as const,
   match: (id: number) => ['matches', id] as const,
   games: (matchId: number) => ['games', matchId] as const,
   divisions: ['divisions'] as const,
@@ -54,11 +54,11 @@ export const useUpdatePlayer = () => {
 }
 
 // Match queries
-export const useMatches = (params: { start_date?: string; end_date?: string; player_id?: number; completed?: boolean }) => {
+export const useMatches = (params: { start_date?: string; end_date?: string; player_id?: number; division_id?: number; completed?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.matches(params),
     queryFn: () => api.matches.list(params),
-    enabled: !!(params.start_date || params.player_id),
+    enabled: !!(params.start_date || params.player_id || params.division_id),
   });
 }
 
@@ -133,6 +133,15 @@ export const useUpdateDivision = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.divisions });
       queryClient.invalidateQueries({ queryKey: queryKeys.division(id) });
     },
+  });
+}
+
+// Score queries
+export const useScores = (divisionId: number) => {
+  return useQuery({
+    queryKey: ['scores', divisionId] as const,
+    queryFn: () => api.matches.scores(divisionId),
+    enabled: !!divisionId,
   });
 }
 

@@ -11,12 +11,15 @@ export interface Player {
 
 export interface Match {
   match_id: number;
+  division_id: number | null;
   player1_id: number;
   player2_id: number;
   player1_rating: number;
   player2_rating: number;
   scheduled_date: string;
   completed: boolean;
+  winner_id: number | null;
+  loser_id: number | null;
 }
 
 export interface Game {
@@ -54,3 +57,8 @@ export interface Division {
 }
 
 export type DivisionInput = Omit<Division, 'division_id'>;
+
+export interface PlayerScore {
+  player_id: number;
+  score: number;
+}
