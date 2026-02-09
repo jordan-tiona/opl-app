@@ -13,12 +13,15 @@ from routers.game import Game
 class Match(SQLModel, table=True):
     __tablename__ = "matches"
     match_id: Optional[int] = Field(primary_key=True)
+    division_id: Optional[int] = Field(default=None, foreign_key="divisions.division_id")
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int = Field(foreign_key="players.player_id")
     player1_rating: int
     player2_rating: int
     scheduled_date: datetime
     completed: bool
+    winner_id: Optional[int] = Field(default=None, foreign_key="players.player_id")
+    loser_id: Optional[int] = Field(default=None, foreign_key="players.player_id")
 
 
 class GameInput(SQLModel):
@@ -32,6 +35,11 @@ class ScheduleInput(SQLModel):
     start_date: datetime
 
 
+class PlayerScore(SQLModel):
+    player_id: int
+    score: int
+
+
 router = APIRouter(
     prefix="/matches"
 )
@@ -43,15 +51,18 @@ def get_matches(
     end_date: date_type | None = None,
     player_id: int | None = None,
     match_id: int | None = None,
+    division_id: int | None = None,
     completed: bool | None = None,
     session: Session = Depends(get_session),
 ):
-    if start_date is None and player_id is None and match_id is None:
-        raise HTTPException(status_code=422, detail="At least one of start_date, player_id, or match_id is required")
+    if start_date is None and player_id is None and match_id is None and division_id is None:
+        raise HTTPException(status_code=422, detail="At least one of start_date, player_id, match_id, or division_id is required")
 
     query = select(Match)
     if match_id is not None:
         query = query.where(Match.match_id == match_id)
+    if division_id is not None:
+        query = query.where(Match.division_id == division_id)
     if player_id is not None:
         query = query.where(or_(Match.player1_id == player_id, Match.player2_id == player_id))
     if start_date is not None:
@@ -62,6 +73,36 @@ def get_matches(
         query = query.where(Match.completed == completed)
 
     return session.exec(query.order_by(Match.scheduled_date)).all()
+
+
+@router.get("/scores/", response_model=list[PlayerScore])
+def get_scores(
+    division_id: int,
+    session: Session = Depends(get_session),
+):
+    matches = session.exec(
+        select(Match).where(Match.division_id == division_id, Match.completed == True)
+    ).all()
+    match_ids = [m.match_id for m in matches]
+    if not match_ids:
+        return []
+
+    games = session.exec(select(Game).where(Game.match_id.in_(match_ids))).all()
+
+    # Group game wins by match and player
+    match_player_wins: dict[int, dict[int, int]] = {}
+    for game in games:
+        wins = match_player_wins.setdefault(game.match_id, {})
+        wins[game.winner_id] = wins.get(game.winner_id, 0) + 1
+
+    # Calculate scores: 1 win = 1pt, 2 wins = 3pts, 3 wins = 5pts (2*wins - 1)
+    player_scores: dict[int, int] = {}
+    for wins_by_player in match_player_wins.values():
+        for player_id, wins in wins_by_player.items():
+            score = 2 * wins - 1
+            player_scores[player_id] = player_scores.get(player_id, 0) + score
+
+    return [PlayerScore(player_id=pid, score=s) for pid, s in player_scores.items()]
 
 
 @router.post("/schedule-round-robin/", response_model=list[Match])
@@ -75,7 +116,14 @@ def schedule_round_robin(
     if not players:
         raise HTTPException(status_code=404, detail=f"No players found in division {body.division}")
 
-    matches = generate_schedule(players, body.start_date)
+    # Delete uncompleted matches for this division
+    old_matches = session.exec(
+        select(Match).where(Match.division_id == body.division, Match.completed == False)
+    ).all()
+    for m in old_matches:
+        session.delete(m)
+
+    matches = generate_schedule(players, body.start_date, body.division)
     session.add_all(matches)
     session.commit()
     for match in matches:
@@ -123,6 +171,14 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
         loser.rating += loser_change
         winner.games_played += 1
         loser.games_played += 1
+
+    # Determine match winner by counting game wins
+    game_wins: dict[int, int] = {}
+    for game_input in games:
+        game_wins[game_input.winner_id] = game_wins.get(game_input.winner_id, 0) + 1
+    if game_wins:
+        db_match.winner_id = max(game_wins, key=game_wins.get)
+        db_match.loser_id = min(game_wins, key=game_wins.get)
 
     db_match.completed = True
     session.add(db_match)

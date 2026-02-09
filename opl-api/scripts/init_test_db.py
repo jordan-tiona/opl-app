@@ -61,11 +61,15 @@ def init_matches_table(start_date: datetime):
 
     print(f"Scheduling round robin matches starting {start_date.strftime('%Y-%m-%d')}...")
     with Session(engine) as session:
-        players = session.exec(select(Player)).all()
-        matches = schedule_round_robin(players, start_date)
-        session.add_all(matches)
+        divisions = session.exec(select(Division)).all()
+        total = 0
+        for division in divisions:
+            players = session.exec(select(Player).where(Player.division_id == division.division_id)).all()
+            matches = schedule_round_robin(players, start_date, division.division_id)
+            session.add_all(matches)
+            total += len(matches)
         session.commit()
-    print(f"  Done. {len(matches)} matches scheduled.")
+    print(f"  Done. {total} matches scheduled across {len(divisions)} divisions.")
 
 
 def init_games_table():
@@ -82,6 +86,7 @@ def init_games_table():
             p1 = session.exec(select(Player).where(Player.player_id == match.player1_id)).one()
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
+            game_wins: dict[int, int] = {}
             for _ in range(random.randint(2, 3)):
                 winner, loser = random.sample([p1, p2], 2)
                 balls_remaining = random.randint(1, 8)
@@ -107,8 +112,11 @@ def init_games_table():
                 winner.games_played += 1
                 loser.games_played += 1
                 num_games += 1
+                game_wins[winner.player_id] = game_wins.get(winner.player_id, 0) + 1
 
             match.completed = True
+            match.winner_id = max(game_wins, key=game_wins.get)
+            match.loser_id = min(game_wins, key=game_wins.get)
 
             # Update ratings in uncompleted matches for both players
             uncompleted_matches = session.exec(
