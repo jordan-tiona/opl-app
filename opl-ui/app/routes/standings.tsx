@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { EmojiEvents as EmojiEventsIcon } from '@mui/icons-material';
-import { usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers } from '~/lib/queries';
 
 const getRankColor = (rank: number): 'warning' | 'default' | 'primary' | undefined => {
   switch (rank) {
@@ -31,6 +31,12 @@ const getRankColor = (rank: number): 'warning' | 'default' | 'primary' | undefin
 
 export const StandingsPage: React.FC = () => {
   const { data: players, isLoading, error } = usePlayers();
+  const { data: divisions } = useDivisions();
+
+  const divisionMap = useMemo(
+    () => new Map(divisions?.map((d) => [d.division_id, d.name]) ?? []),
+    [divisions],
+  );
 
   const sortedPlayers = useMemo(() => {
     if (!players) return [];
@@ -111,7 +117,7 @@ export const StandingsPage: React.FC = () => {
                     </TableCell>
                     <TableCell align="right">{player.games_played}</TableCell>
                     <TableCell align="right">
-                      {player.division_id ?? '-'}
+                      {player.division_id ? (divisionMap.get(player.division_id) ?? '-') : '-'}
                     </TableCell>
                   </TableRow>
                 );

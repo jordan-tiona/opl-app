@@ -29,6 +29,7 @@ import {
 import {
   useDivision,
   usePlayers,
+  useScores,
   useUpdateDivision,
 } from '~/lib/queries';
 import type { Division } from '~/lib/types';
@@ -44,6 +45,7 @@ export const DivisionDetailPage = () => {
 
   const { data: division, isLoading, error } = useDivision(divisionId);
   const { data: allPlayers } = usePlayers();
+  const { data: scores } = useScores(divisionId);
   const updateDivision = useUpdateDivision();
 
   const [formData, setFormData] = useState<Partial<Division>>({});
@@ -59,9 +61,16 @@ export const DivisionDetailPage = () => {
     }
   }, [division]);
 
+  const scoreMap = useMemo(
+    () => new Map(scores?.map((s) => [s.player_id, s.score]) ?? []),
+    [scores],
+  );
+
   const divisionPlayers = useMemo(
-    () => allPlayers?.filter((p) => p.division_id === divisionId) ?? [],
-    [allPlayers, divisionId],
+    () => (allPlayers?.filter((p) => p.division_id === divisionId) ?? [])
+      .map((p) => ({ ...p, score: scoreMap.get(p.player_id) ?? 0 }))
+      .sort((a, b) => b.score - a.score),
+    [allPlayers, divisionId, scoreMap],
   );
 
   const availablePlayers = useMemo(
@@ -208,20 +217,22 @@ export const DivisionDetailPage = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell align="center">#</TableCell>
                     <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
+                    <TableCell align="right">Score</TableCell>
                     <TableCell align="right">Rating</TableCell>
                     <TableCell align="right">Games Played</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {divisionPlayers.map((player) => (
+                  {divisionPlayers.map((player, index) => (
                     <TableRow key={player.player_id} hover>
+                      <TableCell align="center">{index + 1}</TableCell>
                       <TableCell>
                         {player.first_name} {player.last_name}
                       </TableCell>
-                      <TableCell>{player.email}</TableCell>
+                      <TableCell align="right">{player.score}</TableCell>
                       <TableCell align="right">{player.rating}</TableCell>
                       <TableCell align="right">{player.games_played}</TableCell>
                       <TableCell align="right">

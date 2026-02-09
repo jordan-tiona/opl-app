@@ -5,9 +5,13 @@ import {
   Box,
   Button,
   CircularProgress,
+  FormControl,
   IconButton,
   InputAdornment,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -22,20 +26,24 @@ import {
   Edit as EditIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
-import { usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers } from '~/lib/queries';
 import { AddPlayerDialog } from '~/components/players/add-player-dialog';
 
 export const PlayersPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: players, isLoading, error } = usePlayers();
+  const { data: divisions } = useDivisions();
 
   const [search, setSearch] = useState('');
+  const [divisionFilter, setDivisionFilter] = useState<number | ''>('');
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const filteredPlayers = players?.filter((player) => {
     const fullName = `${player.first_name} ${player.last_name}`.toLowerCase();
-    return fullName.includes(search.toLowerCase());
-  });
+    if (!fullName.includes(search.toLowerCase())) return false;
+    if (divisionFilter !== '' && player.division_id !== divisionFilter) return false;
+    return true;
+  }).sort((a, b) => { return a.last_name.localeCompare(b.last_name)});
 
   if (error) {
     return <Alert severity="error">Failed to load players: {error.message}</Alert>;
@@ -54,22 +62,38 @@ export const PlayersPage: React.FC = () => {
         </Button>
       </Box>
 
-      <TextField
-        fullWidth
-        placeholder="Search players..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 3 }}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <TextField
+          fullWidth
+          placeholder="Search players..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Division</InputLabel>
+          <Select
+            value={divisionFilter}
+            label="Division"
+            onChange={(e) => setDivisionFilter(e.target.value as number | '')}
+          >
+            <MenuItem value="">All</MenuItem>
+            {divisions?.map((d) => (
+              <MenuItem key={d.division_id} value={d.division_id}>
+                {d.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
