@@ -12,7 +12,7 @@ import {
   Delete as DeleteIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
-import { useCompleteMatch } from '~/lib/queries';
+import { useCompleteMatch } from '~/lib/react-query';
 import { getMatchWeight } from '~/lib/utils';
 import type { GameInput, Player } from '~/lib/types';
 

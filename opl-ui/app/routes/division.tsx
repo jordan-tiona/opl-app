@@ -31,7 +31,7 @@ import {
   usePlayers,
   useScores,
   useUpdateDivision,
-} from '~/lib/queries';
+} from '~/lib/react-query';
 import type { Division } from '~/lib/types';
 import { AddPlayerDialog } from '~/components/players/add-player-dialog';
 import { AddExistingPlayerDialog } from '~/components/divisions/add-existing-player-dialog';

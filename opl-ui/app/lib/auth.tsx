@@ -8,7 +8,7 @@ const STORAGE_KEY = 'opl_auth_token';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (response: CredentialResponse) => Promise<{ success: boolean; error?: string }>;
+  login: (response: CredentialResponse) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => void;
 }
 
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const result = await api.auth.login(credential);
       localStorage.setItem(STORAGE_KEY, result.token);
       setUser(result.user);
-      return { success: true };
+      return { success: true, user: result.user };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       return { success: false, error: message };

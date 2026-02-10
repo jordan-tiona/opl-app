@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useDivisions, usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers } from '~/lib/react-query';
 import { AddDivisionDialog } from '~/components/divisions/add-division-dialog';
 import { DivisionCard } from '~/components/divisions/division-card';
 

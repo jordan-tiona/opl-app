@@ -1,11 +1,18 @@
 import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router';
 import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '~/lib/auth';
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  const { user, loading, login } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  // Already logged in — redirect based on role
+  if (!loading && user) {
+    return <Navigate to={user.is_admin ? '/dashboard' : '/profile'} replace />;
+  }
 
   return (
     <Box
@@ -13,8 +20,7 @@ export const LoginPage = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh',
-        bgcolor: 'background.default',
+        minHeight: '80vh',
       }}
     >
       <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
@@ -23,7 +29,7 @@ export const LoginPage = () => {
             One Pocket League
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Sign in to manage the league
+            Sign in to continue
           </Typography>
 
           {error && (
@@ -33,10 +39,15 @@ export const LoginPage = () => {
           )}
 
           <GoogleLogin
+            size="large"
+            width={350}
+            auto_select={false}
+            ux_mode="popup"
             onSuccess={async (response) => {
-              console.log( response )
               const result = await login(response);
-              if (!result.success) {
+              if (result.success && result.user) {
+                navigate(result.user.is_admin ? '/dashboard' : '/profile');
+              } else if (!result.success) {
                 setError(result.error ?? 'Login failed');
               }
             }}

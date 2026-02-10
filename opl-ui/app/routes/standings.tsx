@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { EmojiEvents as EmojiEventsIcon } from '@mui/icons-material';
-import { useDivisions, usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers } from '~/lib/react-query';
 
 const getRankColor = (rank: number): 'warning' | 'default' | 'primary' | undefined => {
   switch (rank) {

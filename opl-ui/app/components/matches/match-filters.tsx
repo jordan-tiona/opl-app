@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Autocomplete,
   Box,
@@ -9,7 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
-import { useDivisions } from '~/lib/queries';
+import { useDivisions } from '~/lib/react-query';
 import type { Player } from '~/lib/types';
 
 export type CompletionFilter = 'all' | 'completed' | 'scheduled';
@@ -39,6 +40,14 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
 }: MatchFiltersProps) => {
   const { data: divisions } = useDivisions();
 
+  const sortedPlayers = useMemo(() => {
+    return [...players].sort((a, b) => {
+      const lastNameCompare = a.last_name.localeCompare(b.last_name);
+      if (lastNameCompare !== 0) return lastNameCompare;
+      return a.first_name.localeCompare(b.first_name);
+    });
+  }, [players]);
+
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 3 }}>
       <CalendarTodayIcon color="action" />
@@ -62,7 +71,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
 
       <Autocomplete
         size="small"
-        options={players}
+        options={sortedPlayers}
         value={selectedPlayer}
         onChange={(_, value) => onPlayerChange(value)}
         getOptionLabel={(option) =>

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
-import { useGames } from '~/lib/queries';
+import { useGames } from '~/lib/react-query';
 import { getMatchWeight } from '~/lib/utils';
 import { GameResults } from './game-results';
 import { GameRecorder } from './game-recorder';

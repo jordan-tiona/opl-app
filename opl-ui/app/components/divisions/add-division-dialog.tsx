@@ -8,7 +8,7 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
-import { useCreateDivision } from '~/lib/queries';
+import { useCreateDivision } from '~/lib/react-query';
 import type { DivisionInput } from '~/lib/types';
 
 const initialFormState: DivisionInput = {

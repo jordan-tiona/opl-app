@@ -12,7 +12,7 @@ import {
   Select,
   TextField,
 } from '@mui/material';
-import { useDivisions, useCreatePlayer } from '~/lib/queries';
+import { useDivisions, useCreatePlayer } from '~/lib/react-query';
 import type { PlayerInput } from '~/lib/types';
 
 const initialFormState: PlayerInput = {

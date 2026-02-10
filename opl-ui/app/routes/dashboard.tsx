@@ -16,7 +16,7 @@ import {
   Sports as SportsIcon,
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
-import { useDivisions, usePlayers, useScores } from '~/lib/queries';
+import { useDivisions, usePlayers, useScores } from '~/lib/react-query';
 import type { Division, Player } from '~/lib/types';
 
 interface DivisionLeadersProps {

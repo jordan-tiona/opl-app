@@ -8,7 +8,7 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
-import { useScheduleRoundRobin } from '~/lib/queries';
+import { useScheduleRoundRobin } from '~/lib/react-query';
 
 interface ScheduleRoundRobinDialogProps {
   open: boolean;

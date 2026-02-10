@@ -11,6 +11,8 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -18,47 +20,54 @@ import {
   Leaderboard as LeaderboardIcon,
   Logout as LogoutIcon,
   People as PeopleIcon,
+  Person as PersonIcon,
   Sports as SportsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '~/lib/auth';
 
 export const DRAWER_WIDTH = 240;
 
-const navItems = [
-  { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
+const adminNavItems = [
+  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Players', path: '/players', icon: <PeopleIcon /> },
   { label: 'Divisions', path: '/divisions', icon: <EmojiEventsIcon /> },
   { label: 'Matches', path: '/matches', icon: <SportsIcon /> },
   { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
 ];
 
-export function Sidebar() {
+const playerNavItems = [
+  { label: 'My Profile', path: '/profile', icon: <PersonIcon /> },
+  { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
+];
+
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export const Sidebar = ({ open, onClose }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const navItems = user?.is_admin ? adminNavItems : playerNavItems;
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard';
     }
     return location.pathname.startsWith(path);
   };
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          bgcolor: 'background.paper',
-          display: 'flex',
-          flexDirection: 'column',
-        },
-      }}
-    >
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    if (isMobile) onClose();
+  };
+
+  const drawerContent = (
+    <>
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" fontWeight={700} color="primary">
           One Pocket League
@@ -69,7 +78,7 @@ export function Sidebar() {
         {navItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigate(item.path)}
               selected={isActive(item.path)}
               sx={{
                 borderRadius: 2,
@@ -106,6 +115,28 @@ export function Sidebar() {
           </Box>
         </>
       )}
+    </>
+  );
+
+  return (
+    <Drawer
+      variant={isMobile ? 'temporary' : 'permanent'}
+      open={isMobile ? open : true}
+      onClose={onClose}
+      ModalProps={{ keepMounted: true }}
+      sx={{
+        width: isMobile ? 0 : DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: DRAWER_WIDTH,
+          boxSizing: 'border-box',
+          bgcolor: 'background.paper',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   );
-}
+};

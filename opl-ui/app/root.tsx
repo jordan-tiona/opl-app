@@ -13,7 +13,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { theme } from './theme';
 import { AuthProvider } from './lib/auth';
-import { AppLayout } from './components/layout/app-layout';
 import './app.css';
 
 const queryClient = new QueryClient({
@@ -50,9 +49,7 @@ export const App = () => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthProvider>
-            <AppLayout>
-              <Outlet />
-            </AppLayout>
+            <Outlet />
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>

@@ -20,7 +20,7 @@ import {
   Schedule as ScheduleIcon,
   SportsScore as SportsScoreIcon,
 } from '@mui/icons-material';
-import { useMatches, useScores } from '~/lib/queries';
+import { useMatches, useScores } from '~/lib/react-query';
 import type { Division, Player } from '~/lib/types';
 
 interface DivisionCardProps {

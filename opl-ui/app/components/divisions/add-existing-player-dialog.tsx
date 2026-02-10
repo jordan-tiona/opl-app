@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import { PersonAdd as PersonAddIcon } from '@mui/icons-material';
-import { useUpdatePlayer } from '~/lib/queries';
+import { useUpdatePlayer } from '~/lib/react-query';
 import type { Player } from '~/lib/types';
 
 interface AddExistingPlayerDialogProps {

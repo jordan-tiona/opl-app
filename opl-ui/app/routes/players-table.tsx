@@ -26,7 +26,7 @@ import {
   Edit as EditIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
-import { useDivisions, usePlayers } from '~/lib/queries';
+import { useDivisions, usePlayers } from '~/lib/react-query';
 import { AddPlayerDialog } from '~/components/players/add-player-dialog';
 
 export const PlayersPage: React.FC = () => {

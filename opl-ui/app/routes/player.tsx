@@ -18,7 +18,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
-import { useDivisions, usePlayer, useUpdatePlayer } from '~/lib/queries';
+import { useDivisions, usePlayer, useUpdatePlayer } from '~/lib/react-query';
 import type { Player } from '~/lib/types';
 
 export const PlayerDetailPage = () => {

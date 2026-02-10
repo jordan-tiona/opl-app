@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useCreateDivision, useUpdatePlayer } from '~/lib/queries';
+import { useCreateDivision, useUpdatePlayer } from '~/lib/react-query';
 import type { DivisionInput, Player } from '~/lib/types';
 
 interface CopyDivisionDialogProps {

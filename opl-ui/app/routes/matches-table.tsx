@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -7,7 +7,7 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
-import { useMatches, usePlayers } from '~/lib/queries';
+import { useMatches, usePlayers } from '~/lib/react-query';
 import { MatchAccordion, MatchFilters } from '~/components/matches';
 import type { CompletionFilter } from '~/components/matches/match-filters';
 import type { Player } from '~/lib/types';
@@ -21,6 +21,26 @@ const MatchesPage: React.FC = () => {
   const [divisionId, setDivisionId] = useState<number | null>(null);
   const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all');
   const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
+  const [hasExpandedDateRange, setHasExpandedDateRange] = useState(false);
+
+  // Automatically expand date range to 1 year when a player is first selected
+  useEffect(() => {
+    if (selectedPlayer && !hasExpandedDateRange) {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+      setDateRange({
+        start: oneYearAgo.toISOString().split('T')[0],
+        end: oneYearFromNow.toISOString().split('T')[0],
+      });
+      setHasExpandedDateRange(true);
+    } else if (!selectedPlayer && hasExpandedDateRange) {
+      // Reset the flag when player filter is cleared
+      setHasExpandedDateRange(false);
+    }
+  }, [selectedPlayer, hasExpandedDateRange]);
 
   const handleToggle = useCallback((matchId: number) => {
     setExpandedMatch((prev) => (prev === matchId ? null : matchId));
