@@ -5,7 +5,7 @@ import { Navigate, useNavigate } from 'react-router'
 
 import { useAuth } from '~/lib/auth'
 
-export const LoginPage = () => {
+export const LoginPage: React.FC = () => {
     const { user, loading, login } = useAuth()
     const navigate = useNavigate()
     const [error, setError] = useState<string | null>(null)

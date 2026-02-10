@@ -10,12 +10,13 @@ import {
 } from '@mui/material'
 import { memo, useCallback } from 'react'
 
-import { GameRecorder } from './game-recorder'
-import { GameResults } from './game-results'
 
 import { useGames } from '~/lib/react-query'
 import type { Match, Player } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
+
+import { GameRecorder } from './game-recorder'
+import { GameResults } from './game-results'
 
 function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {

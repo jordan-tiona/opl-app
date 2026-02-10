@@ -46,7 +46,7 @@ interface SidebarProps {
     onClose: () => void
 }
 
-export const Sidebar = ({ open, onClose }: SidebarProps) => {
+export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps) => {
     const location = useLocation()
     const navigate = useNavigate()
     const { user, logout } = useAuth()

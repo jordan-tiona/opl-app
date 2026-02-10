@@ -22,7 +22,7 @@ interface CopyDivisionDialogProps {
     players: Player[]
 }
 
-export const CopyDivisionDialog = ({
+export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
     open,
     onClose,
     divisionName,

@@ -23,7 +23,7 @@ const navItems = [
     { label: 'Contact', path: '/contact' },
 ]
 
-export const PublicLayout = () => {
+export const PublicLayout: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()

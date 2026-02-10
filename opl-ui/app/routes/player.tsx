@@ -19,7 +19,7 @@ import { useNavigate, useParams } from 'react-router'
 import { useDivisions, usePlayer, useUpdatePlayer } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
-export const PlayerDetailPage = () => {
+export const PlayerDetailPage: React.FC = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const playerId = Number(id)

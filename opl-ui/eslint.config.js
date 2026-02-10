@@ -48,13 +48,14 @@ export default tseslint.config(
           fixStyle: 'inline-type-imports',
         },
       ],
-      '@typescript-eslint/explicit-function-return-type': [
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': [
         'warn',
         {
-          allowExpressions: true,
-          allowTypedFunctionExpressions: true,
-          allowHigherOrderFunctions: true,
+          allowArgumentsExplicitlyTypedAsAny: true,
           allowDirectConstAssertionInArrowFunctions: true,
+          allowHigherOrderFunctions: true,
+          allowTypedFunctionExpressions: true,
         },
       ],
       '@typescript-eslint/prefer-nullish-coalescing': 'warn',

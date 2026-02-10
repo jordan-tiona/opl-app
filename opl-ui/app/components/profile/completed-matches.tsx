@@ -17,10 +17,11 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 
-import { MatchGamesDetail } from './'
 
 import type { Match, Player } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
+
+import { MatchGamesDetail } from './'
 
 interface CompletedMatchesProps {
     matches: Match[]

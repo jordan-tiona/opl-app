@@ -39,7 +39,7 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
             window.dispatchEvent(new Event('auth:expired'))
         }
 
-        throw new Error(body?.detail || `API error: ${response.status} ${response.statusText}`)
+        throw new Error(body?.detail ?? `API error: ${response.status} ${response.statusText}`)
     }
 
     return response.json()

@@ -11,7 +11,7 @@ import {
 import { useAuth } from '~/lib/auth'
 import { usePlayer, usePlayers, useMatches, useDivision, useGames } from '~/lib/react-query'
 
-export const ProfilePage = () => {
+export const ProfilePage: React.FC = () => {
     const { user } = useAuth()
     const { data: player, isLoading: playerLoading } = usePlayer(user?.player_id ?? 0)
     const { data: players } = usePlayers()

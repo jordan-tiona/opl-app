@@ -27,7 +27,7 @@ const features = [
     },
 ]
 
-export const LandingPage = () => {
+export const LandingPage: React.FC = () => {
     const navigate = useNavigate()
 
     return (

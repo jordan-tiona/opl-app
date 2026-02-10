@@ -24,7 +24,7 @@ interface AddDivisionDialogProps {
     onClose: () => void
 }
 
-export const AddDivisionDialog = ({ open, onClose }: AddDivisionDialogProps) => {
+export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onClose }: AddDivisionDialogProps) => {
     const createDivision = useCreateDivision()
     const [formData, setFormData] = useState<DivisionInput>(initialFormState)
 

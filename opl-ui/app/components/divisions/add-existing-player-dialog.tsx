@@ -21,7 +21,7 @@ interface AddExistingPlayerDialogProps {
     onCreateNewPlayer: () => void
 }
 
-export const AddExistingPlayerDialog = ({
+export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = ({
     open,
     onClose,
     divisionId,

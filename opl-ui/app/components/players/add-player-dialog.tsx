@@ -32,7 +32,7 @@ interface AddPlayerDialogProps {
     divisionId?: number
 }
 
-export const AddPlayerDialog = ({ open, onClose, divisionId }: AddPlayerDialogProps) => {
+export const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({ open, onClose, divisionId }: AddPlayerDialogProps) => {
     const { data: divisions } = useDivisions()
     const createPlayer = useCreatePlayer()
 

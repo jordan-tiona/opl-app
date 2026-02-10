@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { AddDivisionDialog, DivisionCard } from '~/components/divisions'
 import { useDivisions, usePlayers } from '~/lib/react-query'
 
-export const DivisionsPage = () => {
+export const DivisionsPage: React.FC = () => {
     const { data: divisions, isLoading, error } = useDivisions()
     const { data: allPlayers } = usePlayers()
 

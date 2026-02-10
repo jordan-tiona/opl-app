@@ -12,13 +12,14 @@ import {
 import { useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
 
-import { Sidebar, DRAWER_WIDTH } from './sidebar'
-
 import { useAuth } from '~/lib/auth'
+
+import { Sidebar } from './sidebar'
+
 
 const adminPaths = ['/dashboard', '/players', '/divisions', '/matches']
 
-export const AuthLayout = () => {
+export const AuthLayout: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const { user, loading } = useAuth()
     const theme = useTheme()

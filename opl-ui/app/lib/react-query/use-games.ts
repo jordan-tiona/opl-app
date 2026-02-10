@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 
+import type { Game } from '../../lib/types'
 import { api } from '../api'
 
 import { queryKeys } from './query-keys'
 
-export const useGames = (params: { match_id?: number; player_id?: number }) => {
+export const useGames = (params: { match_id?: number; player_id?: number }): UseQueryResult<Game[]> => {
     const key = params.match_id
         ? queryKeys.games(params.match_id)
         : ['games', 'player', params.player_id]
@@ -12,6 +13,6 @@ export const useGames = (params: { match_id?: number; player_id?: number }) => {
     return useQuery({
         queryKey: key,
         queryFn: () => api.games.list(params),
-        enabled: !!(params.match_id || params.player_id),
+        enabled: !!(params.match_id ?? params.player_id),
     })
 }

@@ -1,7 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    type UseQueryResult,
+    type UseMutationResult,
+} from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { GameInput, ScheduleInput } from '../types'
+import type { GameInput, Match, ScheduleInput } from '../types'
 
 import { queryKeys } from './query-keys'
 
@@ -11,15 +17,15 @@ export const useMatches = (params: {
     player_id?: number
     division_id?: number
     completed?: boolean
-}) => {
+}): UseQueryResult<Match[]> => {
     return useQuery({
         queryKey: queryKeys.matches(params),
         queryFn: () => api.matches.list(params),
-        enabled: !!(params.start_date || params.player_id || params.division_id),
+        enabled: !!(params.start_date ?? params.player_id ?? params.division_id),
     })
 }
 
-export const useMatch = (id: number) => {
+export const useMatch = (id: number): UseQueryResult<Match> => {
     return useQuery({
         queryKey: queryKeys.match(id),
         queryFn: () => api.matches.get(id),
@@ -28,7 +34,11 @@ export const useMatch = (id: number) => {
     })
 }
 
-export const useCompleteMatch = () => {
+export const useCompleteMatch = (): UseMutationResult<
+    Match,
+    Error,
+    { id: number; games: GameInput[] }
+> => {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -42,7 +52,11 @@ export const useCompleteMatch = () => {
     })
 }
 
-export const useScheduleRoundRobin = () => {
+export const useScheduleRoundRobin = (): UseMutationResult<
+    Match[],
+    Error,
+    ScheduleInput
+> => {
     const queryClient = useQueryClient()
 
     return useMutation({

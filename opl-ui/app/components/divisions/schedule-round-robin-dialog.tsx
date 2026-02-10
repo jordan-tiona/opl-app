@@ -18,7 +18,7 @@ interface ScheduleRoundRobinDialogProps {
     defaultStartDate: string
 }
 
-export const ScheduleRoundRobinDialog = ({
+export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> = ({
     open,
     onClose,
     divisionId,

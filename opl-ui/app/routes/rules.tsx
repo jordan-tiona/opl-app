@@ -1,6 +1,6 @@
 import { Box, Container, Divider, Typography } from '@mui/material'
 
-export const RulesPage = () => {
+export const RulesPage: React.FC = () => {
     return (
         <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
             <Typography

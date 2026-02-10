@@ -1,11 +1,11 @@
 import { Avatar, Box, Card, CardContent, Chip, Typography } from '@mui/material'
 
-import type { Player, Division } from '~/lib/types'
+import type { Player, Division, User } from '~/lib/types'
 
 interface ProfileCardProps {
     player: Player
     division: Division | undefined
-    user: any
+    user: User
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({ player, division, user }) => {

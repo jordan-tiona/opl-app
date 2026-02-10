@@ -29,7 +29,7 @@ interface DivisionCardProps {
     players: Player[]
 }
 
-export const DivisionCard = ({ division, players }: DivisionCardProps) => {
+export const DivisionCard: React.FC<DivisionCardProps> = ({ division, players }: DivisionCardProps) => {
     const navigate = useNavigate()
     const { data: matches } = useMatches({ division_id: division.division_id })
     const { data: scores } = useScores(division.division_id)

@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
     },
 })
 
-export const Layout = ({ children }: { children: React.ReactNode }) => {
+export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }: { children: React.ReactNode }) => {
     return (
         <html lang="en">
             <head>
@@ -36,7 +36,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-export const App = () => {
+export const App: React.FC = () => {
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_OPL_CLIENT_ID}>
             <QueryClientProvider client={queryClient}>
@@ -51,7 +51,7 @@ export const App = () => {
     )
 }
 
-export const ErrorBoundary = ({ error }: Route.ErrorBoundaryProps) => {
+export const ErrorBoundary: React.FC<Route.ErrorBoundaryProps> = ({ error }: Route.ErrorBoundaryProps) => {
     let message = 'Oops!'
     let details = 'An unexpected error occurred.'
     let stack: string | undefined

@@ -1,18 +1,24 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    type UseQueryResult,
+    type UseMutationResult,
+} from '@tanstack/react-query'
 
 import { api } from '../api'
 import type { Player, PlayerInput } from '../types'
 
 import { queryKeys } from './query-keys'
 
-export const usePlayers = () => {
+export const usePlayers = (): UseQueryResult<Player[]> => {
     return useQuery({
         queryKey: queryKeys.players,
         queryFn: api.players.list,
     })
 }
 
-export const usePlayer = (id: number) => {
+export const usePlayer = (id: number): UseQueryResult<Player> => {
     return useQuery({
         queryKey: queryKeys.player(id),
         queryFn: () => api.players.get(id),
@@ -20,7 +26,11 @@ export const usePlayer = (id: number) => {
     })
 }
 
-export const useCreatePlayer = () => {
+export const useCreatePlayer = (): UseMutationResult<
+    Player,
+    Error,
+    PlayerInput
+> => {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -31,7 +41,11 @@ export const useCreatePlayer = () => {
     })
 }
 
-export const useUpdatePlayer = () => {
+export const useUpdatePlayer = (): UseMutationResult<
+    Player,
+    Error,
+    { id: number; data: Partial<Player> }
+> => {
     const queryClient = useQueryClient()
 
     return useMutation({

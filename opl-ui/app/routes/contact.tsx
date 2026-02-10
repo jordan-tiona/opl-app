@@ -1,7 +1,7 @@
 import { Email as EmailIcon } from '@mui/icons-material'
 import { Box, Container, Divider, Paper, Typography } from '@mui/material'
 
-export const ContactPage = () => {
+export const ContactPage: React.FC = () => {
     return (
         <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
             <Typography

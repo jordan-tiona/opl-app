@@ -24,7 +24,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
 import {
@@ -36,7 +36,7 @@ import { AddPlayerDialog } from '~/components/players'
 import { useDivision, usePlayers, useScores, useUpdateDivision } from '~/lib/react-query'
 import type { Division } from '~/lib/types'
 
-export const DivisionDetailPage = () => {
+export const DivisionDetailPage: React.FC = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const divisionId = Number(id)
