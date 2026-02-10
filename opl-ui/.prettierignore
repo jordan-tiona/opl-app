@@ -1,0 +1,9 @@
+node_modules
+build
+.react-router
+dist
+coverage
+*.config.js
+*.config.ts
+yarn.lock
+package-lock.json

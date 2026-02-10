@@ -1,5 +1,5 @@
-export { GameRecorder } from './game-recorder';
-export { GameResults } from './game-results';
-export { MatchAccordion } from './match-accordion';
-export { MatchFilters } from './match-filters';
-export { ScheduleDialog } from './schedule-dialog';
+export { GameRecorder } from './game-recorder'
+export { GameResults } from './game-results'
+export { MatchAccordion } from './match-accordion'
+export { MatchFilters } from './match-filters'
+export { ScheduleDialog } from './schedule-dialog'
