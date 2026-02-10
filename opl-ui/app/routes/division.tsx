@@ -33,10 +33,12 @@ import {
   useUpdateDivision,
 } from '~/lib/react-query';
 import type { Division } from '~/lib/types';
-import { AddPlayerDialog } from '~/components/players/add-player-dialog';
-import { AddExistingPlayerDialog } from '~/components/divisions/add-existing-player-dialog';
-import { ScheduleRoundRobinDialog } from '~/components/divisions/schedule-round-robin-dialog';
-import { CopyDivisionDialog } from '~/components/divisions/copy-division-dialog';
+import { AddPlayerDialog } from '~/components/players';
+import {
+  AddExistingPlayerDialog,
+  CopyDivisionDialog,
+  ScheduleRoundRobinDialog,
+} from '~/components/divisions'
 
 export const DivisionDetailPage = () => {
   const { id } = useParams();

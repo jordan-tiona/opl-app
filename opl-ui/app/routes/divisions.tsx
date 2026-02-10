@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Alert,
   Box,
@@ -6,11 +6,10 @@ import {
   CircularProgress,
   Grid,
   Typography,
-} from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
-import { useDivisions, usePlayers } from '~/lib/react-query';
-import { AddDivisionDialog } from '~/components/divisions/add-division-dialog';
-import { DivisionCard } from '~/components/divisions/division-card';
+} from '@mui/material'
+import { Add as AddIcon } from '@mui/icons-material'
+import { useDivisions, usePlayers } from '~/lib/react-query'
+import { AddDivisionDialog, DivisionCard } from '~/components/divisions'
 
 export const DivisionsPage = () => {
   const { data: divisions, isLoading, error } = useDivisions();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Box,
   Card,
@@ -15,16 +15,16 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from '@mui/material';
-import { getMatchWeight } from '~/lib/utils';
-import { MatchGamesDetail } from './match-games-detail';
-import type { Match, Player } from '~/lib/types';
+} from '@mui/material'
+import { getMatchWeight } from '~/lib/utils'
+import { MatchGamesDetail } from './'
+import type { Match, Player } from '~/lib/types'
 
 interface CompletedMatchesProps {
-  matches: Match[];
-  player: Player;
-  players?: Player[];
-  isLoading: boolean;
+  matches: Match[],
+  player: Player,
+  players?: Player[],
+  isLoading: boolean,
 }
 
 export const CompletedMatches: React.FC<CompletedMatchesProps> = ({

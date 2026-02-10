@@ -2,11 +2,13 @@ import { useMemo } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useAuth } from '~/lib/auth';
 import { usePlayer, usePlayers, useMatches, useDivision, useGames } from '~/lib/react-query';
-import { ProfileCard } from '~/components/profile/profile-card';
-import { RatingHistoryCard } from '~/components/profile/rating-history-card';
-import { StatsCards } from '~/components/profile/stats-cards';
-import { UpcomingMatches } from '~/components/profile/upcoming-matches';
-import { CompletedMatches } from '~/components/profile/completed-matches';
+import {
+  CompletedMatches,
+  ProfileCard,
+  RatingHistoryCard,
+  StatsCards,
+  UpcomingMatches,
+} from '~/components/profile'
 
 export const ProfilePage = () => {
   const { user } = useAuth();
