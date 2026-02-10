@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import SQLModel, Field, Session, select
+from sqlmodel import Field, Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
@@ -11,7 +10,7 @@ from routers.user import User
 
 class Game(SQLModel, table=True):
     __tablename__ = "games"
-    game_id: Optional[int] = Field(primary_key=True)
+    game_id: int | None = Field(primary_key=True)
     match_id: int = Field(foreign_key="matches.match_id")
     winner_id: int = Field(foreign_key="players.player_id")
     loser_id: int = Field(foreign_key="players.player_id")

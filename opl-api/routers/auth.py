@@ -1,16 +1,16 @@
+import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from auth import (
     ADMIN_EMAIL,
-    verify_google_token,
     create_jwt,
     get_current_user,
+    verify_google_token,
 )
 from database import get_session
 from routers.user import User
-import jwt
 
 router = APIRouter(prefix="/auth")
 

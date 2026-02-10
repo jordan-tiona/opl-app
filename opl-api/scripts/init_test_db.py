@@ -5,14 +5,14 @@ from datetime import datetime
 from pathlib import Path
 
 from faker import Faker
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import Session, SQLModel, create_engine, select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from routers.player import Player
-from routers.match import Match
-from routers.game import Game
 from routers.division import Division
+from routers.game import Game
+from routers.match import Match
+from routers.player import Player
 from routers.user import User
 
 DATABASE_URL = "sqlite:///opl_db.db"
@@ -38,7 +38,7 @@ def init_divisions_table():
     print("  Done. 2 divisions created.")
 
 
-def init_players_table(num_players: int, player_email: str = None):
+def init_players_table(num_players: int, player_email: str | None):
     print(f"Creating {num_players} players...")
     fake = Faker()
     divisions = [1] * (num_players // 2) + [2] * (num_players - num_players // 2)
@@ -95,7 +95,9 @@ def init_matches_table(start_date: datetime):
 
 def init_games_table():
     from datetime import timedelta
+
     from sqlalchemy import or_
+
     from utils import calculate_rating_change
 
     print("Generating games for completed matches...")
@@ -111,7 +113,7 @@ def init_games_table():
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
             game_wins: dict[int, int] = {}
-            for game_num in range(random.randint(2, 3)):
+            for _game_num in range(random.randint(2, 3)):
                 winner, loser = random.sample([p1, p2], 2)
                 balls_remaining = random.randint(1, 8)
 
@@ -148,7 +150,7 @@ def init_games_table():
             # Update ratings in uncompleted matches for both players
             uncompleted_matches = session.exec(
                 select(Match).where(
-                    Match.completed == False,
+                    not Match.completed,
                     or_(
                         Match.player1_id == p1.player_id,
                         Match.player2_id == p1.player_id,

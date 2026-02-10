@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from fastapi import Depends, HTTPException
@@ -30,7 +30,7 @@ def verify_google_token(credential: str) -> dict:
         )
         return idinfo
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid Google token: {e}")
+        raise HTTPException(status_code=401, detail=f"Invalid Google token: {e}") from e
 
 
 def create_jwt(user: User) -> str:
@@ -38,7 +38,7 @@ def create_jwt(user: User) -> str:
         "user_id": user.user_id,
         "email": user.email,
         "is_admin": user.is_admin,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS),
+        "exp": datetime.now(UTC) + timedelta(hours=JWT_EXPIRATION_HOURS),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -53,7 +53,7 @@ def get_current_user(
         )
         user_id = payload.get("user_id")
     except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=401, detail="Invalid or expired token") from None
 
     user = session.get(User, user_id)
     if not user:

@@ -1,29 +1,29 @@
-from datetime import datetime, date as date_type
-from typing import Optional
+from datetime import date as date_type
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
-from sqlmodel import SQLModel, Field, Session, select
+from sqlmodel import Field, Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from routers.player import Player
 from routers.game import Game
+from routers.player import Player
 from routers.user import User
 
 
 class Match(SQLModel, table=True):
     __tablename__ = "matches"
-    match_id: Optional[int] = Field(primary_key=True)
-    division_id: Optional[int] = Field(default=None, foreign_key="divisions.division_id")
+    match_id: int | None = Field(primary_key=True)
+    division_id: int | None = Field(default=None, foreign_key="divisions.division_id")
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int = Field(foreign_key="players.player_id")
     player1_rating: int
     player2_rating: int
     scheduled_date: datetime
     completed: bool
-    winner_id: Optional[int] = Field(default=None, foreign_key="players.player_id")
-    loser_id: Optional[int] = Field(default=None, foreign_key="players.player_id")
+    winner_id: int | None = Field(default=None, foreign_key="players.player_id")
+    loser_id: int | None = Field(default=None, foreign_key="players.player_id")
 
 
 class GameInput(SQLModel):
@@ -85,7 +85,7 @@ def get_scores(
     _user: User = Depends(get_current_user),
 ):
     matches = session.exec(
-        select(Match).where(Match.division_id == division_id, Match.completed == True)
+        select(Match).where(Match.division_id == division_id, Match.completed)
     ).all()
     match_ids = [m.match_id for m in matches]
     if not match_ids:
@@ -123,7 +123,7 @@ def schedule_round_robin(
 
     # Delete uncompleted matches for this division
     old_matches = session.exec(
-        select(Match).where(Match.division_id == body.division, Match.completed == False)
+        select(Match).where(Match.division_id == body.division, not Match.completed)
     ).all()
     for m in old_matches:
         session.delete(m)
@@ -194,7 +194,7 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
 
     uncompleted_matches = session.exec(
         select(Match).where(
-            Match.completed == False,
+            not Match.completed,
             or_(
                 Match.player1_id == player1.player_id,
                 Match.player2_id == player1.player_id,

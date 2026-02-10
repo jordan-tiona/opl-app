@@ -1,7 +1,6 @@
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import SQLModel, Field, Session, select
+from sqlmodel import Field, Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
@@ -10,8 +9,8 @@ from routers.user import User
 
 class Player(SQLModel, table=True):
     __tablename__ = "players"
-    player_id: Optional[int] = Field(primary_key=True, index=True)
-    division_id: Optional[int]
+    player_id: int | None = Field(primary_key=True, index=True)
+    division_id: int | None
     first_name: str
     last_name: str
     rating: int = Field(default=600)

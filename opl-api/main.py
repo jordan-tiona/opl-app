@@ -1,13 +1,12 @@
-from typing import Union
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers.auth import router as auth_router
-from routers.player import router as player_router
-from routers.match import router as match_router
-from routers.game import router as game_router
 from routers.division import router as division_router
+from routers.game import router as game_router
+from routers.match import router as match_router
+from routers.player import router as player_router
 
 app = FastAPI()
 
@@ -30,5 +29,5 @@ def read_root():
     return {"Hello": "World"}
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
+def read_item(item_id: int, q: str | None = None):
     return {"item_id": item_id, "q": q}

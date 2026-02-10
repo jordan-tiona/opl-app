@@ -1,7 +1,6 @@
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import SQLModel, Field, Session, select
+from sqlmodel import Field, Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
@@ -10,7 +9,7 @@ from routers.user import User
 
 class Division(SQLModel, table=True):
     __tablename__ = "divisions"
-    division_id: Optional[int] = Field(primary_key=True, index=True)
+    division_id: int | None = Field(primary_key=True, index=True)
     name: str
     start_date: str  # YYYY-MM-DD
     end_date: str  # YYYY-MM-DD
