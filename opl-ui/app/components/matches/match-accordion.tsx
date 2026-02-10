@@ -35,7 +35,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(({ match, play
   const player1 = players.find((p) => p.player_id === match.player1_id);
   const player2 = players.find((p) => p.player_id === match.player2_id);
 
-  const { data: existingGames } = useGames(expanded ? match.match_id : 0);
+  const { data: existingGames } = useGames({ match_id: expanded ? match.match_id : undefined });
   const [p1Weight, p2Weight] = getMatchWeight(match.player1_rating, match.player2_rating);
 
   const handleToggle = useCallback(() => onToggle(match.match_id), [onToggle, match.match_id]);

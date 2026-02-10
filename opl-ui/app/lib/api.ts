@@ -97,8 +97,12 @@ export const api = {
   },
 
   games: {
-    list: (matchId: number): Promise<Game[]> =>
-      fetchJson(`${API_BASE}/games/?match_id=${matchId}`),
+    list: (params: { match_id?: number; player_id?: number }): Promise<Game[]> => {
+      const searchParams = new URLSearchParams();
+      if (params.match_id) searchParams.set('match_id', params.match_id.toString());
+      if (params.player_id) searchParams.set('player_id', params.player_id.toString());
+      return fetchJson(`${API_BASE}/games/?${searchParams.toString()}`);
+    },
   },
 
   divisions: {

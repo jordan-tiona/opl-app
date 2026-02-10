@@ -38,7 +38,7 @@ def init_divisions_table():
     print("  Done. 2 divisions created.")
 
 
-def init_players_table(num_players: int):
+def init_players_table(num_players: int, player_email: str = None):
     print(f"Creating {num_players} players...")
     fake = Faker()
     divisions = [1] * (num_players // 2) + [2] * (num_players - num_players // 2)
@@ -56,8 +56,25 @@ def init_players_table(num_players: int):
             session.add(player)
             session.flush()
             session.add(User(email=player.email, player_id=player.player_id))
+
+        # Create test player with specific email if provided
+        if player_email:
+            print(f"  Creating test player with email: {player_email}")
+            test_player = Player(
+                first_name="Test",
+                last_name="Player",
+                phone="555-0100",
+                email=player_email,
+                games_played=0,
+                division_id=1,  # Always assign to first division
+            )
+            session.add(test_player)
+            session.flush()
+            session.add(User(email=player_email, player_id=test_player.player_id))
+
         session.commit()
-    print(f"  Done. {num_players} players and users created.")
+    total_created = num_players + (1 if player_email else 0)
+    print(f"  Done. {total_created} players and users created.")
 
 
 def init_matches_table(start_date: datetime):
@@ -77,6 +94,7 @@ def init_matches_table(start_date: datetime):
 
 
 def init_games_table():
+    from datetime import timedelta
     from sqlalchemy import or_
     from utils import calculate_rating_change
 
@@ -85,19 +103,24 @@ def init_games_table():
         matches = session.exec(select(Match)).all()
         completed_matches = random.sample(matches, len(matches) // 2)
         num_games = 0
+        # Spread games over the past 30 days for realistic rating history
+        base_date = datetime.now() - timedelta(days=30)
 
         for match in completed_matches:
             p1 = session.exec(select(Player).where(Player.player_id == match.player1_id)).one()
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
             game_wins: dict[int, int] = {}
-            for _ in range(random.randint(2, 3)):
+            for game_num in range(random.randint(2, 3)):
                 winner, loser = random.sample([p1, p2], 2)
                 balls_remaining = random.randint(1, 8)
 
                 winner_change, loser_change = calculate_rating_change(
                     winner.games_played, loser.games_played, balls_remaining
                 )
+
+                # Spread games over time: each game is some hours after the base date
+                played_date = base_date + timedelta(hours=num_games * 6)
 
                 session.add(Game(
                     match_id=match.match_id,
@@ -108,7 +131,7 @@ def init_games_table():
                     winner_rating_change=winner_change,
                     loser_rating_change=loser_change,
                     balls_remaining=balls_remaining,
-                    played_date=datetime.now(),
+                    played_date=played_date,
                 ))
 
                 winner.rating += winner_change
@@ -153,6 +176,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Initialize the OPL test database")
     parser.add_argument("--num-players", type=int, default=20, help="Number of players to create")
     parser.add_argument("--start-date", type=str, default=None, help="Schedule start date (YYYY-MM-DD). Defaults to today")
+    parser.add_argument("--player-email", type=str, default=None, help="Email address for a test player (e.g., your personal Google account)")
     args = parser.parse_args()
 
     start_date = datetime.strptime(args.start_date, "%Y-%m-%d") if args.start_date else datetime.now()
@@ -170,7 +194,7 @@ if __name__ == "__main__":
 
     init_divisions_table()
     print()
-    init_players_table(args.num_players)
+    init_players_table(args.num_players, args.player_email)
     print()
     init_matches_table(start_date)
     print()

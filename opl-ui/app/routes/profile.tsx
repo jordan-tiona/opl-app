@@ -1,26 +1,12 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import {
-  EmojiEvents as TrophyIcon,
-  SportsScore as RatingIcon,
-  VideogameAsset as GamesIcon,
-} from '@mui/icons-material';
+import { useMemo } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { useAuth } from '~/lib/auth';
-import { usePlayer, usePlayers, useMatches, useDivision } from '~/lib/react-query';
+import { usePlayer, usePlayers, useMatches, useDivision, useGames } from '~/lib/react-query';
+import { ProfileCard } from '~/components/profile/profile-card';
+import { RatingHistoryCard } from '~/components/profile/rating-history-card';
+import { StatsCards } from '~/components/profile/stats-cards';
+import { UpcomingMatches } from '~/components/profile/upcoming-matches';
+import { CompletedMatches } from '~/components/profile/completed-matches';
 
 export const ProfilePage = () => {
   const { user } = useAuth();
@@ -30,6 +16,43 @@ export const ProfilePage = () => {
   const { data: matches, isLoading: matchesLoading } = useMatches({
     player_id: user?.player_id ?? undefined,
   });
+  const { data: games } = useGames({ player_id: user?.player_id ?? undefined });
+
+  // Build rating history from games
+  const ratingHistory = useMemo(() => {
+    if (!games || !player) return [];
+
+    const history: { gameNumber: number; rating: number }[] = [];
+
+    // Process games in chronological order (oldest first)
+    const sortedGames = [...games].sort(
+      (a, b) => new Date(a.played_date).getTime() - new Date(b.played_date).getTime()
+    );
+
+    sortedGames.forEach((game, index) => {
+      const isWinner = game.winner_id === player.player_id;
+      const ratingBefore = isWinner ? game.winner_rating : game.loser_rating;
+      const ratingChange = isWinner ? game.winner_rating_change : game.loser_rating_change;
+      const ratingAfter = ratingBefore + ratingChange;
+
+      history.push({
+        gameNumber: index + 1,
+        rating: ratingAfter,
+      });
+    });
+
+    return history;
+  }, [games, player]);
+
+  const upcomingMatches = matches
+    ?.filter((m) => !m.completed)
+    .sort((a, b) => new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime())
+    ?? [];
+
+  const completedMatches = matches
+    ?.filter((m) => m.completed)
+    .sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime())
+    ?? [];
 
   if (!user?.player_id) {
     return (
@@ -60,157 +83,36 @@ export const ProfilePage = () => {
     );
   }
 
-  const getPlayerName = (id: number) => {
-    const p = players?.find((pl) => pl.player_id === id);
-    return p ? `${p.first_name} ${p.last_name}` : `Player #${id}`;
-  };
-
-  const upcomingMatches = matches
-    ?.filter((m) => !m.completed)
-    .sort((a, b) => new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime())
-    ?? [];
-
-  const completedMatches = matches
-    ?.filter((m) => m.completed)
-    .sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime())
-    ?? [];
-
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 3 }}>
         My Profile
       </Typography>
 
-      {/* Profile Card */}
-      <Card sx={{ mb: 4 }}>
-        <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
-          <Avatar src={user.picture ?? undefined} sx={{ width: 72, height: 72, fontSize: 32 }}>
-            {player.first_name[0]}
-          </Avatar>
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h5">
-              {player.first_name} {player.last_name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {player.email}
-            </Typography>
-            {division && (
-              <Chip label={division.name} size="small" color="primary" variant="outlined" sx={{ mt: 1 }} />
-            )}
-          </Box>
-        </CardContent>
-      </Card>
+      <ProfileCard player={player} division={division} user={user} />
 
-      {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <RatingIcon color="primary" sx={{ fontSize: 36 }} />
-              <Typography variant="h4" sx={{ mt: 1 }}>{player.rating}</Typography>
-              <Typography variant="body2" color="text.secondary">Rating</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <GamesIcon color="primary" sx={{ fontSize: 36 }} />
-              <Typography variant="h4" sx={{ mt: 1 }}>{player.games_played}</Typography>
-              <Typography variant="body2" color="text.secondary">Games Played</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <TrophyIcon color="primary" sx={{ fontSize: 36 }} />
-              <Typography variant="h4" sx={{ mt: 1 }}>
-                {completedMatches.filter((m) => m.winner_id === player.player_id).length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">Matches Won</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      <RatingHistoryCard ratingHistory={ratingHistory} />
 
-      {/* Upcoming Matches */}
+      <StatsCards
+        gamesPlayed={player.games_played}
+        matchesWon={completedMatches.filter((m) => m.winner_id === player.player_id).length}
+      />
+
       <Typography variant="h5" sx={{ mb: 2 }}>Upcoming Matches</Typography>
-      {matchesLoading ? (
-        <CircularProgress size={24} />
-      ) : upcomingMatches.length === 0 ? (
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>No upcoming matches.</Typography>
-      ) : (
-        <TableContainer component={Card} sx={{ mb: 4 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Opponent</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Your Rating</TableCell>
-                <TableCell>Opp. Rating</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {upcomingMatches.map((match) => {
-                const isPlayer1 = match.player1_id === player.player_id;
-                const opponentId = isPlayer1 ? match.player2_id : match.player1_id;
-                const myRating = isPlayer1 ? match.player1_rating : match.player2_rating;
-                const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating;
-                return (
-                  <TableRow key={match.match_id}>
-                    <TableCell>{getPlayerName(opponentId)}</TableCell>
-                    <TableCell>{new Date(match.scheduled_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{myRating}</TableCell>
-                    <TableCell>{oppRating}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      <UpcomingMatches
+        matches={upcomingMatches}
+        player={player}
+        players={players}
+        isLoading={matchesLoading}
+      />
 
-      {/* Completed Matches */}
       <Typography variant="h5" sx={{ mb: 2 }}>Completed Matches</Typography>
-      {matchesLoading ? (
-        <CircularProgress size={24} />
-      ) : completedMatches.length === 0 ? (
-        <Typography variant="body1" color="text.secondary">No completed matches yet.</Typography>
-      ) : (
-        <TableContainer component={Card}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Opponent</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Result</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {completedMatches.map((match) => {
-                const isPlayer1 = match.player1_id === player.player_id;
-                const opponentId = isPlayer1 ? match.player2_id : match.player1_id;
-                const won = match.winner_id === player.player_id;
-                return (
-                  <TableRow key={match.match_id}>
-                    <TableCell>{getPlayerName(opponentId)}</TableCell>
-                    <TableCell>{new Date(match.scheduled_date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={won ? 'Won' : 'Lost'}
-                        color={won ? 'success' : 'error'}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      <CompletedMatches
+        matches={completedMatches}
+        player={player}
+        players={players}
+        isLoading={matchesLoading}
+      />
     </Box>
   );
 };

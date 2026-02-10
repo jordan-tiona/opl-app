@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@mui/x-charts": "^8.27.0",
     "@react-oauth/google": "0.13.4",
     "@react-router/node": "7.12.0",
     "@react-router/serve": "7.12.0",

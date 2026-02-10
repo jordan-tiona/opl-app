@@ -32,17 +32,20 @@ router = APIRouter(
 def get_games(
     game_id: int | None = None,
     match_id: int | None = None,
+    player_id: int | None = None,
     session: Session = Depends(get_session),
     _user: User = Depends(get_current_user),
 ):
-    if game_id is None and match_id is None:
-        raise HTTPException(status_code=422, detail="At least one of game_id or match_id is required")
+    if game_id is None and match_id is None and player_id is None:
+        raise HTTPException(status_code=422, detail="At least one of game_id, match_id, or player_id is required")
 
-    query = select(Game)
+    query = select(Game).order_by(Game.played_date)
     if game_id is not None:
         query = query.where(Game.game_id == game_id)
     if match_id is not None:
         query = query.where(Game.match_id == match_id)
+    if player_id is not None:
+        query = query.where((Game.winner_id == player_id) | (Game.loser_id == player_id))
 
     return session.exec(query).all()
 
