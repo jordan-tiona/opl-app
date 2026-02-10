@@ -2,6 +2,9 @@
 
 # Start OPL API and UI servers
 
+# Load env vars from .zshrc (grep only export lines to avoid zsh-specific syntax)
+eval "$(grep '^export ' ~/.zshrc 2>/dev/null)"
+
 trap 'kill $(jobs -p) 2>/dev/null' EXIT
 
 echo "Starting OPL API server..."

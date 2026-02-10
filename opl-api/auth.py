@@ -11,7 +11,7 @@ from sqlmodel import Session
 from database import get_session
 from routers.user import User
 
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_ID = os.environ.get("OPL_GOOGLE_CLIENT_ID", "")
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
@@ -22,12 +22,14 @@ security = HTTPBearer()
 
 
 def verify_google_token(credential: str) -> dict:
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="OPL_GOOGLE_CLIENT_ID not configured")
     try:
         idinfo = id_token.verify_oauth2_token(
             credential, google_requests.Request(), GOOGLE_CLIENT_ID
         )
         return idinfo
-    except ValueError as e:
+    except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid Google token: {e}")
 
 

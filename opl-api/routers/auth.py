@@ -10,6 +10,7 @@ from auth import (
 )
 from database import get_session
 from routers.user import User
+import jwt
 
 router = APIRouter(prefix="/auth")
 
@@ -25,6 +26,8 @@ class LoginResponse(BaseModel):
 
 @router.post("/login", response_model=LoginResponse)
 def login(request: LoginRequest, session: Session = Depends(get_session)):
+    decoded = jwt.decode(request.credential, options={"verify_signature": False})
+    print(decoded)
     idinfo = verify_google_token(request.credential)
     email = idinfo["email"]
 

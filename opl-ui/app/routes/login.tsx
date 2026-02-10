@@ -34,6 +34,7 @@ export const LoginPage = () => {
 
           <GoogleLogin
             onSuccess={async (response) => {
+              console.log( response )
               const result = await login(response);
               if (!result.success) {
                 setError(result.error ?? 'Login failed');

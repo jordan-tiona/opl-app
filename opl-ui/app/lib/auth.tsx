@@ -23,11 +23,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (stored) {
       api.auth.me()
         .then(setUser)
-        .catch(() => localStorage.removeItem(STORAGE_KEY))
+        .catch(() => {
+          localStorage.removeItem(STORAGE_KEY);
+          setUser(null);
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
+
+    const handleExpired = () => setUser(null);
+    window.addEventListener('auth:expired', handleExpired);
+    return () => window.removeEventListener('auth:expired', handleExpired);
   }, []);
 
   const login = async (response: CredentialResponse) => {

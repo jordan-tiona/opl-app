@@ -18,14 +18,13 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     },
   });
 
-  if (response.status === 401) {
-    localStorage.removeItem(STORAGE_KEY);
-    window.location.reload();
-    throw new Error('Session expired');
-  }
-
   if (!response.ok) {
     const body = await response.json().catch(() => null);
+    // Only treat as session expiry for non-auth endpoints
+    if (response.status === 401 && !url.includes('/auth/')) {
+      localStorage.removeItem(STORAGE_KEY);
+      window.dispatchEvent(new Event('auth:expired'));
+    }
     throw new Error(body?.detail || `API error: ${response.status} ${response.statusText}`);
   }
 
