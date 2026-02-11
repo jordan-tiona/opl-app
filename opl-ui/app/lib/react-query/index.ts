@@ -2,16 +2,16 @@
 export { queryKeys } from './query-keys'
 
 // Player hooks
-export { usePlayers, usePlayer, useCreatePlayer, useUpdatePlayer, usePlayerDivisions } from './use-players'
+export { usePlayers, usePlayer, useCreatePlayer, useUpdatePlayer, usePlayerDivisions } from './players'
 
 // Match hooks
-export { useMatches, useMatch, useCompleteMatch, useScheduleRoundRobin } from './use-matches'
+export { useMatches, useMatch, useCompleteMatch, useScheduleRoundRobin } from './matches'
 
 // Division hooks
-export { useDivisions, useDivision, useCreateDivision, useUpdateDivision, useDivisionPlayers, useAddPlayerToDivision, useRemovePlayerFromDivision, useCopyDivision } from './use-divisions'
+export { useDivisions, useDivision, useCreateDivision, useUpdateDivision, useDivisionPlayers, useAddPlayerToDivision, useRemovePlayerFromDivision, useCopyDivision } from './divisions'
 
 // Game hooks
-export { useGames } from './use-games'
+export { useGames } from './games'
 
 // Score hooks
-export { useScores } from './use-scores'
+export { useScores } from './scores'
