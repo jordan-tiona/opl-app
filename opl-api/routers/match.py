@@ -115,9 +115,8 @@ def schedule_round_robin(
     session: Session = Depends(get_session),
     _admin: User = Depends(require_admin),
 ):
-    from utils import schedule_round_robin as generate_schedule
-
     from routers.division import DivisionPlayer
+    from utils import schedule_round_robin as generate_schedule
 
     players = session.exec(
         select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
