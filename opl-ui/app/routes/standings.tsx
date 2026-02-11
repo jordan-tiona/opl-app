@@ -63,13 +63,13 @@ const buildSortedStandings = (
             if (match.winner_id) {
                 const winnerStats = statsMap.get(match.winner_id)
 
-                if (winnerStats) winnerStats.wins++
+                if (winnerStats) {winnerStats.wins++}
             }
 
             if (match.loser_id) {
                 const loserStats = statsMap.get(match.loser_id)
 
-                if (loserStats) loserStats.losses++
+                if (loserStats) {loserStats.losses++}
             }
         })
 
@@ -79,9 +79,9 @@ const buildSortedStandings = (
             stats: statsMap.get(player.player_id) ?? { wins: 0, losses: 0, points: 0 },
         }))
         .sort((a, b) => {
-            if (b.stats.points !== a.stats.points) return b.stats.points - a.stats.points
+            if (b.stats.points !== a.stats.points) {return b.stats.points - a.stats.points}
 
-            if (b.rating !== a.rating) return b.rating - a.rating
+            if (b.rating !== a.rating) {return b.rating - a.rating}
 
             return b.games_played - a.games_played
         })
@@ -156,7 +156,7 @@ const StandingsTable: React.FC<{ players: PlayerWithStats[]; isMobile: boolean }
     players,
     isMobile,
 }) => {
-    if (isMobile) return <StandingsCards players={players} />
+    if (isMobile) {return <StandingsCards players={players} />}
 
     return (
         <TableContainer component={Paper}>
@@ -224,7 +224,7 @@ const DivisionStandings: React.FC<{
     const { data: scores, isLoading: scoresLoading } = useScores(divisionId)
 
     const sorted = useMemo(() => {
-        if (!divisionPlayers || !matches || !scores) return []
+        if (!divisionPlayers || !matches || !scores) {return []}
 
         return buildSortedStandings(divisionPlayers, matches, scores)
     }, [divisionPlayers, matches, scores])
@@ -273,7 +273,7 @@ export const StandingsPage: React.FC = () => {
     const isLoading = playersLoading || divisionsLoading || matchesLoading || scoresLoading
 
     const playerStandings = useMemo(() => {
-        if (!players || !matches || !scores || user?.is_admin) return []
+        if (!players || !matches || !scores || user?.is_admin) {return []}
 
         const divPlayers = targetDivisionPlayers ?? []
 
@@ -336,8 +336,8 @@ export const StandingsPage: React.FC = () => {
                         divisionName={division.name}
                         isMobile={isMobile}
                         sectionRef={(el) => {
-                            if (el) sectionRefs.current.set(division.division_id, el)
-                            else sectionRefs.current.delete(division.division_id)
+                            if (el) {sectionRefs.current.set(division.division_id, el)}
+                            else {sectionRefs.current.delete(division.division_id)}
                         }}
                     />
                 ))

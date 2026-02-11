@@ -124,7 +124,6 @@ export default tseslint.config(
 
       // Code quality rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      curly: ['warn', 'all'],
       'comma-dangle': ['warn', 'always-multiline'],
       semi: ['warn', 'never'],
       'eol-last': ['warn', 'always'],
@@ -147,4 +146,11 @@ export default tseslint.config(
   // Prettier config - disables ESLint rules that conflict with Prettier
   // Must be last to override other configs
   prettierConfig,
+
+  // Rules that must override Prettier's disabling
+  {
+    rules: {
+      curly: ['warn', 'all'],
+    },
+  },
 )

@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react'
 
 import { useAddPlayerToDivision, useCreatePlayer } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 import type { PlayerInput } from '~/lib/types'
 
 const initialFormState: PlayerInput = {
@@ -30,6 +31,7 @@ interface AddPlayerDialogProps {
 export const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({ open, onClose, divisionId }: AddPlayerDialogProps) => {
     const createPlayer = useCreatePlayer()
     const addPlayerToDivision = useAddPlayerToDivision()
+    const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<PlayerInput>({ ...initialFormState })
 
@@ -49,17 +51,22 @@ export const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({ open, onClose,
     }
 
     const handleSubmit = async () => {
-        const player = await createPlayer.mutateAsync(formData)
+        try {
+            const player = await createPlayer.mutateAsync(formData)
 
-        if (divisionId && player.player_id) {
-            await addPlayerToDivision.mutateAsync({
-                divisionId,
-                playerId: player.player_id,
-            })
+            if (divisionId && player.player_id) {
+                await addPlayerToDivision.mutateAsync({
+                    divisionId,
+                    playerId: player.player_id,
+                })
+            }
+
+            showSnackbar('Player created', 'success')
+            onClose()
+            setFormData(initialFormState)
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to create player', 'error')
         }
-
-        onClose()
-        setFormData(initialFormState)
     }
 
     return (

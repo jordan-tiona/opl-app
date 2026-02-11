@@ -6,6 +6,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse }
 
 import type { Route } from './+types/root'
 import { AuthProvider } from './lib/auth'
+import { SnackbarProvider } from './lib/snackbar'
 import { theme } from './theme'
 import './app.css'
 
@@ -43,9 +44,11 @@ export const App: React.FC = () => {
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
-                    <AuthProvider>
-                        <Outlet />
-                    </AuthProvider>
+                    <SnackbarProvider>
+                        <AuthProvider>
+                            <Outlet />
+                        </AuthProvider>
+                    </SnackbarProvider>
                 </ThemeProvider>
             </QueryClientProvider>
         </GoogleOAuthProvider>

@@ -38,11 +38,11 @@ const MatchesPage: React.FC = () => {
     const activeFilterCount = useMemo(() => {
         let count = 0
 
-        if (selectedPlayer) count++
+        if (selectedPlayer) {count++}
 
-        if (divisionId !== null) count++
+        if (divisionId !== null) {count++}
 
-        if (completionFilter !== 'all') count++
+        if (completionFilter !== 'all') {count++}
 
         return count
     }, [selectedPlayer, divisionId, completionFilter])

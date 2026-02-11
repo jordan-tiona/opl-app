@@ -11,6 +11,7 @@ import {
 import { useState } from 'react'
 
 import { useAddPlayerToDivision } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 import type { Player } from '~/lib/types'
 
 interface AddExistingPlayerDialogProps {
@@ -29,6 +30,7 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
     onCreateNewPlayer,
 }: AddExistingPlayerDialogProps) => {
     const addPlayer = useAddPlayerToDivision()
+    const { showSnackbar } = useSnackbar()
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
 
     const handleSubmit = async () => {
@@ -36,12 +38,17 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
             return
         }
 
-        await addPlayer.mutateAsync({
-            divisionId,
-            playerId: selectedPlayer.player_id,
-        })
-        setSelectedPlayer(null)
-        onClose()
+        try {
+            await addPlayer.mutateAsync({
+                divisionId,
+                playerId: selectedPlayer.player_id,
+            })
+            showSnackbar('Player added to division', 'success')
+            setSelectedPlayer(null)
+            onClose()
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to add player', 'error')
+        }
     }
 
     return (

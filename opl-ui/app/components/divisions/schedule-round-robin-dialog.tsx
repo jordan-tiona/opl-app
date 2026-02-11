@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react'
 
 import { useScheduleRoundRobin } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 
 interface ScheduleRoundRobinDialogProps {
     open: boolean
@@ -25,6 +26,7 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     defaultStartDate,
 }: ScheduleRoundRobinDialogProps) => {
     const scheduleRoundRobin = useScheduleRoundRobin()
+    const { showSnackbar } = useSnackbar()
     const [startDate, setStartDate] = useState(defaultStartDate)
 
     useEffect(() => {
@@ -34,11 +36,17 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     }, [open, defaultStartDate])
 
     const handleSubmit = async () => {
-        await scheduleRoundRobin.mutateAsync({
-            division: divisionId,
-            start_date: `${startDate}T00:00:00`,
-        })
-        onClose()
+        try {
+            const scheduledMatches = await scheduleRoundRobin.mutateAsync({
+                division: divisionId,
+                start_date: `${startDate}T00:00:00`,
+            })
+
+            showSnackbar(`Successfully scheduled ${scheduledMatches.length} matches`, 'success')
+            onClose()
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to schedule round robin', 'error')
+        }
     }
 
     return (

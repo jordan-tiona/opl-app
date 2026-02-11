@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { useCopyDivision } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 import type { CopyDivisionInput } from '~/lib/types'
 
 interface CopyDivisionDialogProps {
@@ -31,6 +32,7 @@ export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
 }: CopyDivisionDialogProps) => {
     const navigate = useNavigate()
     const copyDivision = useCopyDivision()
+    const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<CopyDivisionInput>({
         name: '',
@@ -51,13 +53,18 @@ export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
     }, [open, defaultMatchTime])
 
     const handleSubmit = async () => {
-        const newDivision = await copyDivision.mutateAsync({
-            divisionId,
-            data: formData,
-        })
+        try {
+            const newDivision = await copyDivision.mutateAsync({
+                divisionId,
+                data: formData,
+            })
 
-        onClose()
-        navigate(`/divisions/${newDivision.division_id}`)
+            showSnackbar('Division created with same players', 'success')
+            onClose()
+            navigate(`/divisions/${newDivision.division_id}`)
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to create division', 'error')
+        }
     }
 
     return (

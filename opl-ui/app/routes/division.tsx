@@ -34,6 +34,7 @@ import {
 } from '~/components/divisions'
 import { AddPlayerDialog } from '~/components/players'
 import { useDivision, useDivisionPlayers, usePlayers, useScores, useUpdateDivision } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 import type { Division } from '~/lib/types'
 
 export const DivisionDetailPage: React.FC = () => {
@@ -46,6 +47,7 @@ export const DivisionDetailPage: React.FC = () => {
     const { data: allPlayers } = usePlayers()
     const { data: scores } = useScores(divisionId)
     const updateDivision = useUpdateDivision()
+    const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<Partial<Division>>({})
     const [hasChanges, setHasChanges] = useState(false)
@@ -91,8 +93,13 @@ export const DivisionDetailPage: React.FC = () => {
     }
 
     const handleSave = async () => {
-        await updateDivision.mutateAsync({ id: divisionId, data: formData })
-        setHasChanges(false)
+        try {
+            await updateDivision.mutateAsync({ id: divisionId, data: formData })
+            showSnackbar('Division updated', 'success')
+            setHasChanges(false)
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to update division', 'error')
+        }
     }
 
     if (isLoading) {
@@ -139,12 +146,6 @@ export const DivisionDetailPage: React.FC = () => {
                     {updateDivision.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
             </Box>
-
-            {updateDivision.isSuccess && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                    Division updated successfully
-                </Alert>
-            )}
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>

@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react'
 
 import { useCreateDivision } from '~/lib/react-query'
+import { useSnackbar } from '~/lib/snackbar'
 import type { DivisionInput } from '~/lib/types'
 
 const initialFormState: DivisionInput = {
@@ -27,6 +28,7 @@ interface AddDivisionDialogProps {
 
 export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onClose }: AddDivisionDialogProps) => {
     const createDivision = useCreateDivision()
+    const { showSnackbar } = useSnackbar()
     const [formData, setFormData] = useState<DivisionInput>(initialFormState)
 
     useEffect(() => {
@@ -42,8 +44,13 @@ export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onCl
     }
 
     const handleSubmit = async () => {
-        await createDivision.mutateAsync(formData)
-        onClose()
+        try {
+            await createDivision.mutateAsync(formData)
+            showSnackbar('Division created', 'success')
+            onClose()
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to create division', 'error')
+        }
     }
 
     return (
