@@ -70,7 +70,7 @@ fly secrets set -a csopl-api \
 ### Deploy API
 
 ```bash
-fly deploy -c fly.api.toml
+fly deploy -c fly.api.toml --remote-only --depot=false
 ```
 
 ### Deploy UI
@@ -80,7 +80,9 @@ The UI requires build args since Vite embeds environment variables at build time
 ```bash
 fly deploy -c fly.ui.toml \
   --build-arg VITE_API_BASE_URL="https://csopl-api.fly.dev" \
-  --build-arg VITE_OPL_CLIENT_ID="your-google-client-id"
+  --build-arg VITE_OPL_CLIENT_ID="your-google-client-id" \
+  --remote-only \
+  --depot=false
 ```
 
 These are also configured in `fly.ui.toml` under `[build.args]`.

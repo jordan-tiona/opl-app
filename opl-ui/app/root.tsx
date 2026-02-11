@@ -1,7 +1,8 @@
 import CssBaseline from '@mui/material/CssBaseline'
+import LinearProgress from '@mui/material/LinearProgress'
 import { ThemeProvider } from '@mui/material/styles'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useIsFetching } from '@tanstack/react-query'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router'
 
 import type { Route } from './+types/root'
@@ -38,12 +39,32 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }: { 
     )
 }
 
+const GlobalLoadingIndicator: React.FC = () => {
+    const isFetching = useIsFetching()
+
+    if (!isFetching) return null
+
+    return (
+        <LinearProgress
+            sx={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: (theme) => theme.zIndex.drawer + 2,
+                height: 3,
+            }}
+        />
+    )
+}
+
 export const App: React.FC = () => {
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_OPL_CLIENT_ID}>
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
+                    <GlobalLoadingIndicator />
                     <SnackbarProvider>
                         <AuthProvider>
                             <Outlet />
