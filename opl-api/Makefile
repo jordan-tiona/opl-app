@@ -26,6 +26,6 @@ fix: lint-fix format
 dev:
 	uv run fastapi dev main.py
 
-# Run tests (add when you have tests)
+# Run tests
 test:
-	@echo "No tests configured yet"
+	uv run pytest tests/ -v
