@@ -86,6 +86,11 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react/jsx-uses-vars': 'error',
+      'react/jsx-sort-props': ['warn', {
+        'callbacksLast': true,
+        'shorthandFirst': true,
+        'ignoreCase': true
+      }],
 
       // React Hooks rules
       'react-hooks/rules-of-hooks': 'error',

@@ -54,63 +54,63 @@ export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onCl
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
             <DialogTitle>New Division</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     <TextField
+                        fullWidth
+                        required
                         label="Name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        fullWidth
-                        required
                     />
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <TextField
+                            fullWidth
+                            required
                             label="Start Date"
                             name="start_date"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             type="date"
                             value={formData.start_date}
                             onChange={handleInputChange}
-                            fullWidth
-                            required
-                            slotProps={{ inputLabel: { shrink: true } }}
                         />
                         <TextField
+                            fullWidth
+                            required
                             label="End Date"
                             name="end_date"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             type="date"
                             value={formData.end_date}
                             onChange={handleInputChange}
-                            fullWidth
-                            required
-                            slotProps={{ inputLabel: { shrink: true } }}
                         />
                     </Box>
                     <TextField
+                        fullWidth
+                        required
                         label="Match Time"
                         name="match_time"
+                        slotProps={{ inputLabel: { shrink: true } }}
                         type="time"
                         value={formData.match_time}
                         onChange={handleInputChange}
-                        fullWidth
-                        required
-                        slotProps={{ inputLabel: { shrink: true } }}
                     />
                 </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button
-                    variant="contained"
-                    onClick={handleSubmit}
                     disabled={
                         createDivision.isPending ||
                         !formData.name ||
                         !formData.start_date ||
                         !formData.end_date
                     }
+                    variant="contained"
+                    onClick={handleSubmit}
                 >
                     {createDivision.isPending ? 'Creating...' : 'Create Division'}
                 </Button>

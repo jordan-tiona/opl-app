@@ -45,7 +45,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
 
     if (matches.length === 0) {
         return (
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            <Typography color="text.secondary" sx={{ mb: 4 }} variant="body1">
                 No upcoming matches.
             </Typography>
         )
@@ -78,13 +78,13 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                     return (
                         <Card key={match.match_id} sx={{ mb: 2 }}>
                             <CardContent>
-                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                <Typography gutterBottom color="text.secondary" variant="body2">
                                     {formattedDate}
                                 </Typography>
-                                <Typography variant="h6" sx={{ mb: 1 }}>
+                                <Typography sx={{ mb: 1 }} variant="h6">
                                     vs. {opponentName} ({oppRating})
                                 </Typography>
-                                <Typography variant="body1" color="primary">
+                                <Typography color="primary" variant="body1">
                                     Weight: {weight}
                                 </Typography>
                             </CardContent>

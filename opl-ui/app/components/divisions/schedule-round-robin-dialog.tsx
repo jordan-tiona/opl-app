@@ -50,27 +50,27 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
             <DialogTitle>Schedule Round Robin</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     <TextField
+                        fullWidth
+                        required
                         label="Start Date"
+                        slotProps={{ inputLabel: { shrink: true } }}
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        fullWidth
-                        required
-                        slotProps={{ inputLabel: { shrink: true } }}
                     />
                 </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button
+                    disabled={scheduleRoundRobin.isPending || !startDate}
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={scheduleRoundRobin.isPending || !startDate}
                 >
                     {scheduleRoundRobin.isPending ? 'Scheduling...' : 'Generate Schedule'}
                 </Button>

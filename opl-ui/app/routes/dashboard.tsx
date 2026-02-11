@@ -54,7 +54,7 @@ const DivisionLeaders: React.FC<DivisionLeadersProps> = ({
     return (
         <Card>
             <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography gutterBottom variant="h6">
                     {division.name}
                 </Typography>
                 <Table size="small">
@@ -97,10 +97,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }: StatCa
                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                     <Box>
-                        <Typography color="text.secondary" variant="body2" gutterBottom>
+                        <Typography gutterBottom color="text.secondary" variant="body2">
                             {title}
                         </Typography>
-                        <Typography variant="h4" fontWeight={600}>
+                        <Typography fontWeight={600} variant="h4">
                             {value}
                         </Typography>
                     </Box>
@@ -140,56 +140,56 @@ export const Dashboard: React.FC = () => {
 
     return (
         <Box>
-            <Typography variant="h3" gutterBottom>
+            <Typography gutterBottom variant="h3">
                 Dashboard
             </Typography>
-            <Typography color="text.secondary" paragraph>
+            <Typography paragraph color="text.secondary">
                 Welcome to the One Pocket League management system.
             </Typography>
 
             <Grid container spacing={3} sx={{ mt: 2 }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
+                        color="#1976d2"
+                        icon={<PeopleIcon sx={{ color: 'white' }} />}
                         title="Total Players"
                         value={isLoading ? '...' : totalPlayers}
-                        icon={<PeopleIcon sx={{ color: 'white' }} />}
-                        color="#1976d2"
                     />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
+                        color="#9c27b0"
+                        icon={<SportsIcon sx={{ color: 'white' }} />}
                         title="Games Played"
                         value={isLoading ? '...' : totalGames}
-                        icon={<SportsIcon sx={{ color: 'white' }} />}
-                        color="#9c27b0"
                     />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
+                        color="#ed6c02"
+                        icon={<EmojiEventsIcon sx={{ color: 'white' }} />}
                         title="Top Rating"
                         value={isLoading ? '...' : topRating}
-                        icon={<EmojiEventsIcon sx={{ color: 'white' }} />}
-                        color="#ed6c02"
                     />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
+                        color="#2e7d32"
+                        icon={<TrendingUpIcon sx={{ color: 'white' }} />}
                         title="Average Rating"
                         value={isLoading ? '...' : avgRating}
-                        icon={<TrendingUpIcon sx={{ color: 'white' }} />}
-                        color="#2e7d32"
                     />
                 </Grid>
             </Grid>
 
             {activeDivisions.length > 0 && (
                 <Box sx={{ mt: 4 }}>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Division Leaders
                     </Typography>
                     <Grid container spacing={3}>
                         {activeDivisions.map((division) => (
-                            <Grid size={{ xs: 12, sm: 6 }} key={division.division_id}>
+                            <Grid key={division.division_id} size={{ xs: 12, sm: 6 }}>
                                 <DivisionLeaders division={division} />
                             </Grid>
                         ))}
@@ -200,7 +200,7 @@ export const Dashboard: React.FC = () => {
             {players && players.length > 0 && (
                 <Card sx={{ mt: 4 }}>
                     <CardContent>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography gutterBottom variant="h6">
                             Top Rated Players
                         </Typography>
                         <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse' }}>

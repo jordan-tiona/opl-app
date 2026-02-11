@@ -175,7 +175,7 @@ const MatchesPage: React.FC = () => {
                     onClose={() => setFilterDrawerOpen(false)}
                 >
                     <Box sx={{ width: 320, p: 3 }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
+                        <Typography sx={{ mb: 2 }} variant="h6">
                             Filters
                         </Typography>
                         <MatchFilters {...filterProps} vertical />
@@ -192,7 +192,7 @@ const MatchesPage: React.FC = () => {
             ) : sortedMatches.length === 0 ? (
                 <Card>
                     <CardContent>
-                        <Typography color="text.secondary" align="center">
+                        <Typography align="center" color="text.secondary">
                             No matches found for the selected filters
                         </Typography>
                     </CardContent>
@@ -202,18 +202,18 @@ const MatchesPage: React.FC = () => {
                     {sortedMatches.map((match) =>
                         isMobile ? (
                             <MatchCard
+                                expanded={expandedMatch === match.match_id}
                                 key={match.match_id}
                                 match={match}
                                 players={players ?? []}
-                                expanded={expandedMatch === match.match_id}
                                 onToggle={handleToggle}
                             />
                         ) : (
                             <MatchAccordion
+                                expanded={expandedMatch === match.match_id}
                                 key={match.match_id}
                                 match={match}
                                 players={players ?? []}
-                                expanded={expandedMatch === match.match_id}
                                 onToggle={handleToggle}
                             />
                         ),

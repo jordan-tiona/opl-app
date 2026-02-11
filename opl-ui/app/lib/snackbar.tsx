@@ -35,12 +35,12 @@ export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         <SnackbarContext.Provider value={{ showSnackbar }}>
             {children}
             <Snackbar
-                open={open}
-                autoHideDuration={4000}
-                onClose={() => setOpen(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                autoHideDuration={4000}
+                open={open}
+                onClose={() => setOpen(false)}
             >
-                <Alert onClose={() => setOpen(false)} severity={severity} variant="filled">
+                <Alert severity={severity} variant="filled" onClose={() => setOpen(false)}>
                     {message}
                 </Alert>
             </Snackbar>

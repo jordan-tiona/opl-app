@@ -74,8 +74,8 @@ export const PlayerDetailPage: React.FC = () => {
         <Box>
             <Button
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/players')}
                 sx={{ mb: 2 }}
+                onClick={() => navigate('/players')}
             >
                 Back to Players
             </Button>
@@ -92,10 +92,10 @@ export const PlayerDetailPage: React.FC = () => {
                     {player.first_name} {player.last_name}
                 </Typography>
                 <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={handleSave}
                     disabled={!hasChanges || updatePlayer.isPending}
+                    startIcon={<SaveIcon />}
+                    variant="contained"
+                    onClick={handleSave}
                 >
                     {updatePlayer.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -109,73 +109,73 @@ export const PlayerDetailPage: React.FC = () => {
 
             <Card>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography gutterBottom variant="h6">
                         Player Information
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <TextField
+                                fullWidth
                                 label="First Name"
                                 name="first_name"
                                 value={formData.first_name ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
                             />
                             <TextField
+                                fullWidth
                                 label="Last Name"
                                 name="last_name"
                                 value={formData.last_name ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
                             />
                         </Box>
                         <TextField
+                            fullWidth
                             label="Email"
                             name="email"
                             type="email"
                             value={formData.email ?? ''}
                             onChange={handleInputChange}
-                            fullWidth
                         />
                         <TextField
+                            fullWidth
                             label="Phone"
                             name="phone"
                             value={formData.phone ?? ''}
                             onChange={handleInputChange}
-                            fullWidth
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <TextField
+                                fullWidth
                                 label="Rating"
                                 name="rating"
                                 type="number"
                                 value={formData.rating ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
                             />
                             <TextField
+                                fullWidth
                                 label="Games Played"
                                 name="games_played"
                                 type="number"
                                 value={formData.games_played ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
                             />
                         </Box>
                         {playerDivisions && playerDivisions.length > 0 && (
                             <Box>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                <Typography color="text.secondary" sx={{ mb: 1 }} variant="body2">
                                     Divisions
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                                     {playerDivisions.map((d) => (
                                         <Chip
+                                            clickable
+                                            color={d.active ? 'primary' : 'default'}
                                             key={d.division_id}
                                             label={d.name}
                                             variant={d.active ? 'filled' : 'outlined'}
-                                            color={d.active ? 'primary' : 'default'}
                                             onClick={() => navigate(`/divisions/${d.division_id}`)}
-                                            clickable
                                         />
                                     ))}
                                 </Box>

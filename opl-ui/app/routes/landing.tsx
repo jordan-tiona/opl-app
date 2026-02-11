@@ -42,16 +42,16 @@ export const LandingPage: React.FC = () => {
             >
                 <Container maxWidth="md">
                     <Typography
-                        variant="h2"
-                        fontWeight={700}
                         gutterBottom
+                        fontWeight={700}
                         sx={{ fontSize: { xs: '2rem', md: '3rem' } }}
+                        variant="h2"
                     >
                         One Pocket League
                     </Typography>
                     <Typography
-                        variant="h5"
                         sx={{ mb: 4, opacity: 0.9, fontSize: { xs: '1.1rem', md: '1.5rem' } }}
+                        variant="h5"
                     >
                         Competitive one-pocket pool, organized into seasons with divisions,
                         round-robin scheduling, and player ratings.
@@ -60,21 +60,7 @@ export const LandingPage: React.FC = () => {
                         sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}
                     >
                         <Button
-                            variant="contained"
                             size="large"
-                            onClick={() => navigate('/login')}
-                            sx={{
-                                bgcolor: 'background.paper',
-                                color: 'text.main',
-                                '&:hover': { bgcolor: 'grey.800' },
-                            }}
-                        >
-                            Sign In
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="large"
-                            onClick={() => navigate('/rules')}
                             sx={{
                                 borderColor: 'background.default',
                                 color: 'background.default',
@@ -83,6 +69,8 @@ export const LandingPage: React.FC = () => {
                                     bgcolor: 'rgba(255,255,255,0.1)',
                                 },
                             }}
+                            variant="outlined"
+                            onClick={() => navigate('/rules')}
                         >
                             View Rules
                         </Button>
@@ -92,18 +80,18 @@ export const LandingPage: React.FC = () => {
 
             <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
                 <Typography
-                    variant="h3"
-                    textAlign="center"
                     gutterBottom
                     sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}
+                    textAlign="center"
+                    variant="h3"
                 >
                     How It Works
                 </Typography>
                 <Typography
-                    variant="body1"
-                    textAlign="center"
                     color="text.secondary"
                     sx={{ mb: 6, maxWidth: 600, mx: 'auto' }}
+                    textAlign="center"
+                    variant="body1"
                 >
                     The One Pocket League runs in seasonal divisions. Players compete in round-robin
                     matches, earn points, and climb the ratings ladder.
@@ -115,10 +103,10 @@ export const LandingPage: React.FC = () => {
                             <Card sx={{ height: '100%', textAlign: 'center' }}>
                                 <CardContent sx={{ p: 4 }}>
                                     {feature.icon}
-                                    <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
+                                    <Typography sx={{ mt: 2, mb: 1 }} variant="h5">
                                         {feature.title}
                                     </Typography>
-                                    <Typography variant="body1" color="text.secondary">
+                                    <Typography color="text.secondary" variant="body1">
                                         {feature.description}
                                     </Typography>
                                 </CardContent>

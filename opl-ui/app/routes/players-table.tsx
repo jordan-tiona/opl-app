@@ -89,8 +89,8 @@ export const PlayersPage: React.FC = () => {
             >
                 <Typography variant="h3">Players</Typography>
                 <Button
-                    variant="contained"
                     startIcon={<AddIcon />}
+                    variant="contained"
                     onClick={() => setDialogOpen(true)}
                 >
                     Add Player
@@ -108,8 +108,6 @@ export const PlayersPage: React.FC = () => {
                 <TextField
                     fullWidth
                     placeholder="Search players..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
                     slotProps={{
                         input: {
                             startAdornment: (
@@ -119,12 +117,14 @@ export const PlayersPage: React.FC = () => {
                             ),
                         },
                     }}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                 />
                 <FormControl sx={{ minWidth: 200 }}>
                     <InputLabel>Division</InputLabel>
                     <Select
-                        value={divisionFilter}
                         label="Division"
+                        value={divisionFilter}
                         onChange={(e) => setDivisionFilter(e.target.value as number | '')}
                     >
                         <MenuItem value="">All</MenuItem>
@@ -144,7 +144,7 @@ export const PlayersPage: React.FC = () => {
             ) : filteredPlayers?.length === 0 ? (
                 <Card>
                     <CardContent>
-                        <Typography color="text.secondary" align="center">
+                        <Typography align="center" color="text.secondary">
                             No players found
                         </Typography>
                     </CardContent>
@@ -169,25 +169,25 @@ export const PlayersPage: React.FC = () => {
                                             {player.first_name} {player.last_name}
                                         </Typography>
                                         <Chip
+                                            color="primary"
                                             label={`Rating: ${player.rating}`}
                                             size="small"
-                                            color="primary"
                                         />
                                     </Box>
                                     {player.email && (
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography color="text.secondary" variant="body2">
                                             {player.email}
                                         </Typography>
                                     )}
                                     {player.phone && (
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography color="text.secondary" variant="body2">
                                             {player.phone}
                                         </Typography>
                                     )}
                                     <Typography
-                                        variant="body2"
                                         color="text.secondary"
                                         sx={{ mt: 0.5 }}
+                                        variant="body2"
                                     >
                                         Games played: {player.games_played}
                                     </Typography>
@@ -211,7 +211,7 @@ export const PlayersPage: React.FC = () => {
                         </TableHead>
                         <TableBody>
                             {filteredPlayers?.map((player) => (
-                                <TableRow key={player.player_id} hover>
+                                <TableRow hover key={player.player_id}>
                                     <TableCell>
                                         {player.first_name} {player.last_name}
                                     </TableCell>

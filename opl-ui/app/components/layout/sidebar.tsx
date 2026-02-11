@@ -1,6 +1,7 @@
 import {
     Dashboard as DashboardIcon,
     EmojiEvents as EmojiEventsIcon,
+    Home as HomeIcon,
     Leaderboard as LeaderboardIcon,
     Logout as LogoutIcon,
     People as PeopleIcon,
@@ -29,6 +30,7 @@ import { useAuth } from '~/lib/auth'
 export const DRAWER_WIDTH = 240
 
 const adminNavItems = [
+    { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
     { label: 'Players', path: '/players', icon: <PeopleIcon /> },
     { label: 'Divisions', path: '/divisions', icon: <EmojiEventsIcon /> },
@@ -37,6 +39,7 @@ const adminNavItems = [
 ]
 
 const playerNavItems = [
+    { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'My Profile', path: '/profile', icon: <PersonIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
 ]
@@ -56,8 +59,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
     const navItems = user?.is_admin ? adminNavItems : playerNavItems
 
     const isActive = (path: string) => {
-        if (path === '/dashboard') {
-            return location.pathname === '/dashboard'
+        if (path === '/' || path === '/dashboard') {
+            return location.pathname === path
         }
 
         return location.pathname.startsWith(path)
@@ -75,18 +78,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
         <>
             <Box sx={{ p: 1, bgcolor: 'primary.main' }}>
                 <Box
+                    alt="CSOPL"
                     component="img"
                     src="/img/csopl-logo-transparent.svg"
-                    alt="CSOPL"
                     sx={{ height: 36 }}
                 />
             </Box>
             <Divider />
             <List sx={{ px: 1, py: 2, flexGrow: 1 }}>
                 {navItems.map((item) => (
-                    <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                    <ListItem disablePadding key={item.path} sx={{ mb: 0.5 }}>
                         <ListItemButton
-                            onClick={() => handleNavigate(item.path)}
                             selected={isActive(item.path)}
                             sx={{
                                 borderRadius: 2,
@@ -101,6 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
                                     },
                                 },
                             }}
+                            onClick={() => handleNavigate(item.path)}
                         >
                             <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
                             <ListItemText primary={item.label} />
@@ -114,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
                     <Divider />
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}>
                         <Avatar src={user.picture ?? undefined} sx={{ width: 32, height: 32 }} />
-                        <Typography variant="body2" noWrap sx={{ flexGrow: 1 }}>
+                        <Typography noWrap sx={{ flexGrow: 1 }} variant="body2">
                             {user.name ?? user.email}
                         </Typography>
                         <IconButton size="small" onClick={logout}>
@@ -128,10 +131,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
 
     return (
         <Drawer
-            variant={isMobile ? 'temporary' : 'permanent'}
-            open={isMobile ? open : true}
-            onClose={onClose}
             ModalProps={{ keepMounted: true }}
+            open={isMobile ? open : true}
             sx={{
                 width: isMobile ? 0 : DRAWER_WIDTH,
                 flexShrink: 0,
@@ -143,6 +144,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
                     flexDirection: 'column',
                 },
             }}
+            variant={isMobile ? 'temporary' : 'permanent'}
+            onClose={onClose}
         >
             {drawerContent}
         </Drawer>

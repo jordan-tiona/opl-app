@@ -122,8 +122,8 @@ export const DivisionDetailPage: React.FC = () => {
         <Box>
             <Button
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/divisions')}
                 sx={{ mb: 2 }}
+                onClick={() => navigate('/divisions')}
             >
                 Back to Divisions
             </Button>
@@ -138,10 +138,10 @@ export const DivisionDetailPage: React.FC = () => {
             >
                 <Typography variant="h3">{division.name}</Typography>
                 <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={handleSave}
                     disabled={!hasChanges || updateDivision.isPending}
+                    startIcon={<SaveIcon />}
+                    variant="contained"
+                    onClick={handleSave}
                 >
                     {updateDivision.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -149,45 +149,45 @@ export const DivisionDetailPage: React.FC = () => {
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography gutterBottom variant="h6">
                         Division Details
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
                         <TextField
+                            fullWidth
                             label="Name"
                             name="name"
                             value={formData.name ?? ''}
                             onChange={handleInputChange}
-                            fullWidth
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <TextField
+                                fullWidth
                                 label="Start Date"
                                 name="start_date"
+                                slotProps={{ inputLabel: { shrink: true } }}
                                 type="date"
                                 value={formData.start_date ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
-                                slotProps={{ inputLabel: { shrink: true } }}
                             />
                             <TextField
+                                fullWidth
                                 label="End Date"
                                 name="end_date"
+                                slotProps={{ inputLabel: { shrink: true } }}
                                 type="date"
                                 value={formData.end_date ?? ''}
                                 onChange={handleInputChange}
-                                fullWidth
-                                slotProps={{ inputLabel: { shrink: true } }}
                             />
                         </Box>
                         <TextField
+                            fullWidth
                             label="Match Time"
                             name="match_time"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             type="time"
                             value={formData.match_time ?? ''}
                             onChange={handleInputChange}
-                            fullWidth
-                            slotProps={{ inputLabel: { shrink: true } }}
                         />
                     </Box>
                 </CardContent>
@@ -206,25 +206,25 @@ export const DivisionDetailPage: React.FC = () => {
                         <Typography variant="h6">Players ({divisionPlayers.length})</Typography>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <Button
-                                variant="outlined"
                                 startIcon={<PersonAddIcon />}
+                                variant="outlined"
                                 onClick={() => setAddPlayerOpen(true)}
                             >
                                 Add Player
                             </Button>
                             <Button
-                                variant="outlined"
-                                startIcon={<ScheduleIcon />}
-                                onClick={() => setScheduleOpen(true)}
                                 disabled={divisionPlayers.length === 0}
+                                startIcon={<ScheduleIcon />}
+                                variant="outlined"
+                                onClick={() => setScheduleOpen(true)}
                             >
                                 Schedule Round Robin
                             </Button>
                             <Button
-                                variant="outlined"
-                                startIcon={<ContentCopyIcon />}
-                                onClick={() => setNewDivisionOpen(true)}
                                 disabled={divisionPlayers.length === 0}
+                                startIcon={<ContentCopyIcon />}
+                                variant="outlined"
+                                onClick={() => setNewDivisionOpen(true)}
                             >
                                 New Division with Same Players
                             </Button>
@@ -246,7 +246,7 @@ export const DivisionDetailPage: React.FC = () => {
                                 </TableHead>
                                 <TableBody>
                                     {divisionPlayers.map((player, index) => (
-                                        <TableRow key={player.player_id} hover>
+                                        <TableRow hover key={player.player_id}>
                                             <TableCell align="center">{index + 1}</TableCell>
                                             <TableCell>
                                                 {player.first_name} {player.last_name}
@@ -272,7 +272,7 @@ export const DivisionDetailPage: React.FC = () => {
                             </Table>
                         </TableContainer>
                     ) : (
-                        <Typography color="text.secondary" align="center" sx={{ py: 3 }}>
+                        <Typography align="center" color="text.secondary" sx={{ py: 3 }}>
                             No players in this division yet.
                         </Typography>
                     )}
@@ -280,32 +280,32 @@ export const DivisionDetailPage: React.FC = () => {
             </Card>
 
             <AddExistingPlayerDialog
+                availablePlayers={availablePlayers}
+                divisionId={divisionId}
                 open={addPlayerOpen}
                 onClose={() => setAddPlayerOpen(false)}
-                divisionId={divisionId}
-                availablePlayers={availablePlayers}
                 onCreateNewPlayer={() => setCreatePlayerOpen(true)}
             />
 
             <AddPlayerDialog
+                divisionId={divisionId}
                 open={createPlayerOpen}
                 onClose={() => setCreatePlayerOpen(false)}
-                divisionId={divisionId}
             />
 
             <ScheduleRoundRobinDialog
+                defaultStartDate={division.start_date}
+                divisionId={divisionId}
                 open={scheduleOpen}
                 onClose={() => setScheduleOpen(false)}
-                divisionId={divisionId}
-                defaultStartDate={division.start_date}
             />
 
             <CopyDivisionDialog
-                open={newDivisionOpen}
-                onClose={() => setNewDivisionOpen(false)}
+                defaultMatchTime={division.match_time}
                 divisionId={divisionId}
                 divisionName={division.name}
-                defaultMatchTime={division.match_time}
+                open={newDivisionOpen}
+                onClose={() => setNewDivisionOpen(false)}
             />
         </Box>
     )

@@ -70,61 +70,61 @@ export const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({ open, onClose,
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
             <DialogTitle>Add New Player</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <TextField
+                            fullWidth
+                            required
                             label="First Name"
                             name="first_name"
                             value={formData.first_name}
                             onChange={handleInputChange}
-                            fullWidth
-                            required
                         />
                         <TextField
+                            fullWidth
+                            required
                             label="Last Name"
                             name="last_name"
                             value={formData.last_name}
                             onChange={handleInputChange}
-                            fullWidth
-                            required
                         />
                     </Box>
                     <TextField
+                        fullWidth
+                        required
                         label="Email"
                         name="email"
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        fullWidth
-                        required
                     />
                     <TextField
+                        fullWidth
+                        required
                         label="Phone"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        fullWidth
-                        required
                     />
                     <TextField
+                        fullWidth
                         label="Starting Rating"
                         name="rating"
                         type="number"
                         value={formData.rating}
                         onChange={handleInputChange}
-                        fullWidth
                     />
                 </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button
+                    disabled={createPlayer.isPending || addPlayerToDivision.isPending || !formData.first_name || !formData.last_name}
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={createPlayer.isPending || addPlayerToDivision.isPending || !formData.first_name || !formData.last_name}
                 >
                     {createPlayer.isPending || addPlayerToDivision.isPending ? 'Creating...' : 'Create Player'}
                 </Button>

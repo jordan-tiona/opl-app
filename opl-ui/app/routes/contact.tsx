@@ -5,9 +5,9 @@ export const ContactPage: React.FC = () => {
     return (
         <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
             <Typography
-                variant="h3"
                 gutterBottom
                 sx={{ fontSize: { xs: '1.75rem', md: '2.5rem' } }}
+                variant="h3"
             >
                 Contact Us
             </Typography>
@@ -18,7 +18,7 @@ export const ContactPage: React.FC = () => {
                     <EmailIcon color="primary" sx={{ fontSize: 32 }} />
                     <Typography variant="h5">Get in Touch</Typography>
                 </Box>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                <Typography color="text.secondary" sx={{ mb: 3 }} variant="body1">
                     Have questions about the league, want to join, or need to report an issue? Reach
                     out to the league administrator.
                 </Typography>

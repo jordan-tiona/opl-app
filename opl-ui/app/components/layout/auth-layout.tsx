@@ -41,12 +41,12 @@ export const AuthLayout: React.FC = () => {
     }
 
     if (!user) {
-        return <Navigate to="/login" replace />
+        return <Navigate replace to="/login" />
     }
 
     // Redirect non-admin users away from admin routes
     if (!user.is_admin && adminPaths.some((p) => location.pathname.startsWith(p))) {
-        return <Navigate to="/profile" replace />
+        return <Navigate replace to="/profile" />
     }
 
     return (
@@ -56,23 +56,23 @@ export const AuthLayout: React.FC = () => {
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                 {isMobile && (
                     <AppBar
-                        position="static"
                         color="default"
                         elevation={1}
+                        position="static"
                         sx={{ bgcolor: 'primary.main' }}
                     >
                         <Toolbar variant="dense">
                             <IconButton
                                 edge="start"
-                                onClick={() => setSidebarOpen(true)}
                                 sx={{ mr: 1 }}
+                                onClick={() => setSidebarOpen(true)}
                             >
                                 <MenuIcon />
                             </IconButton>
                             <Box
+                                alt="CSOPL"
                                 component="img"
                                 src="/img/csopl-logo-transparent.svg"
-                                alt="CSOPL"
                                 sx={{ height: 36 }}
                             />
                         </Toolbar>

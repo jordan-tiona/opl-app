@@ -9,18 +9,14 @@ export const RatingHistoryCard: React.FC<RatingHistoryCardProps> = ({ ratingHist
     return (
         <Card sx={{ mb: 4 }}>
             <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
+                <Typography sx={{ mb: 2 }} variant="h6">
                     Rating History
                 </Typography>
                 {ratingHistory.length > 0 ? (
                     <LineChart
-                        xAxis={[
-                            {
-                                dataKey: 'gameNumber',
-                                disableTicks: true,
-                                valueFormatter: () => '',
-                            },
-                        ]}
+                        dataset={ratingHistory}
+                        height={250}
+                        margin={{ top: 10, right: 20, bottom: 20, left: 50 }}
                         series={[
                             {
                                 dataKey: 'rating',
@@ -30,9 +26,13 @@ export const RatingHistoryCard: React.FC<RatingHistoryCardProps> = ({ ratingHist
                                 curve: 'linear',
                             },
                         ]}
-                        dataset={ratingHistory}
-                        height={250}
-                        margin={{ top: 10, right: 20, bottom: 20, left: 50 }}
+                        xAxis={[
+                            {
+                                dataKey: 'gameNumber',
+                                disableTicks: true,
+                                valueFormatter: () => '',
+                            },
+                        ]}
                     />
                 ) : (
                     <Box sx={{ py: 4, textAlign: 'center' }}>

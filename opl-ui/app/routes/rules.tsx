@@ -4,9 +4,9 @@ export const RulesPage: React.FC = () => {
     return (
         <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
             <Typography
-                variant="h3"
                 gutterBottom
                 sx={{ fontSize: { xs: '1.75rem', md: '2.5rem' } }}
+                variant="h3"
             >
                 League Rules
             </Typography>
@@ -14,10 +14,10 @@ export const RulesPage: React.FC = () => {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <section>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Game Format
                     </Typography>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography color="text.secondary" variant="body1">
                         All games are played under standard one-pocket rules. Each player is
                         assigned one of the two corner pockets at the foot of the table. The first
                         player to legally pocket 8 balls into their designated pocket wins the game.
@@ -25,10 +25,10 @@ export const RulesPage: React.FC = () => {
                 </section>
 
                 <section>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Match Structure
                     </Typography>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography color="text.secondary" variant="body1">
                         Matches consist of multiple games between two players. Match results are
                         determined by the number of games won. Points are awarded based on
                         performance: 1 win earns 1 point, 2 wins earn 3 points, and 3 wins earn 5
@@ -37,10 +37,10 @@ export const RulesPage: React.FC = () => {
                 </section>
 
                 <section>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Divisions &amp; Scheduling
                     </Typography>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography color="text.secondary" variant="body1">
                         Players are assigned to divisions for each season. Within a division,
                         matches are scheduled in a round-robin format so every player faces every
                         other player. Seasons run for a set period with matches scheduled at regular
@@ -49,10 +49,10 @@ export const RulesPage: React.FC = () => {
                 </section>
 
                 <section>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Rating System
                     </Typography>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography color="text.secondary" variant="body1">
                         The league uses an Elo-based rating system. Every player starts at a base
                         rating and their rating adjusts after each game based on the outcome and the
                         relative strength of the opponent. New players' ratings are more volatile,
@@ -61,10 +61,10 @@ export const RulesPage: React.FC = () => {
                 </section>
 
                 <section>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography gutterBottom variant="h5">
                         Sportsmanship
                     </Typography>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography color="text.secondary" variant="body1">
                         All players are expected to conduct themselves with respect and good
                         sportsmanship. Disputes should be resolved amicably or brought to the league
                         administrator. The goal of the league is to foster a competitive but

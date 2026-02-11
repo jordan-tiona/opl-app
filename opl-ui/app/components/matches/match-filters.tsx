@@ -68,33 +68,26 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
         >
             {!vertical && <CalendarTodayIcon color="action" />}
             <TextField
+                fullWidth={vertical}
                 label="From"
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => onDateRangeChange({ ...dateRange, start: e.target.value })}
-                size="small"
-                fullWidth={vertical}
-                slotProps={{ inputLabel: { shrink: true } }}
             />
             {!vertical && <Typography color="text.secondary">to</Typography>}
             <TextField
+                fullWidth={vertical}
                 label="To"
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => onDateRangeChange({ ...dateRange, end: e.target.value })}
-                size="small"
-                fullWidth={vertical}
-                slotProps={{ inputLabel: { shrink: true } }}
             />
 
             <Autocomplete
-                size="small"
-                options={sortedPlayers}
-                value={selectedPlayer}
-                onChange={(_, value) => onPlayerChange(value)}
-                getOptionLabel={(option) =>
-                    `${option.first_name} ${option.last_name} (#${option.player_id})`
-                }
                 filterOptions={(options, { inputValue }) => {
                     const term = inputValue.toLowerCase()
 
@@ -104,17 +97,24 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                             String(p.player_id).includes(term),
                     )
                 }}
-                renderInput={(params) => <TextField {...params} label="Player" />}
-                isOptionEqualToValue={(option, value) => option.player_id === value.player_id}
-                sx={{ minWidth: vertical ? undefined : 220 }}
                 fullWidth={vertical}
+                getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name} (#${option.player_id})`
+                }
+                isOptionEqualToValue={(option, value) => option.player_id === value.player_id}
+                options={sortedPlayers}
+                renderInput={(params) => <TextField {...params} label="Player" />}
+                size="small"
+                sx={{ minWidth: vertical ? undefined : 220 }}
+                value={selectedPlayer}
+                onChange={(_, value) => onPlayerChange(value)}
             />
 
-            <FormControl size="small" sx={{ minWidth: vertical ? undefined : 130 }} fullWidth={vertical}>
+            <FormControl fullWidth={vertical} size="small" sx={{ minWidth: vertical ? undefined : 130 }}>
                 <InputLabel>Division</InputLabel>
                 <Select
-                    value={divisionId !== null ? String(divisionId) : ''}
                     label="Division"
+                    value={divisionId !== null ? String(divisionId) : ''}
                     onChange={(e) =>
                         onDivisionIdChange(e.target.value === '' ? null : Number(e.target.value))
                     }
@@ -128,11 +128,11 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 </Select>
             </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: vertical ? undefined : 140 }} fullWidth={vertical}>
+            <FormControl fullWidth={vertical} size="small" sx={{ minWidth: vertical ? undefined : 140 }}>
                 <InputLabel>Status</InputLabel>
                 <Select
-                    value={completionFilter}
                     label="Status"
+                    value={completionFilter}
                     onChange={(e) => onCompletionFilterChange(e.target.value as CompletionFilter)}
                 >
                     <MenuItem value="all">All</MenuItem>

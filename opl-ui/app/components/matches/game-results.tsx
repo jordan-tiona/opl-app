@@ -15,7 +15,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
 
     return (
         <Box>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            <Typography gutterBottom fontWeight={600} variant="subtitle1">
                 Game Results
             </Typography>
             {games.map((game, index) => {
@@ -40,7 +40,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                 borderColor: 'divider',
                             }}
                         >
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            <Typography color="text.secondary" sx={{ mb: 0.5 }} variant="body2">
                                 Game {index + 1}
                             </Typography>
                             <Typography
@@ -56,9 +56,9 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                 <Typography variant="body2">
                                     {winner?.first_name} {winner?.last_name} ({winnerNewRating},{' '}
                                     <Typography
+                                        color="success.main"
                                         component="span"
                                         variant="body2"
-                                        color="success.main"
                                     >
                                         +{game.winner_rating_change}
                                     </Typography>
@@ -72,9 +72,9 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                 <Typography variant="body2">
                                     {loser?.first_name} {loser?.last_name} ({loserNewRating},{' '}
                                     <Typography
+                                        color="error.main"
                                         component="span"
                                         variant="body2"
-                                        color="error.main"
                                     >
                                         -{Math.abs(game.loser_rating_change)}
                                     </Typography>
@@ -112,7 +112,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                     color: 'success.main',
                                 }}
                             />
-                            <Typography component="span" variant="body2" color="success.main">
+                            <Typography color="success.main" component="span" variant="body2">
                                 {game.winner_rating_change}
                             </Typography>
                             )
@@ -131,7 +131,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                     color: 'error.main',
                                 }}
                             />
-                            <Typography component="span" variant="body2" color="error.main">
+                            <Typography color="error.main" component="span" variant="body2">
                                 {Math.abs(game.loser_rating_change)}
                             </Typography>
                             )

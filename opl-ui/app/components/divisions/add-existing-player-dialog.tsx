@@ -52,36 +52,36 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
             <DialogTitle>Add Player to Division</DialogTitle>
             <DialogContent>
                 <Autocomplete
-                    sx={{ mt: 1 }}
-                    options={availablePlayers}
                     getOptionLabel={(p) => `${p.first_name} ${p.last_name}`}
+                    options={availablePlayers}
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth label="Select Player" />
+                    )}
+                    sx={{ mt: 1 }}
                     value={selectedPlayer}
                     onChange={(_, value) => setSelectedPlayer(value)}
-                    renderInput={(params) => (
-                        <TextField {...params} label="Select Player" fullWidth />
-                    )}
                 />
             </DialogContent>
             <DialogActions>
                 <Button
                     startIcon={<PersonAddIcon />}
+                    sx={{ mr: 'auto' }}
                     onClick={() => {
                         onClose()
                         onCreateNewPlayer()
                     }}
-                    sx={{ mr: 'auto' }}
                 >
                     Create New Player
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button
+                    disabled={!selectedPlayer || addPlayer.isPending}
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={!selectedPlayer || addPlayer.isPending}
                 >
                     {addPlayer.isPending ? 'Adding...' : 'Add Player'}
                 </Button>

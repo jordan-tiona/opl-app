@@ -69,10 +69,10 @@ export const ProfilePage: React.FC = () => {
     if (!user?.player_id) {
         return (
             <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography variant="h5" color="text.secondary">
+                <Typography color="text.secondary" variant="h5">
                     No player profile linked to your account.
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography color="text.secondary" sx={{ mt: 1 }} variant="body1">
                     Contact the league administrator to link your account to a player.
                 </Typography>
             </Box>
@@ -89,7 +89,7 @@ export const ProfilePage: React.FC = () => {
 
     if (!player) {
         return (
-            <Typography variant="h5" color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
+            <Typography color="text.secondary" sx={{ textAlign: 'center', py: 8 }} variant="h5">
                 Player not found.
             </Typography>
         )
@@ -97,11 +97,11 @@ export const ProfilePage: React.FC = () => {
 
     return (
         <Box>
-            <Typography variant="h4" sx={{ mb: 3 }}>
+            <Typography sx={{ mb: 3 }} variant="h4">
                 My Profile
             </Typography>
 
-            <ProfileCard player={player} division={division} user={user} />
+            <ProfileCard division={division} player={player} user={user} />
 
             <RatingHistoryCard ratingHistory={ratingHistory} />
 
@@ -110,24 +110,24 @@ export const ProfilePage: React.FC = () => {
                 matchesWon={completedMatches.filter((m) => m.winner_id === player.player_id).length}
             />
 
-            <Typography variant="h5" sx={{ mb: 2 }}>
+            <Typography sx={{ mb: 2 }} variant="h5">
                 Upcoming Matches
             </Typography>
             <UpcomingMatches
+                isLoading={matchesLoading}
                 matches={upcomingMatches}
                 player={player}
                 players={players}
-                isLoading={matchesLoading}
             />
 
-            <Typography variant="h5" sx={{ mb: 2 }}>
+            <Typography sx={{ mb: 2 }} variant="h5">
                 Completed Matches
             </Typography>
             <CompletedMatches
+                isLoading={matchesLoading}
                 matches={completedMatches}
                 player={player}
                 players={players}
-                isLoading={matchesLoading}
             />
         </Box>
     )

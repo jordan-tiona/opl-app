@@ -22,16 +22,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ player, division, user
                     <Typography variant="h5">
                         {player.first_name} {player.last_name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography color="text.secondary" variant="body2">
                         {player.email}
                     </Typography>
                     {division && (
                         <Chip
+                            color="primary"
                             label={division.name}
                             size="small"
-                            color="primary"
-                            variant="outlined"
                             sx={{ mt: 1 }}
+                            variant="outlined"
                         />
                     )}
                 </Box>

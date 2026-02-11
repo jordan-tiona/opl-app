@@ -31,7 +31,7 @@ export const MatchGamesDetail: React.FC<MatchGamesDetailProps> = ({
 
     if (!games || games.length === 0) {
         return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography color="text.secondary" variant="body2">
                 No games recorded.
             </Typography>
         )

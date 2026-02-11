@@ -61,7 +61,7 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: Division
                         alignItems: 'flex-start',
                     }}
                 >
-                    <Typography variant="h5" fontWeight={600}>
+                    <Typography fontWeight={600} variant="h5">
                         {division.name}
                     </Typography>
                     <IconButton
@@ -101,13 +101,13 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: Division
                 <Divider sx={{ my: 2 }} />
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <GroupsIcon fontSize="small" color="action" />
+                    <GroupsIcon color="action" fontSize="small" />
                     <Typography variant="body2">
                         {divisionPlayers?.length ?? 0} player{(divisionPlayers?.length ?? 0) !== 1 ? 's' : ''}
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <SportsScoreIcon fontSize="small" color="action" />
+                    <SportsScoreIcon color="action" fontSize="small" />
                     <Typography variant="body2">
                         {completedCount} completed, {scheduledCount} scheduled
                     </Typography>
@@ -116,8 +116,8 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: Division
                 {topPlayersByScore.length > 0 && (
                     <Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                            <EmojiEventsIcon fontSize="small" color="action" />
-                            <Typography variant="body2" color="text.secondary">
+                            <EmojiEventsIcon color="action" fontSize="small" />
+                            <Typography color="text.secondary" variant="body2">
                                 Division leaders
                             </Typography>
                         </Box>

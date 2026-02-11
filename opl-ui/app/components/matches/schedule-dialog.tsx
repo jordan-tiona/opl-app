@@ -34,6 +34,7 @@ export const ScheduleDialog: React.FC<ScheduleDialogProps> = ({
                     sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, minWidth: 300 }}
                 >
                     <TextField
+                        fullWidth
                         label="Division"
                         type="number"
                         value={scheduleData.division}
@@ -43,23 +44,22 @@ export const ScheduleDialog: React.FC<ScheduleDialogProps> = ({
                                 division: Number(e.target.value),
                             })
                         }
-                        fullWidth
                     />
                     <TextField
+                        fullWidth
                         label="Start Date"
+                        slotProps={{ inputLabel: { shrink: true } }}
                         type="date"
                         value={scheduleData.start_date}
                         onChange={(e) =>
                             onScheduleDataChange({ ...scheduleData, start_date: e.target.value })
                         }
-                        fullWidth
-                        slotProps={{ inputLabel: { shrink: true } }}
                     />
                 </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" onClick={onSubmit} disabled={isPending}>
+                <Button disabled={isPending} variant="contained" onClick={onSubmit}>
                     {isPending ? 'Scheduling...' : 'Generate Schedule'}
                 </Button>
             </DialogActions>

@@ -115,12 +115,12 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
 
     return (
         <Box>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+            <Typography fontWeight={600} sx={{ mb: 2 }} variant="subtitle1">
                 Record Games
             </Typography>
 
             {games.length === 0 ? (
-                <Typography color="text.secondary" align="center" sx={{ py: 2 }}>
+                <Typography align="center" color="text.secondary" sx={{ py: 2 }}>
                     Click "Add Game" to start recording game results
                 </Typography>
             ) : (
@@ -152,8 +152,8 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                     <IconButton
                                         color="error"
                                         size="small"
-                                        onClick={() => removeGame(index)}
                                         tabIndex={-1}
+                                        onClick={() => removeGame(index)}
                                     >
                                         <DeleteIcon fontSize="small" />
                                     </IconButton>
@@ -166,23 +166,14 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                         mb: 1,
                                     }}
                                 >
-                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                    <Typography sx={{ flex: 1 }} variant="body2">
                                         {player1.first_name} {player1.last_name}
                                     </Typography>
                                     <Autocomplete
-                                        freeSolo
                                         autoSelect
-                                        size="small"
+                                        disableClearable
+                                        freeSolo
                                         options={p1Options}
-                                        value={String(game.player1Score)}
-                                        onChange={(_, value) =>
-                                            updateScore(index, 'player1Score', value ?? 0)
-                                        }
-                                        onInputChange={(_, value, reason) => {
-                                            if (reason === 'input') {
-                                                updateScore(index, 'player1Score', value)
-                                            }
-                                        }}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
@@ -194,8 +185,17 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                                 }
                                             />
                                         )}
-                                        disableClearable
+                                        size="small"
                                         sx={{ width: 80 }}
+                                        value={String(game.player1Score)}
+                                        onChange={(_, value) =>
+                                            updateScore(index, 'player1Score', value ?? 0)
+                                        }
+                                        onInputChange={(_, value, reason) => {
+                                            if (reason === 'input') {
+                                                updateScore(index, 'player1Score', value)
+                                            }
+                                        }}
                                     />
                                 </Box>
                                 <Box
@@ -205,14 +205,22 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                         gap: 1,
                                     }}
                                 >
-                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                    <Typography sx={{ flex: 1 }} variant="body2">
                                         {player2.first_name} {player2.last_name}
                                     </Typography>
                                     <Autocomplete
-                                        freeSolo
                                         autoSelect
-                                        size="small"
+                                        disableClearable
+                                        freeSolo
                                         options={p2Options}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                error={!valid && game.player2Score > 0}
+                                            />
+                                        )}
+                                        size="small"
+                                        sx={{ width: 80 }}
                                         value={String(game.player2Score)}
                                         onChange={(_, value) =>
                                             updateScore(index, 'player2Score', value ?? 0)
@@ -222,14 +230,6 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                                 updateScore(index, 'player2Score', value)
                                             }
                                         }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                error={!valid && game.player2Score > 0}
-                                            />
-                                        )}
-                                        disableClearable
-                                        sx={{ width: 80 }}
                                     />
                                 </Box>
                             </Box>
@@ -242,19 +242,10 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                     {player1.first_name} {player1.last_name}
                                 </Typography>
                                 <Autocomplete
-                                    freeSolo
                                     autoSelect
-                                    size="small"
+                                    disableClearable
+                                    freeSolo
                                     options={p1Options}
-                                    value={String(game.player1Score)}
-                                    onChange={(_, value) =>
-                                        updateScore(index, 'player1Score', value ?? 0)
-                                    }
-                                    onInputChange={(_, value, reason) => {
-                                        if (reason === 'input') {
-                                            updateScore(index, 'player1Score', value)
-                                        }
-                                    }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -264,15 +255,32 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                             }
                                         />
                                     )}
-                                    disableClearable
+                                    size="small"
                                     sx={{ width: 80 }}
+                                    value={String(game.player1Score)}
+                                    onChange={(_, value) =>
+                                        updateScore(index, 'player1Score', value ?? 0)
+                                    }
+                                    onInputChange={(_, value, reason) => {
+                                        if (reason === 'input') {
+                                            updateScore(index, 'player1Score', value)
+                                        }
+                                    }}
                                 />
                                 <Typography fontWeight={600}>:</Typography>
                                 <Autocomplete
-                                    freeSolo
                                     autoSelect
-                                    size="small"
+                                    disableClearable
+                                    freeSolo
                                     options={p2Options}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            error={!valid && game.player2Score > 0}
+                                        />
+                                    )}
+                                    size="small"
+                                    sx={{ width: 80 }}
                                     value={String(game.player2Score)}
                                     onChange={(_, value) =>
                                         updateScore(index, 'player2Score', value ?? 0)
@@ -282,14 +290,6 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                             updateScore(index, 'player2Score', value)
                                         }
                                     }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            error={!valid && game.player2Score > 0}
-                                        />
-                                    )}
-                                    disableClearable
-                                    sx={{ width: 80 }}
                                 />
                                 <Typography sx={{ minWidth: 120 }}>
                                     {player2.first_name} {player2.last_name}
@@ -297,8 +297,8 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                                 <IconButton
                                     color="error"
                                     size="small"
-                                    onClick={() => removeGame(index)}
                                     tabIndex={-1}
+                                    onClick={() => removeGame(index)}
                                 >
                                     <DeleteIcon />
                                 </IconButton>
@@ -316,16 +316,16 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                     alignItems: 'center',
                 }}
             >
-                <Button startIcon={<AddIcon />} onClick={addGame} size="small" color="secondary">
+                <Button color="secondary" size="small" startIcon={<AddIcon />} onClick={addGame}>
                     Add Game
                 </Button>
                 {games.length > 0 && (
                     <Button
-                        variant="contained"
-                        startIcon={<SaveIcon />}
-                        onClick={handleSubmit}
                         disabled={completeMatch.isPending || !allGamesValid}
                         size="small"
+                        startIcon={<SaveIcon />}
+                        variant="contained"
+                        onClick={handleSubmit}
                     >
                         {completeMatch.isPending ? 'Saving...' : 'Complete Match'}
                     </Button>

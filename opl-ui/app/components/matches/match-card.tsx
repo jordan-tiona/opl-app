@@ -54,8 +54,8 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
         return (
             <Card sx={{ mb: 2 }}>
                 <CardContent
-                    onClick={handleToggle}
                     sx={{ cursor: 'pointer', pb: expanded ? 2 : undefined }}
+                    onClick={handleToggle}
                 >
                     <Box
                         sx={{
@@ -66,8 +66,8 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                         }}
                     >
                         <Chip
-                            label={match.completed ? 'Completed' : 'Scheduled'}
                             color={match.completed ? 'success' : 'primary'}
+                            label={match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
                         <IconButton
@@ -80,25 +80,25 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                             <ExpandMoreIcon />
                         </IconButton>
                     </Box>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Typography gutterBottom color="text.secondary" variant="body2">
                         {formatDate(match.scheduled_date)}
                     </Typography>
-                    <Typography variant="h6" sx={{ mb: 0.5 }}>
+                    <Typography sx={{ mb: 0.5 }} variant="h6">
                         {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'} (
                         {p1Rating})
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    <Typography color="text.secondary" sx={{ mb: 0.5 }} variant="body2">
                         vs.
                     </Typography>
-                    <Typography variant="h6" sx={{ mb: 1 }}>
+                    <Typography sx={{ mb: 1 }} variant="h6">
                         {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'} (
                         {p2Rating})
                     </Typography>
-                    <Typography variant="body1" color="secondary">
+                    <Typography color="secondary" variant="body1">
                         Weight: {p1Weight}-{p2Weight}
                     </Typography>
                 </CardContent>
-                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                <Collapse unmountOnExit in={expanded} timeout="auto">
                     <CardContent sx={{ pt: 0 }}>
                         <Divider sx={{ mb: 2 }} />
                         <Box
@@ -111,30 +111,30 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                             }}
                         >
                             <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="subtitle1" fontWeight={600}>
+                                <Typography fontWeight={600} variant="subtitle1">
                                     {player1
                                         ? `${player1.first_name} ${player1.last_name}`
                                         : 'Unknown'}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography color="text.secondary" variant="body2">
                                     Rating: {p1Rating}
                                 </Typography>
                             </Box>
                             <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="subtitle1" color="text.secondary">
+                                <Typography color="text.secondary" variant="subtitle1">
                                     VS
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography color="text.secondary" variant="body2">
                                     {p1Weight}-{p2Weight}
                                 </Typography>
                             </Box>
                             <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="subtitle1" fontWeight={600}>
+                                <Typography fontWeight={600} variant="subtitle1">
                                     {player2
                                         ? `${player2.first_name} ${player2.last_name}`
                                         : 'Unknown'}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography color="text.secondary" variant="body2">
                                     Rating: {p2Rating}
                                 </Typography>
                             </Box>

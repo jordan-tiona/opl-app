@@ -52,7 +52,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
 
     if (matches.length === 0) {
         return (
-            <Typography variant="body1" color="text.secondary">
+            <Typography color="text.secondary" variant="body1">
                 No completed matches yet.
             </Typography>
         )
@@ -86,27 +86,27 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                     return (
                         <Card key={match.match_id} sx={{ mb: 2 }}>
                             <CardContent
-                                onClick={() => setExpandedMatch(isExpanded ? null : match.match_id)}
                                 sx={{ cursor: 'pointer', pb: isExpanded ? 2 : undefined }}
+                                onClick={() => setExpandedMatch(isExpanded ? null : match.match_id)}
                             >
                                 <Chip
-                                    label={won ? 'Won' : 'Lost'}
                                     color={won ? 'success' : 'error'}
+                                    label={won ? 'Won' : 'Lost'}
                                     size="small"
-                                    variant="outlined"
                                     sx={{ mb: 1 }}
+                                    variant="outlined"
                                 />
-                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                <Typography gutterBottom color="text.secondary" variant="body2">
                                     {formattedDate}
                                 </Typography>
-                                <Typography variant="h6" sx={{ mb: 1 }}>
+                                <Typography sx={{ mb: 1 }} variant="h6">
                                     vs. {getPlayerName(opponentId)} ({oppRating})
                                 </Typography>
-                                <Typography variant="body1" color="primary">
+                                <Typography color="primary" variant="body1">
                                     Weight: {weight}
                                 </Typography>
                             </CardContent>
-                            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                            <Collapse unmountOnExit in={isExpanded} timeout="auto">
                                 <CardContent sx={{ pt: 0 }}>
                                     <MatchGamesDetail
                                         matchId={match.match_id}
@@ -159,20 +159,20 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                         return (
                             <>
                                 <TableRow
-                                    key={match.match_id}
                                     hover
-                                    onClick={() =>
-                                        setExpandedMatch(isExpanded ? null : match.match_id)
-                                    }
+                                    key={match.match_id}
                                     sx={{
                                         cursor: 'pointer',
                                         '& > *': { borderBottom: isExpanded ? 0 : undefined },
                                     }}
+                                    onClick={() =>
+                                        setExpandedMatch(isExpanded ? null : match.match_id)
+                                    }
                                 >
                                     <TableCell>
                                         <Chip
-                                            label={won ? 'Won' : 'Lost'}
                                             color={won ? 'success' : 'error'}
+                                            label={won ? 'Won' : 'Lost'}
                                             size="small"
                                             variant="outlined"
                                         />
@@ -188,7 +188,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                         colSpan={4}
                                         sx={{ py: 0, borderBottom: isExpanded ? undefined : 0 }}
                                     >
-                                        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                        <Collapse unmountOnExit in={isExpanded} timeout="auto">
                                             <Box sx={{ py: 2 }}>
                                                 <MatchGamesDetail
                                                     matchId={match.match_id}

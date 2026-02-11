@@ -112,18 +112,18 @@ const StandingsCards: React.FC<{ players: PlayerWithStats[] }> = ({ players }) =
             return (
                 <Card
                     key={player.player_id}
-                    variant="outlined"
                     sx={{ bgcolor: rank <= 3 ? 'action.hover' : 'inherit' }}
+                    variant="outlined"
                 >
                     <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <RankChip rank={rank} />
                             <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Typography fontWeight={rank <= 3 ? 600 : 400} noWrap>
+                                <Typography noWrap fontWeight={rank <= 3 ? 600 : 400}>
                                     {player.first_name} {player.last_name}
                                 </Typography>
                             </Box>
-                            <Typography fontWeight={600} color="secondary.main">
+                            <Typography color="secondary.main" fontWeight={600}>
                                 {player.stats.points} pts
                             </Typography>
                         </Box>
@@ -135,13 +135,13 @@ const StandingsCards: React.FC<{ players: PlayerWithStats[] }> = ({ players }) =
                                 ml: 5.5,
                             }}
                         >
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography color="text.secondary" variant="body2">
                                 {player.stats.wins}-{player.stats.losses}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography color="text.secondary" variant="body2">
                                 Rating: {player.rating}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography color="text.secondary" variant="body2">
                                 Games: {player.games_played}
                             </Typography>
                         </Box>
@@ -191,7 +191,7 @@ const StandingsTable: React.FC<{ players: PlayerWithStats[]; isMobile: boolean }
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="right">
-                                    <Typography fontWeight={600} color="secondary.main">
+                                    <Typography color="secondary.main" fontWeight={600}>
                                         {player.stats.points}
                                     </Typography>
                                 </TableCell>
@@ -233,7 +233,7 @@ const DivisionStandings: React.FC<{
 
     return (
         <Box ref={sectionRef} sx={{ mb: 4 }}>
-            <Typography variant="h5" gutterBottom>
+            <Typography gutterBottom variant="h5">
                 {divisionName}
             </Typography>
             {isLoading ? (
@@ -245,7 +245,7 @@ const DivisionStandings: React.FC<{
                     <Typography color="text.secondary">No players in this division</Typography>
                 </Paper>
             ) : (
-                <StandingsTable players={sorted} isMobile={isMobile} />
+                <StandingsTable isMobile={isMobile} players={sorted} />
             )}
         </Box>
     )
@@ -293,7 +293,7 @@ export const StandingsPage: React.FC = () => {
 
     return (
         <Box>
-            <Typography variant="h3" gutterBottom>
+            <Typography gutterBottom variant="h3">
                 Standings
             </Typography>
 
@@ -313,12 +313,12 @@ export const StandingsPage: React.FC = () => {
                 >
                     {activeDivisions.map((division) => (
                         <Chip
-                            key={division.division_id}
-                            label={division.name}
-                            onClick={() => scrollToDivision(division.division_id)}
                             clickable
                             color="primary"
+                            key={division.division_id}
+                            label={division.name}
                             variant="outlined"
+                            onClick={() => scrollToDivision(division.division_id)}
                         />
                     ))}
                 </Box>
@@ -331,10 +331,10 @@ export const StandingsPage: React.FC = () => {
             ) : user?.is_admin && divisions && players ? (
                 activeDivisions.map((division) => (
                     <DivisionStandings
-                        key={division.division_id}
                         divisionId={division.division_id}
                         divisionName={division.name}
                         isMobile={isMobile}
+                        key={division.division_id}
                         sectionRef={(el) => {
                             if (el) {sectionRefs.current.set(division.division_id, el)}
                             else {sectionRefs.current.delete(division.division_id)}
@@ -350,7 +350,7 @@ export const StandingsPage: React.FC = () => {
                     <Typography color="text.secondary">No players found</Typography>
                 </Paper>
             ) : (
-                <StandingsTable players={playerStandings} isMobile={isMobile} />
+                <StandingsTable isMobile={isMobile} players={playerStandings} />
             )}
         </Box>
     )

@@ -29,8 +29,8 @@ export const DivisionsPage: React.FC = () => {
             >
                 <Typography variant="h3">Divisions</Typography>
                 <Button
-                    variant="contained"
                     startIcon={<AddIcon />}
+                    variant="contained"
                     onClick={() => setDialogOpen(true)}
                 >
                     New Division
@@ -45,13 +45,13 @@ export const DivisionsPage: React.FC = () => {
                 <>
                     <Grid container spacing={3}>
                         {activeDivisions.map((division) => (
-                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={division.division_id}>
+                            <Grid key={division.division_id} size={{ xs: 12, sm: 6, md: 4 }}>
                                 <DivisionCard division={division} />
                             </Grid>
                         ))}
                         {activeDivisions.length === 0 && (
                             <Grid size={{ xs: 12 }}>
-                                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                                <Typography align="center" color="text.secondary" sx={{ py: 4 }}>
                                     No active divisions. Create one to get started.
                                 </Typography>
                             </Grid>
@@ -60,12 +60,12 @@ export const DivisionsPage: React.FC = () => {
 
                     {inactiveDivisions.length > 0 && (
                         <>
-                            <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>
+                            <Typography sx={{ mt: 4, mb: 2 }} variant="h5">
                                 Past Divisions
                             </Typography>
                             <Grid container spacing={3}>
                                 {inactiveDivisions.map((division) => (
-                                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={division.division_id}>
+                                    <Grid key={division.division_id} size={{ xs: 12, sm: 6, md: 4 }}>
                                         <DivisionCard division={division} />
                                     </Grid>
                                 ))}

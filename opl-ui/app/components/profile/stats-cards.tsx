@@ -13,10 +13,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ gamesPlayed, matchesWon 
                 <Card>
                     <CardContent sx={{ textAlign: 'center' }}>
                         <GamesIcon color="primary" sx={{ fontSize: 36 }} />
-                        <Typography variant="h4" sx={{ mt: 1 }}>
+                        <Typography sx={{ mt: 1 }} variant="h4">
                             {gamesPlayed}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography color="text.secondary" variant="body2">
                             Games Played
                         </Typography>
                     </CardContent>
@@ -26,10 +26,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ gamesPlayed, matchesWon 
                 <Card>
                     <CardContent sx={{ textAlign: 'center' }}>
                         <TrophyIcon color="primary" sx={{ fontSize: 36 }} />
-                        <Typography variant="h4" sx={{ mt: 1 }}>
+                        <Typography sx={{ mt: 1 }} variant="h4">
                             {matchesWon}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography color="text.secondary" variant="body2">
                             Matches Won
                         </Typography>
                     </CardContent>
