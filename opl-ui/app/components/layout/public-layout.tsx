@@ -80,8 +80,12 @@ export const PublicLayout: React.FC = () => {
     )
 
     const triggerGoogleSignIn = useCallback(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const google = (window as any).google
-        if (!google?.accounts?.id) return
+
+        if (!google?.accounts?.id) {
+            return
+        }
 
         google.accounts.id.initialize({
             client_id: clientId,
