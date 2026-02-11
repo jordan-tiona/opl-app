@@ -10,7 +10,6 @@ import {
     ListItemButton,
     ListItemText,
     Toolbar,
-    Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
@@ -66,7 +65,7 @@ export const PublicLayout: React.FC = () => {
                 position="static"
                 color="default"
                 elevation={1}
-                sx={{ bgcolor: 'background.paper' }}
+                sx={{ bgcolor: 'primary.dark' }}
             >
                 <Toolbar>
                     {isMobile && (
@@ -74,22 +73,20 @@ export const PublicLayout: React.FC = () => {
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        color="primary"
-                        sx={{ cursor: 'pointer' }}
+                    <Box
+                        component="img"
+                        src="/img/csopl-logo-transparent.svg"
+                        alt="CSOPL"
+                        sx={{ height: 40, cursor: 'pointer' }}
                         onClick={() => navigate('/')}
-                    >
-                        One Pocket League
-                    </Typography>
+                    />
                     {!isMobile && (
                         <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto', gap: 1 }}>
                             {navItems.map((item) => (
                                 <Button
                                     key={item.path}
                                     onClick={() => navigate(item.path)}
-                                    color={location.pathname === item.path ? 'primary' : 'inherit'}
+                                    sx={{ color: location.pathname === item.path ? 'primary.light': 'inherit' }}
                                 >
                                     {item.label}
                                 </Button>

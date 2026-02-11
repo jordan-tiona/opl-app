@@ -5,7 +5,6 @@ import {
     CircularProgress,
     IconButton,
     Toolbar,
-    Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
@@ -60,7 +59,7 @@ export const AuthLayout: React.FC = () => {
                         position="static"
                         color="default"
                         elevation={1}
-                        sx={{ bgcolor: 'background.paper' }}
+                        sx={{ bgcolor: 'primary.dark' }}
                     >
                         <Toolbar variant="dense">
                             <IconButton
@@ -70,9 +69,12 @@ export const AuthLayout: React.FC = () => {
                             >
                                 <MenuIcon />
                             </IconButton>
-                            <Typography variant="h6" fontWeight={700} color="primary">
-                                One Pocket League
-                            </Typography>
+                            <Box
+                                component="img"
+                                src="/img/csopl-logo-transparent.svg"
+                                alt="CSOPL"
+                                sx={{ height: 36 }}
+                            />
                         </Toolbar>
                     </AppBar>
                 )}

@@ -4,18 +4,18 @@ export const theme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#64b5f6',
-            light: '#90caf9',
-            dark: '#42a5f5',
+            main: '#1d4d71',
+            light: '#819cb0',
+            dark: '#033458',
         },
         secondary: {
-            main: '#ce93d8',
-            light: '#f3e5f5',
-            dark: '#ab47bc',
+            main: '#90d9e5',
+            light: '#bce8ef',
+            dark: '#568289',
         },
         background: {
-            default: '#121212',
-            paper: '#1e1e1e',
+            default: '#20201e',
+            paper: '#292826',
         },
         text: {
             primary: '#ffffff',

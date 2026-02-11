@@ -74,9 +74,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
     const drawerContent = (
         <>
             <Box sx={{ p: 2 }}>
-                <Typography variant="h6" fontWeight={700} color="primary">
-                    One Pocket League
-                </Typography>
+                <Box
+                    component="img"
+                    src="/img/csopl-logo-transparent.svg"
+                    alt="CSOPL"
+                    sx={{ height: 36 }}
+                />
             </Box>
             <Divider />
             <List sx={{ px: 1, py: 2, flexGrow: 1 }}>

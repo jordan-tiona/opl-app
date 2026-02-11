@@ -8,19 +8,19 @@ import { useNavigate } from 'react-router'
 
 const features = [
     {
-        icon: <GroupsIcon sx={{ fontSize: 48 }} color="primary" />,
+        icon: <GroupsIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
         title: 'Divisions',
         description:
             'Players are organized into divisions and compete in round-robin format throughout the season.',
     },
     {
-        icon: <TrophyIcon sx={{ fontSize: 48 }} color="primary" />,
+        icon: <TrophyIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
         title: 'Competitive Matches',
         description:
             'Each match consists of multiple games of one-pocket, with results tracked and scored.',
     },
     {
-        icon: <LeaderboardIcon sx={{ fontSize: 48 }} color="primary" />,
+        icon: <LeaderboardIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
         title: 'Rating System',
         description:
             'An Elo-based rating system tracks player skill, updating after every game played.',
@@ -65,7 +65,7 @@ export const LandingPage: React.FC = () => {
                             onClick={() => navigate('/login')}
                             sx={{
                                 bgcolor: 'background.paper',
-                                color: 'primary.main',
+                                color: 'text.main',
                                 '&:hover': { bgcolor: 'grey.800' },
                             }}
                         >
@@ -76,10 +76,10 @@ export const LandingPage: React.FC = () => {
                             size="large"
                             onClick={() => navigate('/rules')}
                             sx={{
-                                borderColor: 'background.paper',
-                                color: 'background.paper',
+                                borderColor: 'secondary.main',
+                                color: 'secondary.main',
                                 '&:hover': {
-                                    borderColor: 'background.paper',
+                                    borderColor: 'secondary.main',
                                     bgcolor: 'rgba(255,255,255,0.1)',
                                 },
                             }}
