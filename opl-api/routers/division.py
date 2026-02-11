@@ -1,27 +1,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Field, Session, SQLModel, select
+from sqlmodel import Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from routers.user import User
-
-
-class Division(SQLModel, table=True):
-    __tablename__ = "divisions"
-    division_id: int | None = Field(primary_key=True, index=True)
-    name: str
-    start_date: str  # YYYY-MM-DD
-    end_date: str  # YYYY-MM-DD
-    match_time: str  # HH:MM
-    active: bool = Field(default=True)
-
-
-class DivisionPlayer(SQLModel, table=True):
-    __tablename__ = "division_players"
-    id: int | None = Field(primary_key=True)
-    division_id: int = Field(foreign_key="divisions.division_id")
-    player_id: int = Field(foreign_key="players.player_id")
+from models import Division, DivisionPlayer, Player, User
 
 
 class CopyDivisionInput(SQLModel):
@@ -75,7 +58,6 @@ def update_division(division_id: int, division: Division, session: Session = Dep
 
 @router.get("/{division_id}/players/", response_model=list)
 def get_division_players(division_id: int, session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
-    from routers.player import Player
 
     division = session.get(Division, division_id)
     if not division:
@@ -90,7 +72,6 @@ def get_division_players(division_id: int, session: Session = Depends(get_sessio
 
 @router.post("/{division_id}/players/{player_id}/", response_model=DivisionPlayer)
 def add_player_to_division(division_id: int, player_id: int, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
-    from routers.player import Player
 
     division = session.get(Division, division_id)
     if not division:

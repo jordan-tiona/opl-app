@@ -3,27 +3,11 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
-from sqlmodel import Field, Session, SQLModel, select
+from sqlmodel import Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from routers.game import Game
-from routers.player import Player
-from routers.user import User
-
-
-class Match(SQLModel, table=True):
-    __tablename__ = "matches"
-    match_id: int | None = Field(primary_key=True)
-    division_id: int | None = Field(default=None, foreign_key="divisions.division_id")
-    player1_id: int = Field(foreign_key="players.player_id")
-    player2_id: int = Field(foreign_key="players.player_id")
-    player1_rating: int
-    player2_rating: int
-    scheduled_date: datetime
-    completed: bool
-    winner_id: int | None = Field(default=None, foreign_key="players.player_id")
-    loser_id: int | None = Field(default=None, foreign_key="players.player_id")
+from models import Game, Match, Player, User
 
 
 class GameInput(SQLModel):
@@ -115,7 +99,7 @@ def schedule_round_robin(
     session: Session = Depends(get_session),
     _admin: User = Depends(require_admin),
 ):
-    from routers.division import DivisionPlayer
+    from models import DivisionPlayer
     from utils import schedule_round_robin as generate_schedule
 
     players = session.exec(

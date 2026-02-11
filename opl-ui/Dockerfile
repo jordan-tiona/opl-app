@@ -1,22 +1,31 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
+FROM node:20-alpine AS deps
 WORKDIR /app
-RUN npm ci
+COPY opl-ui/package.json opl-ui/yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
+FROM node:20-alpine AS builder
 WORKDIR /app
-RUN npm ci --omit=dev
+COPY --from=deps /app/node_modules ./node_modules
+COPY opl-ui/ .
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
+ARG VITE_API_BASE_URL
+ARG VITE_OPL_CLIENT_ID
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_OPL_CLIENT_ID=$VITE_OPL_CLIENT_ID
+
+RUN yarn build
+
+FROM node:20-alpine AS prod-deps
 WORKDIR /app
-RUN npm run build
+COPY opl-ui/package.json opl-ui/yarn.lock ./
+RUN yarn install --frozen-lockfile --production
 
 FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
 WORKDIR /app
-CMD ["npm", "run", "start"]
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/build ./build
+COPY opl-ui/package.json ./
+
+ENV NODE_ENV=production PORT=3000
+EXPOSE 3000
+CMD ["sh", "-c", "ulimit -n 65536 && yarn start"]

@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from math import floor
 
-from routers.match import Match
-from routers.player import Player
+from models import Match, Player
 
 
 def schedule_round_robin(players: list[Player], start_date: datetime, division_id: int) -> list[Match]:

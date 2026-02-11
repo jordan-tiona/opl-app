@@ -40,15 +40,47 @@ python scripts/init_test_db.py
 **Options:**
 - `--num-players <N>` — Number of players to create (default: 20)
 - `--start-date YYYY-MM-DD` — Schedule start date (default: today)
-- `--player-email <email>` — Create an additional test player with the specified email (useful for testing with your personal Google account)
+- `--player-email <email> [email ...]` — Create additional test players with the specified emails (useful for testing with your Google accounts)
 
 **Examples:**
 ```bash
 # Create 16 players starting on March 1st
 python scripts/init_test_db.py --num-players 16 --start-date 2026-03-01
 
-# Create default players plus a test player linked to your Google account
-python scripts/init_test_db.py --player-email "your-email@gmail.com"
+# Create default players plus test players linked to your Google accounts
+python scripts/init_test_db.py --player-email you@gmail.com friend@gmail.com
 ```
 
-This script will drop and recreate all tables, create fake players, schedule round-robin matches, and generate games for half the matches. If `--player-email` is provided, an additional "Test Player" will be created and linked to a User account with that email address.
+This script will drop and recreate all tables, create fake players, schedule round-robin matches, and generate games for the earliest half of matches.
+
+## Fly.io Deployment
+
+Both apps are deployed from the repo root using separate config files.
+
+### API Secrets
+
+```bash
+fly secrets set -a csopl-api \
+  DATABASE_URL="your-database-url" \
+  JWT_SECRET="your-jwt-secret" \
+  OPL_GOOGLE_CLIENT_ID="your-google-client-id" \
+  CORS_ORIGINS="https://csopl-ui.fly.dev"
+```
+
+### Deploy API
+
+```bash
+fly deploy -c fly.api.toml
+```
+
+### Deploy UI
+
+The UI requires build args since Vite embeds environment variables at build time:
+
+```bash
+fly deploy -c fly.ui.toml \
+  --build-arg VITE_API_BASE_URL="https://csopl-api.fly.dev" \
+  --build-arg VITE_OPL_CLIENT_ID="your-google-client-id"
+```
+
+These are also configured in `fly.ui.toml` under `[build.args]`.

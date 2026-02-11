@@ -9,7 +9,7 @@ from google.oauth2 import id_token
 from sqlmodel import Session
 
 from database import get_session
-from routers.user import User
+from models import User
 
 GOOGLE_CLIENT_ID = os.environ.get("OPL_GOOGLE_CLIENT_ID", "")
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-in-production")

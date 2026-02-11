@@ -1,26 +1,21 @@
 import argparse
+import json
 import random
 import sys
 from datetime import datetime
 from pathlib import Path
 
-from faker import Faker
-from sqlmodel import Session, SQLModel, create_engine, select
+from sqlmodel import Session, SQLModel, select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from routers.division import Division, DivisionPlayer
-from routers.game import Game
-from routers.match import Match
-from routers.player import Player
-from routers.user import User
+from database import engine
+from models import Division, DivisionPlayer, Game, Match, Player, User
 
-DATABASE_URL = "sqlite:///opl_db.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+TEST_DATA = json.loads((Path(__file__).parent / "test_data.json").read_text())
 
 
 def init_divisions_table():
-    print("Creating divisions...")
     with Session(engine) as session:
         session.add(Division(
             name="Tuesday OPL",
@@ -35,21 +30,19 @@ def init_divisions_table():
             match_time="19:00",
         ))
         session.commit()
-    print("  Done. 2 divisions created.")
 
 
-def init_players_table(num_players: int, player_email: str | None):
-    print(f"Creating {num_players} players...")
-    fake = Faker()
-    divisions = [1] * (num_players // 2) + [2] * (num_players - num_players // 2)
+def init_players_table(num_players: int, player_emails: list[str]):
+    players = random.sample(TEST_DATA, min(num_players, len(TEST_DATA)))
+    divisions = [1] * (len(players) // 2) + [2] * (len(players) - len(players) // 2)
     random.shuffle(divisions)
     with Session(engine) as session:
-        for i in range(num_players):
+        for i, p in enumerate(players):
             player = Player(
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                phone=fake.phone_number(),
-                email=fake.email(),
+                first_name=p["first_name"],
+                last_name=p["last_name"],
+                phone=p["phone"],
+                email=p["email"],
                 games_played=0,
             )
             session.add(player)
@@ -57,33 +50,27 @@ def init_players_table(num_players: int, player_email: str | None):
             session.add(User(email=player.email, player_id=player.player_id))
             session.add(DivisionPlayer(division_id=divisions[i], player_id=player.player_id))
 
-        # Create test player with specific email if provided
-        if player_email:
-            print(f"  Creating test player with email: {player_email}")
+        for j, email in enumerate(player_emails):
             test_player = Player(
                 first_name="Test",
-                last_name="Player",
-                phone="555-0100",
-                email=player_email,
+                last_name=f"Player {j + 1}",
+                phone=f"555-{j + 1:04d}",
+                email=email,
                 games_played=0,
             )
             session.add(test_player)
             session.flush()
-            session.add(User(email=player_email, player_id=test_player.player_id))
+            session.add(User(email=email, player_id=test_player.player_id))
             session.add(DivisionPlayer(division_id=1, player_id=test_player.player_id))
 
         session.commit()
-    total_created = num_players + (1 if player_email else 0)
-    print(f"  Done. {total_created} players and users created.")
 
 
 def init_matches_table(start_date: datetime):
     from utils import schedule_round_robin
 
-    print(f"Scheduling round robin matches starting {start_date.strftime('%Y-%m-%d')}...")
     with Session(engine) as session:
         divisions = session.exec(select(Division)).all()
-        total = 0
         for division in divisions:
             players = session.exec(
                 select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
@@ -91,9 +78,7 @@ def init_matches_table(start_date: datetime):
             ).all()
             matches = schedule_round_robin(players, start_date, division.division_id)
             session.add_all(matches)
-            total += len(matches)
         session.commit()
-    print(f"  Done. {total} matches scheduled across {len(divisions)} divisions.")
 
 
 def init_games_table():
@@ -103,12 +88,10 @@ def init_games_table():
 
     from utils import calculate_rating_change
 
-    print("Generating games for completed matches...")
     with Session(engine) as session:
-        matches = session.exec(select(Match)).all()
-        completed_matches = random.sample(matches, len(matches) // 2)
+        matches = session.exec(select(Match).order_by(Match.scheduled_date)).all()
+        completed_matches = matches[:len(matches) // 2]
         num_games = 0
-        # Spread games over the past 30 days for realistic rating history
         base_date = datetime.now() - timedelta(days=30)
 
         for match in completed_matches:
@@ -124,7 +107,6 @@ def init_games_table():
                     winner.games_played, loser.games_played, balls_remaining
                 )
 
-                # Spread games over time: each game is some hours after the base date
                 played_date = base_date + timedelta(hours=num_games * 6)
 
                 session.add(Game(
@@ -150,7 +132,6 @@ def init_games_table():
             match.winner_id = max(game_wins, key=game_wins.get)
             match.loser_id = min(game_wins, key=game_wins.get)
 
-            # Update ratings in uncompleted matches for both players
             uncompleted_matches = session.exec(
                 select(Match).where(
                     not Match.completed,
@@ -174,33 +155,43 @@ def init_games_table():
                     m.player2_rating = p2.rating
 
         session.commit()
-    print(f"  Done. {len(completed_matches)} matches completed, {num_games} games created.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Initialize the OPL test database")
     parser.add_argument("--num-players", type=int, default=20, help="Number of players to create")
     parser.add_argument("--start-date", type=str, default=None, help="Schedule start date (YYYY-MM-DD). Defaults to today")
-    parser.add_argument("--player-email", type=str, default=None, help="Email address for a test player (e.g., your personal Google account)")
+    parser.add_argument("--player-email", type=str, nargs="+", default=[], help="Email address(es) for test players")
     args = parser.parse_args()
 
+    print("Script starting...", flush=True)
     start_date = datetime.strptime(args.start_date, "%Y-%m-%d") if args.start_date else datetime.now()
 
-    print("Dropping and recreating tables...")
+    print(f"Connecting to database...\n  URL: {engine.url}", flush=True)
+    print("Dropping tables...", flush=True)
     SQLModel.metadata.drop_all(engine)
+    print("Creating tables...", flush=True)
     SQLModel.metadata.create_all(engine)
-    print("  Done.\n")
+    print("  Done.\n", flush=True)
 
-    print("Creating admin user...")
+    print("Creating admin user...", flush=True)
     with Session(engine) as session:
         session.add(User(email="tionajordan@gmail.com", is_admin=True))
         session.commit()
-    print("  Done.\n")
+    print("  Done.\n", flush=True)
 
+    print("Creating divisions...", flush=True)
     init_divisions_table()
-    print()
-    init_players_table(args.num_players, args.player_email)
-    print()
+    print("  Done.\n", flush=True)
+
+    print(f"Creating {args.num_players} players...", flush=True)
+    init_players_table(args.num_players, args.player_email or [])
+    print("  Done.\n", flush=True)
+
+    print("Scheduling matches...", flush=True)
     init_matches_table(start_date)
-    print()
+    print("  Done.\n", flush=True)
+
+    print("Generating games...", flush=True)
     init_games_table()
+    print("  Done.\n", flush=True)

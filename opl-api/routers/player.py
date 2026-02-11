@@ -1,22 +1,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Field, Session, SQLModel, select
+from sqlmodel import Session, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from routers.user import User
-
-
-class Player(SQLModel, table=True):
-    __tablename__ = "players"
-    player_id: int | None = Field(primary_key=True, index=True)
-    first_name: str
-    last_name: str
-    rating: int = Field(default=600)
-    games_played: int = Field(default=0)
-    phone: str
-    email: str
-
+from models import Player, User
 
 router = APIRouter(
     prefix="/players"
@@ -53,7 +41,7 @@ def create_player(player: Player, session: Session = Depends(get_session), _admi
 
 @router.get("/{player_id}/divisions/")
 def get_player_divisions(player_id: int, active: bool | None = None, session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
-    from routers.division import Division, DivisionPlayer
+    from models import Division, DivisionPlayer
 
     player = session.get(Player, player_id)
     if not player:

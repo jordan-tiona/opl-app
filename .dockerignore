@@ -1,0 +1,7 @@
+opl-ui/node_modules/
+opl-api/.venv/
+opl-api/__pycache__/
+opl-api/*.db
+opl-api/*.db-journal
+opl-api/.env
+.git/

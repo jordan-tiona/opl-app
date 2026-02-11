@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for csopl-ui on 2026-02-11T10:57:18-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'csopl-ui'
+primary_region = 'dfw'
+
+[build]
+  dockerfile = 'opl-ui/Dockerfile'
+  [build.args]
+    VITE_OPL_CLIENT_ID = '163291147303-sbjs0rr235m0icn9grjbqjh4qfe2glmf.apps.googleusercontent.com'
+    VITE_API_BASE_URL = 'https://csopl-api.fly.dev'
+
+[env]
+  NODE_ENV = 'production'
+  PORT = '3000'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'
