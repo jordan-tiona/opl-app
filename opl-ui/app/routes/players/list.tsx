@@ -1,4 +1,4 @@
-import { Add as AddIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material'
+import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -9,7 +9,6 @@ import {
     Chip,
     CircularProgress,
     FormControl,
-    IconButton,
     InputAdornment,
     InputLabel,
     MenuItem,
@@ -206,12 +205,16 @@ export const PlayersPage: React.FC = () => {
                                 <TableCell>Phone</TableCell>
                                 <TableCell align="right">Rating</TableCell>
                                 <TableCell align="right">Games Played</TableCell>
-                                <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredPlayers?.map((player) => (
-                                <TableRow hover key={player.player_id}>
+                                <TableRow
+                                    hover
+                                    key={player.player_id}
+                                    sx={{ cursor: 'pointer' }}
+                                    onClick={() => navigate(`/players/${player.player_id}`)}
+                                >
                                     <TableCell>
                                         {player.first_name} {player.last_name}
                                     </TableCell>
@@ -219,14 +222,6 @@ export const PlayersPage: React.FC = () => {
                                     <TableCell>{player.phone}</TableCell>
                                     <TableCell align="right">{player.rating}</TableCell>
                                     <TableCell align="right">{player.games_played}</TableCell>
-                                    <TableCell align="right">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => navigate(`/players/${player.player_id}`)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
