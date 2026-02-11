@@ -119,15 +119,8 @@ const MatchesPage: React.FC = () => {
 
         let filtered = [...matches]
 
-        if (divisionId !== null && players) {
-            const playerDivisionMap = new Map(players.map((p) => [p.player_id, p.division_id]))
-
-            filtered = filtered.filter((match) => {
-                const p1Division = playerDivisionMap.get(match.player1_id)
-                const p2Division = playerDivisionMap.get(match.player2_id)
-
-                return p1Division === divisionId || p2Division === divisionId
-            })
+        if (divisionId !== null) {
+            filtered = filtered.filter((match) => match.division_id === divisionId)
         }
 
         return filtered.sort((a, b) => {
@@ -137,7 +130,7 @@ const MatchesPage: React.FC = () => {
 
             return new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
         })
-    }, [matches, divisionId, players])
+    }, [matches, divisionId])
 
     if (matchesError) {
         return <Alert severity="error">Failed to load matches: {matchesError.message}</Alert>

@@ -6,7 +6,7 @@ from sqlmodel import Session, SQLModel, create_engine
 from auth import get_current_user, require_admin
 from database import get_session
 from main import app
-from routers.division import Division
+from routers.division import Division, DivisionPlayer
 from routers.player import Player
 from routers.user import User
 
@@ -71,7 +71,6 @@ def sample_players(session, sample_division):
             games_played=10,
             phone='555-0001',
             email='alice@example.com',
-            division_id=sample_division.division_id,
         ),
         Player(
             first_name='Bob',
@@ -80,7 +79,6 @@ def sample_players(session, sample_division):
             games_played=5,
             phone='555-0002',
             email='bob@example.com',
-            division_id=sample_division.division_id,
         ),
         Player(
             first_name='Charlie',
@@ -89,7 +87,6 @@ def sample_players(session, sample_division):
             games_played=3,
             phone='555-0003',
             email='charlie@example.com',
-            division_id=sample_division.division_id,
         ),
         Player(
             first_name='Diana',
@@ -98,11 +95,16 @@ def sample_players(session, sample_division):
             games_played=20,
             phone='555-0004',
             email='diana@example.com',
-            division_id=sample_division.division_id,
         ),
     ]
     session.add_all(players)
     session.commit()
     for p in players:
         session.refresh(p)
+
+    # Add players to the division
+    for p in players:
+        session.add(DivisionPlayer(division_id=sample_division.division_id, player_id=p.player_id))
+    session.commit()
+
     return players

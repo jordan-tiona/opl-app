@@ -11,29 +11,28 @@ import {
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useCreateDivision, useUpdatePlayer } from '~/lib/react-query'
-import type { DivisionInput, Player } from '~/lib/types'
+import { useCopyDivision } from '~/lib/react-query'
+import type { CopyDivisionInput } from '~/lib/types'
 
 interface CopyDivisionDialogProps {
     open: boolean
     onClose: () => void
+    divisionId: number
     divisionName: string
     defaultMatchTime: string
-    players: Player[]
 }
 
 export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
     open,
     onClose,
+    divisionId,
     divisionName,
     defaultMatchTime,
-    players,
 }: CopyDivisionDialogProps) => {
     const navigate = useNavigate()
-    const createDivision = useCreateDivision()
-    const updatePlayer = useUpdatePlayer()
+    const copyDivision = useCopyDivision()
 
-    const [formData, setFormData] = useState<DivisionInput>({
+    const [formData, setFormData] = useState<CopyDivisionInput>({
         name: '',
         start_date: '',
         end_date: '',
@@ -52,16 +51,11 @@ export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
     }, [open, defaultMatchTime])
 
     const handleSubmit = async () => {
-        const newDivision = await createDivision.mutateAsync(formData)
+        const newDivision = await copyDivision.mutateAsync({
+            divisionId,
+            data: formData,
+        })
 
-        await Promise.all(
-            players.map((p) =>
-                updatePlayer.mutateAsync({
-                    id: p.player_id,
-                    data: { ...p, division_id: newDivision.division_id },
-                }),
-            ),
-        )
         onClose()
         navigate(`/divisions/${newDivision.division_id}`)
     }
@@ -71,8 +65,8 @@ export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
             <DialogTitle>New Division with Same Players</DialogTitle>
             <DialogContent>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    This will create a new division and move all {players.length} players from
-                    &ldquo;{divisionName}&rdquo; to it.
+                    This will create a new division with all players from
+                    &ldquo;{divisionName}&rdquo; and deactivate the current division.
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     <TextField
@@ -129,16 +123,13 @@ export const CopyDivisionDialog: React.FC<CopyDivisionDialogProps> = ({
                     variant="contained"
                     onClick={handleSubmit}
                     disabled={
-                        createDivision.isPending ||
-                        updatePlayer.isPending ||
+                        copyDivision.isPending ||
                         !formData.name ||
                         !formData.start_date ||
                         !formData.end_date
                     }
                 >
-                    {createDivision.isPending || updatePlayer.isPending
-                        ? 'Creating...'
-                        : 'Create & Move Players'}
+                    {copyDivision.isPending ? 'Creating...' : 'Create Division'}
                 </Button>
             </DialogActions>
         </Dialog>

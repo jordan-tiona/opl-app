@@ -4,16 +4,15 @@ import { AddPlayerDialog } from '~/components/players'
 import { renderWithProviders, screen } from '~/test/test-utils'
 
 const mockMutateAsync = jest.fn()
+const mockAddPlayerMutateAsync = jest.fn()
 
 jest.mock('~/lib/react-query', () => ({
-    useDivisions: () => ({
-        data: [
-            { division_id: 1, name: 'Division A', start_date: '', end_date: '', match_time: '' },
-            { division_id: 2, name: 'Division B', start_date: '', end_date: '', match_time: '' },
-        ],
-    }),
     useCreatePlayer: () => ({
         mutateAsync: mockMutateAsync,
+        isPending: false,
+    }),
+    useAddPlayerToDivision: () => ({
+        mutateAsync: mockAddPlayerMutateAsync,
         isPending: false,
     }),
 }))

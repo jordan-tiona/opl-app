@@ -26,7 +26,7 @@ def test_get_player_not_found(client):
     assert response.status_code == 404
 
 
-def test_create_player(client, sample_division):
+def test_create_player(client):
     response = client.post(
         '/players/',
         json={
@@ -36,7 +36,6 @@ def test_create_player(client, sample_division):
             'games_played': 0,
             'phone': '555-0005',
             'email': 'eve@example.com',
-            'division_id': sample_division.division_id,
         },
     )
     assert response.status_code == 200
@@ -60,7 +59,6 @@ def test_update_player(client, sample_players):
             'games_played': 10,
             'phone': '555-0001',
             'email': 'alice@example.com',
-            'division_id': player.division_id,
         },
     )
     assert response.status_code == 200

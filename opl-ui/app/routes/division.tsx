@@ -33,7 +33,7 @@ import {
     ScheduleRoundRobinDialog,
 } from '~/components/divisions'
 import { AddPlayerDialog } from '~/components/players'
-import { useDivision, usePlayers, useScores, useUpdateDivision } from '~/lib/react-query'
+import { useDivision, useDivisionPlayers, usePlayers, useScores, useUpdateDivision } from '~/lib/react-query'
 import type { Division } from '~/lib/types'
 
 export const DivisionDetailPage: React.FC = () => {
@@ -42,6 +42,7 @@ export const DivisionDetailPage: React.FC = () => {
     const divisionId = Number(id)
 
     const { data: division, isLoading, error } = useDivision(divisionId)
+    const { data: divisionPlayersList } = useDivisionPlayers(divisionId)
     const { data: allPlayers } = usePlayers()
     const { data: scores } = useScores(divisionId)
     const updateDivision = useUpdateDivision()
@@ -66,15 +67,20 @@ export const DivisionDetailPage: React.FC = () => {
 
     const divisionPlayers = useMemo(
         () =>
-            (allPlayers?.filter((p) => p.division_id === divisionId) ?? [])
+            (divisionPlayersList ?? [])
                 .map((p) => ({ ...p, score: scoreMap.get(p.player_id) ?? 0 }))
                 .sort((a, b) => b.score - a.score),
-        [allPlayers, divisionId, scoreMap],
+        [divisionPlayersList, scoreMap],
+    )
+
+    const divisionPlayerIds = useMemo(
+        () => new Set(divisionPlayersList?.map((p) => p.player_id) ?? []),
+        [divisionPlayersList],
     )
 
     const availablePlayers = useMemo(
-        () => allPlayers?.filter((p) => p.division_id !== divisionId) ?? [],
-        [allPlayers, divisionId],
+        () => allPlayers?.filter((p) => !divisionPlayerIds.has(p.player_id)) ?? [],
+        [allPlayers, divisionPlayerIds],
     )
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,9 +302,9 @@ export const DivisionDetailPage: React.FC = () => {
             <CopyDivisionDialog
                 open={newDivisionOpen}
                 onClose={() => setNewDivisionOpen(false)}
+                divisionId={divisionId}
                 divisionName={division.name}
                 defaultMatchTime={division.match_time}
-                players={divisionPlayers}
             />
         </Box>
     )

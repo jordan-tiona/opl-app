@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 
-import { useUpdatePlayer } from '~/lib/react-query'
+import { useAddPlayerToDivision } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
 interface AddExistingPlayerDialogProps {
@@ -28,7 +28,7 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
     availablePlayers,
     onCreateNewPlayer,
 }: AddExistingPlayerDialogProps) => {
-    const updatePlayer = useUpdatePlayer()
+    const addPlayer = useAddPlayerToDivision()
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
 
     const handleSubmit = async () => {
@@ -36,9 +36,9 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
             return
         }
 
-        await updatePlayer.mutateAsync({
-            id: selectedPlayer.player_id,
-            data: { ...selectedPlayer, division_id: divisionId },
+        await addPlayer.mutateAsync({
+            divisionId,
+            playerId: selectedPlayer.player_id,
         })
         setSelectedPlayer(null)
         onClose()
@@ -74,9 +74,9 @@ export const AddExistingPlayerDialog: React.FC<AddExistingPlayerDialogProps> = (
                 <Button
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={!selectedPlayer || updatePlayer.isPending}
+                    disabled={!selectedPlayer || addPlayer.isPending}
                 >
-                    {updatePlayer.isPending ? 'Adding...' : 'Add Player'}
+                    {addPlayer.isPending ? 'Adding...' : 'Add Player'}
                 </Button>
             </DialogActions>
         </Dialog>

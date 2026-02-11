@@ -7,6 +7,7 @@ import type {
     ScheduleInput,
     Division,
     DivisionInput,
+    CopyDivisionInput,
     PlayerScore,
     User,
 } from './types'
@@ -72,6 +73,18 @@ export const api = {
                 method: 'PUT',
                 body: JSON.stringify(data),
             }),
+
+        getDivisions: (id: number, params?: { active?: boolean }): Promise<Division[]> => {
+            const searchParams = new URLSearchParams()
+
+            if (params?.active !== undefined) {
+                searchParams.set('active', params.active.toString())
+            }
+
+            const qs = searchParams.toString()
+
+            return fetchJson(`${API_BASE}/players/${id}/divisions/${qs ? `?${qs}` : ''}`)
+        },
     },
 
     matches: {
@@ -153,7 +166,17 @@ export const api = {
     },
 
     divisions: {
-        list: (): Promise<Division[]> => fetchJson(`${API_BASE}/divisions/`),
+        list: (params?: { active?: boolean }): Promise<Division[]> => {
+            const searchParams = new URLSearchParams()
+
+            if (params?.active !== undefined) {
+                searchParams.set('active', params.active.toString())
+            }
+
+            const qs = searchParams.toString()
+
+            return fetchJson(`${API_BASE}/divisions/${qs ? `?${qs}` : ''}`)
+        },
 
         get: (id: number): Promise<Division> => fetchJson(`${API_BASE}/divisions/${id}/`),
 
@@ -166,6 +189,25 @@ export const api = {
         update: (id: number, data: Partial<Division>): Promise<Division> =>
             fetchJson(`${API_BASE}/divisions/${id}/`, {
                 method: 'PUT',
+                body: JSON.stringify(data),
+            }),
+
+        getPlayers: (divisionId: number): Promise<Player[]> =>
+            fetchJson(`${API_BASE}/divisions/${divisionId}/players/`),
+
+        addPlayer: (divisionId: number, playerId: number): Promise<void> =>
+            fetchJson(`${API_BASE}/divisions/${divisionId}/players/${playerId}/`, {
+                method: 'POST',
+            }),
+
+        removePlayer: (divisionId: number, playerId: number): Promise<void> =>
+            fetchJson(`${API_BASE}/divisions/${divisionId}/players/${playerId}/`, {
+                method: 'DELETE',
+            }),
+
+        copy: (divisionId: number, data: CopyDivisionInput): Promise<Division> =>
+            fetchJson(`${API_BASE}/divisions/${divisionId}/copy/`, {
+                method: 'POST',
                 body: JSON.stringify(data),
             }),
     },

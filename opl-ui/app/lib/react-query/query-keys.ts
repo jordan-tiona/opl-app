@@ -13,4 +13,6 @@ export const queryKeys = {
     divisions: ['divisions'] as const,
     division: (id: number) => ['divisions', id] as const,
     scores: (divisionId: number) => ['scores', divisionId] as const,
+    divisionPlayers: (divisionId: number) => ['divisions', divisionId, 'players'] as const,
+    playerDivisions: (playerId: number) => ['players', playerId, 'divisions'] as const,
 }

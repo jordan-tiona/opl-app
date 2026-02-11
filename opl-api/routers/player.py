@@ -10,7 +10,6 @@ from routers.user import User
 class Player(SQLModel, table=True):
     __tablename__ = "players"
     player_id: int | None = Field(primary_key=True, index=True)
-    division_id: int | None
     first_name: str
     last_name: str
     rating: int = Field(default=600)
@@ -50,6 +49,20 @@ def create_player(player: Player, session: Session = Depends(get_session), _admi
         session.commit()
 
     return player
+
+
+@router.get("/{player_id}/divisions/")
+def get_player_divisions(player_id: int, active: bool | None = None, session: Session = Depends(get_session), _user: User = Depends(get_current_user)):
+    from routers.division import Division, DivisionPlayer
+
+    player = session.get(Player, player_id)
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    query = select(Division).join(DivisionPlayer, Division.division_id == DivisionPlayer.division_id).where(DivisionPlayer.player_id == player_id)
+    if active is not None:
+        query = query.where(Division.active == active)
+    return session.exec(query).all()
 
 
 @router.put("/{player_id}/", response_model=Player)

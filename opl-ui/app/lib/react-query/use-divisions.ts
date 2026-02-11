@@ -7,14 +7,14 @@ import {
 } from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { Division, DivisionInput } from '../types'
+import type { CopyDivisionInput, Division, DivisionInput, Player } from '../types'
 
 import { queryKeys } from './query-keys'
 
 export const useDivisions = (): UseQueryResult<Division[]> => {
     return useQuery({
         queryKey: queryKeys.divisions,
-        queryFn: api.divisions.list,
+        queryFn: () => api.divisions.list(),
     })
 }
 
@@ -54,6 +54,59 @@ export const useUpdateDivision = (): UseMutationResult<
         onSuccess: (_, { id }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
             queryClient.invalidateQueries({ queryKey: queryKeys.division(id) })
+        },
+    })
+}
+
+export const useDivisionPlayers = (divisionId: number): UseQueryResult<Player[]> => {
+    return useQuery({
+        queryKey: queryKeys.divisionPlayers(divisionId),
+        queryFn: () => api.divisions.getPlayers(divisionId),
+        enabled: !!divisionId,
+    })
+}
+
+export const useAddPlayerToDivision = (): UseMutationResult<
+    void,
+    Error,
+    { divisionId: number; playerId: number }
+> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ divisionId, playerId }) => api.divisions.addPlayer(divisionId, playerId),
+        onSuccess: (_, { divisionId }) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.divisionPlayers(divisionId) })
+        },
+    })
+}
+
+export const useRemovePlayerFromDivision = (): UseMutationResult<
+    void,
+    Error,
+    { divisionId: number; playerId: number }
+> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ divisionId, playerId }) => api.divisions.removePlayer(divisionId, playerId),
+        onSuccess: (_, { divisionId }) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.divisionPlayers(divisionId) })
+        },
+    })
+}
+
+export const useCopyDivision = (): UseMutationResult<
+    Division,
+    Error,
+    { divisionId: number; data: CopyDivisionInput }
+> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ divisionId, data }) => api.divisions.copy(divisionId, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
         },
     })
 }

@@ -17,6 +17,7 @@ const initialFormState: DivisionInput = {
     start_date: '',
     end_date: '',
     match_time: '19:00',
+    active: true,
 }
 
 interface AddDivisionDialogProps {

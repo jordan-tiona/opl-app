@@ -17,28 +17,22 @@ import {
 } from '@mui/material'
 import { useMemo } from 'react'
 
-import { useDivisions, usePlayers, useScores } from '~/lib/react-query'
-import type { Division, Player } from '~/lib/types'
+import { useDivisionPlayers, useDivisions, usePlayers, useScores } from '~/lib/react-query'
+import type { Division } from '~/lib/types'
 
 interface DivisionLeadersProps {
     division: Division
-    players: Player[]
 }
 
 const DivisionLeaders: React.FC<DivisionLeadersProps> = ({
     division,
-    players,
 }: DivisionLeadersProps) => {
     const { data: scores } = useScores(division.division_id)
+    const { data: divPlayers } = useDivisionPlayers(division.division_id)
 
     const divisionPlayers = useMemo(
-        () =>
-            new Map(
-                players
-                    .filter((p) => p.division_id === division.division_id)
-                    .map((p) => [p.player_id, p]),
-            ),
-        [players, division.division_id],
+        () => new Map((divPlayers ?? []).map((p) => [p.player_id, p])),
+        [divPlayers],
     )
 
     const leaders = useMemo(() => {
@@ -132,15 +126,10 @@ export const Dashboard: React.FC = () => {
     const { data: players, isLoading } = usePlayers()
     const { data: divisions } = useDivisions()
 
-    const activeDivisions = useMemo(() => {
-        if (!divisions) {
-            return []
-        }
-
-        const today = new Date().toISOString().slice(0, 10)
-
-        return divisions.filter((d) => d.end_date >= today)
-    }, [divisions])
+    const activeDivisions = useMemo(
+        () => divisions?.filter((d) => d.active) ?? [],
+        [divisions],
+    )
 
     const totalPlayers = players?.length ?? 0
     const totalGames = players?.reduce((sum, p) => sum + p.games_played, 0) ?? 0
@@ -193,7 +182,7 @@ export const Dashboard: React.FC = () => {
                 </Grid>
             </Grid>
 
-            {activeDivisions.length > 0 && players && (
+            {activeDivisions.length > 0 && (
                 <Box sx={{ mt: 4 }}>
                     <Typography variant="h5" gutterBottom>
                         Division Leaders
@@ -201,7 +190,7 @@ export const Dashboard: React.FC = () => {
                     <Grid container spacing={3}>
                         {activeDivisions.map((division) => (
                             <Grid size={{ xs: 12, sm: 6 }} key={division.division_id}>
-                                <DivisionLeaders division={division} players={players} />
+                                <DivisionLeaders division={division} />
                             </Grid>
                         ))}
                     </Grid>

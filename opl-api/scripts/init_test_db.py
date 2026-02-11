@@ -9,7 +9,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from routers.division import Division
+from routers.division import Division, DivisionPlayer
 from routers.game import Game
 from routers.match import Match
 from routers.player import Player
@@ -51,11 +51,11 @@ def init_players_table(num_players: int, player_email: str | None):
                 phone=fake.phone_number(),
                 email=fake.email(),
                 games_played=0,
-                division_id=divisions[i],
             )
             session.add(player)
             session.flush()
             session.add(User(email=player.email, player_id=player.player_id))
+            session.add(DivisionPlayer(division_id=divisions[i], player_id=player.player_id))
 
         # Create test player with specific email if provided
         if player_email:
@@ -66,11 +66,11 @@ def init_players_table(num_players: int, player_email: str | None):
                 phone="555-0100",
                 email=player_email,
                 games_played=0,
-                division_id=1,  # Always assign to first division
             )
             session.add(test_player)
             session.flush()
             session.add(User(email=player_email, player_id=test_player.player_id))
+            session.add(DivisionPlayer(division_id=1, player_id=test_player.player_id))
 
         session.commit()
     total_created = num_players + (1 if player_email else 0)
@@ -85,7 +85,10 @@ def init_matches_table(start_date: datetime):
         divisions = session.exec(select(Division)).all()
         total = 0
         for division in divisions:
-            players = session.exec(select(Player).where(Player.division_id == division.division_id)).all()
+            players = session.exec(
+                select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
+                .where(DivisionPlayer.division_id == division.division_id)
+            ).all()
             matches = schedule_round_robin(players, start_date, division.division_id)
             session.add_all(matches)
             total += len(matches)

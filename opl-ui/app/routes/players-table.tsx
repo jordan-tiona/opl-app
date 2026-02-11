@@ -3,6 +3,10 @@ import {
     Alert,
     Box,
     Button,
+    Card,
+    CardActionArea,
+    CardContent,
+    Chip,
     CircularProgress,
     FormControl,
     IconButton,
@@ -19,21 +23,37 @@ import {
     TableRow,
     TextField,
     Typography,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { AddPlayerDialog } from '~/components/players/add-player-dialog'
-import { useDivisions, usePlayers } from '~/lib/react-query'
+import { useDivisionPlayers, useDivisions, usePlayers } from '~/lib/react-query'
 
 export const PlayersPage: React.FC = () => {
     const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const { data: players, isLoading, error } = usePlayers()
     const { data: divisions } = useDivisions()
 
     const [search, setSearch] = useState('')
     const [divisionFilter, setDivisionFilter] = useState<number | ''>('')
     const [dialogOpen, setDialogOpen] = useState(false)
+
+    const { data: divisionPlayersList } = useDivisionPlayers(
+        typeof divisionFilter === 'number' ? divisionFilter : 0,
+    )
+
+    const divisionPlayerIds = useMemo(
+        () =>
+            divisionFilter !== '' && divisionPlayersList
+                ? new Set(divisionPlayersList.map((p) => p.player_id))
+                : null,
+        [divisionFilter, divisionPlayersList],
+    )
 
     const filteredPlayers = players
         ?.filter((player) => {
@@ -43,7 +63,7 @@ export const PlayersPage: React.FC = () => {
                 return false
             }
 
-            if (divisionFilter !== '' && player.division_id !== divisionFilter) {
+            if (divisionPlayerIds && !divisionPlayerIds.has(player.player_id)) {
                 return false
             }
 
@@ -77,7 +97,14 @@ export const PlayersPage: React.FC = () => {
                 </Button>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: 2,
+                    mb: 3,
+                }}
+            >
                 <TextField
                     fullWidth
                     placeholder="Search players..."
@@ -114,6 +141,61 @@ export const PlayersPage: React.FC = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
                 </Box>
+            ) : filteredPlayers?.length === 0 ? (
+                <Card>
+                    <CardContent>
+                        <Typography color="text.secondary" align="center">
+                            No players found
+                        </Typography>
+                    </CardContent>
+                </Card>
+            ) : isMobile ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {filteredPlayers?.map((player) => (
+                        <Card key={player.player_id}>
+                            <CardActionArea
+                                onClick={() => navigate(`/players/${player.player_id}`)}
+                            >
+                                <CardContent>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            mb: 1,
+                                        }}
+                                    >
+                                        <Typography variant="h6">
+                                            {player.first_name} {player.last_name}
+                                        </Typography>
+                                        <Chip
+                                            label={`Rating: ${player.rating}`}
+                                            size="small"
+                                            color="primary"
+                                        />
+                                    </Box>
+                                    {player.email && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            {player.email}
+                                        </Typography>
+                                    )}
+                                    {player.phone && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            {player.phone}
+                                        </Typography>
+                                    )}
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ mt: 0.5 }}
+                                    >
+                                        Games played: {player.games_played}
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    ))}
+                </Box>
             ) : (
                 <TableContainer component={Paper}>
                     <Table>
@@ -147,13 +229,6 @@ export const PlayersPage: React.FC = () => {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {filteredPlayers?.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={6} align="center">
-                                        No players found
-                                    </TableCell>
-                                </TableRow>
-                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>

@@ -21,29 +21,24 @@ import {
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useMatches, useScores } from '~/lib/react-query'
-import type { Division, Player } from '~/lib/types'
+import { useDivisionPlayers, useMatches, useScores } from '~/lib/react-query'
+import type { Division } from '~/lib/types'
 
 interface DivisionCardProps {
     division: Division
-    players: Player[]
 }
 
-export const DivisionCard: React.FC<DivisionCardProps> = ({ division, players }: DivisionCardProps) => {
+export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: DivisionCardProps) => {
     const navigate = useNavigate()
     const { data: matches } = useMatches({ division_id: division.division_id })
     const { data: scores } = useScores(division.division_id)
-
-    const divisionPlayers = useMemo(
-        () => players.filter((p) => p.division_id === division.division_id),
-        [players, division.division_id],
-    )
+    const { data: divisionPlayers } = useDivisionPlayers(division.division_id)
 
     const completedCount = matches?.filter((m) => m.completed).length ?? 0
     const scheduledCount = matches?.filter((m) => !m.completed).length ?? 0
 
     const topPlayersByScore = useMemo(() => {
-        if (!scores) {
+        if (!scores || !divisionPlayers) {
             return []
         }
 
@@ -108,7 +103,7 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division, players }:
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                     <GroupsIcon fontSize="small" color="action" />
                     <Typography variant="body2">
-                        {divisionPlayers.length} player{divisionPlayers.length !== 1 ? 's' : ''}
+                        {divisionPlayers?.length ?? 0} player{(divisionPlayers?.length ?? 0) !== 1 ? 's' : ''}
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>

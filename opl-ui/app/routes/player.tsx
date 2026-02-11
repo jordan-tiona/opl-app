@@ -5,18 +5,15 @@ import {
     Button,
     Card,
     CardContent,
+    Chip,
     CircularProgress,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
-import { useDivisions, usePlayer, useUpdatePlayer } from '~/lib/react-query'
+import { usePlayer, usePlayerDivisions, useUpdatePlayer } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
 export const PlayerDetailPage: React.FC = () => {
@@ -25,7 +22,7 @@ export const PlayerDetailPage: React.FC = () => {
     const playerId = Number(id)
 
     const { data: player, isLoading, error } = usePlayer(playerId)
-    const { data: divisions } = useDivisions()
+    const { data: playerDivisions } = usePlayerDivisions(playerId)
     const updatePlayer = useUpdatePlayer()
 
     const [formData, setFormData] = useState<Partial<Player>>({})
@@ -43,7 +40,7 @@ export const PlayerDetailPage: React.FC = () => {
         setFormData((prev) => ({
             ...prev,
             [name]:
-                name === 'rating' || name === 'games_played' || name === 'division_id'
+                name === 'rating' || name === 'games_played'
                     ? value
                         ? Number(value)
                         : null
@@ -164,35 +161,26 @@ export const PlayerDetailPage: React.FC = () => {
                                 onChange={handleInputChange}
                                 fullWidth
                             />
-                            <FormControl fullWidth>
-                                <InputLabel>Division</InputLabel>
-                                <Select
-                                    value={
-                                        formData.division_id != null
-                                            ? String(formData.division_id)
-                                            : ''
-                                    }
-                                    label="Division"
-                                    onChange={(e) => {
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            division_id:
-                                                e.target.value === ''
-                                                    ? null
-                                                    : Number(e.target.value),
-                                        }))
-                                        setHasChanges(true)
-                                    }}
-                                >
-                                    <MenuItem value="">None</MenuItem>
-                                    {divisions?.map((d) => (
-                                        <MenuItem key={d.division_id} value={String(d.division_id)}>
-                                            {d.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
                         </Box>
+                        {playerDivisions && playerDivisions.length > 0 && (
+                            <Box>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                    Divisions
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                    {playerDivisions.map((d) => (
+                                        <Chip
+                                            key={d.division_id}
+                                            label={d.name}
+                                            variant={d.active ? 'filled' : 'outlined'}
+                                            color={d.active ? 'primary' : 'default'}
+                                            onClick={() => navigate(`/divisions/${d.division_id}`)}
+                                            clickable
+                                        />
+                                    ))}
+                                </Box>
+                            </Box>
+                        )}
                     </Box>
                 </CardContent>
             </Card>

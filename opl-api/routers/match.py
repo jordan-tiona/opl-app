@@ -117,7 +117,12 @@ def schedule_round_robin(
 ):
     from utils import schedule_round_robin as generate_schedule
 
-    players = session.exec(select(Player).where(Player.division_id == body.division)).all()
+    from routers.division import DivisionPlayer
+
+    players = session.exec(
+        select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
+        .where(DivisionPlayer.division_id == body.division)
+    ).all()
     if not players:
         raise HTTPException(status_code=404, detail=f"No players found in division {body.division}")
 

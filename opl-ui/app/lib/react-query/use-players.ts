@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { Player, PlayerInput } from '../types'
+import type { Division, Player, PlayerInput } from '../types'
 
 import { queryKeys } from './query-keys'
 
@@ -38,6 +38,14 @@ export const useCreatePlayer = (): UseMutationResult<
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.players })
         },
+    })
+}
+
+export const usePlayerDivisions = (playerId: number, active?: boolean): UseQueryResult<Division[]> => {
+    return useQuery({
+        queryKey: queryKeys.playerDivisions(playerId),
+        queryFn: () => api.players.getDivisions(playerId, { active }),
+        enabled: !!playerId,
     })
 }
 

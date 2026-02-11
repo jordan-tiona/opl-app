@@ -9,13 +9,14 @@ import {
     UpcomingMatches,
 } from '~/components/profile'
 import { useAuth } from '~/lib/auth'
-import { usePlayer, usePlayers, useMatches, useDivision, useGames } from '~/lib/react-query'
+import { usePlayer, usePlayerDivisions, usePlayers, useMatches, useGames } from '~/lib/react-query'
 
 export const ProfilePage: React.FC = () => {
     const { user } = useAuth()
     const { data: player, isLoading: playerLoading } = usePlayer(user?.player_id ?? 0)
     const { data: players } = usePlayers()
-    const { data: division } = useDivision(player?.division_id ?? 0)
+    const { data: playerDivisions } = usePlayerDivisions(user?.player_id ?? 0, true)
+    const division = playerDivisions?.[0]
     const { data: matches, isLoading: matchesLoading } = useMatches({
         player_id: user?.player_id ?? undefined,
     })

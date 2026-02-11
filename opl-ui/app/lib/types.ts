@@ -1,6 +1,5 @@
 export interface Player {
     player_id: number
-    division_id: number | null
     first_name: string
     last_name: string
     rating: number
@@ -54,9 +53,17 @@ export interface Division {
     start_date: string
     end_date: string
     match_time: string
+    active: boolean
 }
 
 export type DivisionInput = Omit<Division, 'division_id'>
+
+export interface CopyDivisionInput {
+    name: string
+    start_date: string
+    end_date: string
+    match_time: string
+}
 
 export interface PlayerScore {
     player_id: number

@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
                     component="img"
                     src="/img/csopl-logo-transparent.svg"
                     alt="CSOPL"
-                    sx={{ height: 48 }}
+                    sx={{ height: 36 }}
                 />
             </Box>
             <Divider />

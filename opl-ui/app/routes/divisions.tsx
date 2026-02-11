@@ -3,17 +3,19 @@ import { Alert, Box, Button, CircularProgress, Grid, Typography } from '@mui/mat
 import { useState } from 'react'
 
 import { AddDivisionDialog, DivisionCard } from '~/components/divisions'
-import { useDivisions, usePlayers } from '~/lib/react-query'
+import { useDivisions } from '~/lib/react-query'
 
 export const DivisionsPage: React.FC = () => {
     const { data: divisions, isLoading, error } = useDivisions()
-    const { data: allPlayers } = usePlayers()
 
     const [dialogOpen, setDialogOpen] = useState(false)
 
     if (error) {
         return <Alert severity="error">Failed to load divisions: {error.message}</Alert>
     }
+
+    const activeDivisions = divisions?.filter((d) => d.active) ?? []
+    const inactiveDivisions = divisions?.filter((d) => !d.active) ?? []
 
     return (
         <Box>
@@ -40,20 +42,37 @@ export const DivisionsPage: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : (
-                <Grid container spacing={3}>
-                    {divisions?.map((division) => (
-                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={division.division_id}>
-                            <DivisionCard division={division} players={allPlayers ?? []} />
-                        </Grid>
-                    ))}
-                    {divisions?.length === 0 && (
-                        <Grid size={{ xs: 12 }}>
-                            <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
-                                No divisions yet. Create one to get started.
+                <>
+                    <Grid container spacing={3}>
+                        {activeDivisions.map((division) => (
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={division.division_id}>
+                                <DivisionCard division={division} />
+                            </Grid>
+                        ))}
+                        {activeDivisions.length === 0 && (
+                            <Grid size={{ xs: 12 }}>
+                                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                                    No active divisions. Create one to get started.
+                                </Typography>
+                            </Grid>
+                        )}
+                    </Grid>
+
+                    {inactiveDivisions.length > 0 && (
+                        <>
+                            <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>
+                                Past Divisions
                             </Typography>
-                        </Grid>
+                            <Grid container spacing={3}>
+                                {inactiveDivisions.map((division) => (
+                                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={division.division_id}>
+                                        <DivisionCard division={division} />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </>
                     )}
-                </Grid>
+                </>
             )}
 
             <AddDivisionDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
