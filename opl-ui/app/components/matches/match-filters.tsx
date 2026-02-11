@@ -26,6 +26,7 @@ interface MatchFiltersProps {
     completionFilter: CompletionFilter
     onCompletionFilterChange: (filter: CompletionFilter) => void
     players: Player[]
+    vertical?: boolean
 }
 
 export const MatchFilters: React.FC<MatchFiltersProps> = ({
@@ -38,6 +39,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
     completionFilter,
     onCompletionFilterChange,
     players,
+    vertical = false,
 }: MatchFiltersProps) => {
     const { data: divisions } = useDivisions()
 
@@ -54,23 +56,34 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
     }, [players])
 
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 3 }}>
-            <CalendarTodayIcon color="action" />
+        <Box
+            sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 2,
+                mb: 3,
+                ...(vertical && { flexDirection: 'column', alignItems: 'stretch' }),
+            }}
+        >
+            {!vertical && <CalendarTodayIcon color="action" />}
             <TextField
                 label="From"
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => onDateRangeChange({ ...dateRange, start: e.target.value })}
                 size="small"
+                fullWidth={vertical}
                 slotProps={{ inputLabel: { shrink: true } }}
             />
-            <Typography color="text.secondary">to</Typography>
+            {!vertical && <Typography color="text.secondary">to</Typography>}
             <TextField
                 label="To"
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => onDateRangeChange({ ...dateRange, end: e.target.value })}
                 size="small"
+                fullWidth={vertical}
                 slotProps={{ inputLabel: { shrink: true } }}
             />
 
@@ -93,10 +106,11 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 }}
                 renderInput={(params) => <TextField {...params} label="Player" />}
                 isOptionEqualToValue={(option, value) => option.player_id === value.player_id}
-                sx={{ minWidth: 220 }}
+                sx={{ minWidth: vertical ? undefined : 220 }}
+                fullWidth={vertical}
             />
 
-            <FormControl size="small" sx={{ minWidth: 130 }}>
+            <FormControl size="small" sx={{ minWidth: vertical ? undefined : 130 }} fullWidth={vertical}>
                 <InputLabel>Division</InputLabel>
                 <Select
                     value={divisionId !== null ? String(divisionId) : ''}
@@ -114,7 +128,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 </Select>
             </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: 140 }}>
+            <FormControl size="small" sx={{ minWidth: vertical ? undefined : 140 }} fullWidth={vertical}>
                 <InputLabel>Status</InputLabel>
                 <Select
                     value={completionFilter}

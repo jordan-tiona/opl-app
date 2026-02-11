@@ -65,7 +65,7 @@ export const PublicLayout: React.FC = () => {
                 position="static"
                 color="default"
                 elevation={1}
-                sx={{ bgcolor: 'primary.dark' }}
+                sx={{ bgcolor: 'primary.main' }}
             >
                 <Toolbar>
                     {isMobile && (

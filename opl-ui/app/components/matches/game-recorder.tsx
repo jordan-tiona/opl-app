@@ -1,5 +1,14 @@
 import { Add as AddIcon, Delete as DeleteIcon, Save as SaveIcon } from '@mui/icons-material'
-import { Autocomplete, Box, Button, IconButton, TextField, Typography } from '@mui/material'
+import {
+    Autocomplete,
+    Box,
+    Button,
+    IconButton,
+    TextField,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 
 import { useCompleteMatch } from '~/lib/react-query'
@@ -22,6 +31,8 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
     player1,
     player2,
 }: GameRecorderProps) => {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const completeMatch = useCompleteMatch()
     const [games, setGames] = useState<GameScore[]>([])
     const [p1Weight, p2Weight] = getMatchWeight(player1.rating, player2.rating)
@@ -110,7 +121,112 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                     {games.map((game, index) => {
                         const valid = isValidGame(game)
 
-                        return (
+                        return isMobile ? (
+                            <Box
+                                key={index}
+                                sx={{
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    borderRadius: 1,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        mb: 1.5,
+                                    }}
+                                >
+                                    <Typography color="text.secondary" variant="body2">
+                                        Game {index + 1}
+                                    </Typography>
+                                    <IconButton
+                                        color="error"
+                                        size="small"
+                                        onClick={() => removeGame(index)}
+                                        tabIndex={-1}
+                                    >
+                                        <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        mb: 1,
+                                    }}
+                                >
+                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                        {player1.first_name} {player1.last_name}
+                                    </Typography>
+                                    <Autocomplete
+                                        freeSolo
+                                        autoSelect
+                                        size="small"
+                                        options={p1Options}
+                                        value={String(game.player1Score)}
+                                        onChange={(_, value) =>
+                                            updateScore(index, 'player1Score', value ?? 0)
+                                        }
+                                        onInputChange={(_, value, reason) => {
+                                            if (reason === 'input') {
+                                                updateScore(index, 'player1Score', value)
+                                            }
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                error={!valid && game.player1Score > 0}
+                                                inputRef={
+                                                    index === games.length - 1
+                                                        ? lastGameRef
+                                                        : undefined
+                                                }
+                                            />
+                                        )}
+                                        disableClearable
+                                        sx={{ width: 80 }}
+                                    />
+                                </Box>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Typography variant="body2" sx={{ flex: 1 }}>
+                                        {player2.first_name} {player2.last_name}
+                                    </Typography>
+                                    <Autocomplete
+                                        freeSolo
+                                        autoSelect
+                                        size="small"
+                                        options={p2Options}
+                                        value={String(game.player2Score)}
+                                        onChange={(_, value) =>
+                                            updateScore(index, 'player2Score', value ?? 0)
+                                        }
+                                        onInputChange={(_, value, reason) => {
+                                            if (reason === 'input') {
+                                                updateScore(index, 'player2Score', value)
+                                            }
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                error={!valid && game.player2Score > 0}
+                                            />
+                                        )}
+                                        disableClearable
+                                        sx={{ width: 80 }}
+                                    />
+                                </Box>
+                            </Box>
+                        ) : (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography color="text.secondary" sx={{ minWidth: 60 }}>
                                     Game {index + 1}:
@@ -193,7 +309,7 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
                     alignItems: 'center',
                 }}
             >
-                <Button startIcon={<AddIcon />} onClick={addGame} size="small">
+                <Button startIcon={<AddIcon />} onClick={addGame} size="small" color="secondary">
                     Add Game
                 </Button>
                 {games.length > 0 && (

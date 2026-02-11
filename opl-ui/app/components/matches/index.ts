@@ -1,5 +1,6 @@
 export { GameRecorder } from './game-recorder'
 export { GameResults } from './game-results'
 export { MatchAccordion } from './match-accordion'
+export { MatchCard } from './match-card'
 export { MatchFilters } from './match-filters'
 export { ScheduleDialog } from './schedule-dialog'

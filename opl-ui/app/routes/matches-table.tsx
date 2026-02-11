@@ -1,12 +1,28 @@
-import { Alert, Box, Card, CardContent, CircularProgress, Typography } from '@mui/material'
+import { FilterList as FilterListIcon } from '@mui/icons-material'
+import {
+    Alert,
+    Badge,
+    Box,
+    Card,
+    CardContent,
+    CircularProgress,
+    Drawer,
+    IconButton,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { MatchAccordion, MatchFilters } from '~/components/matches'
+import { MatchAccordion, MatchCard, MatchFilters } from '~/components/matches'
 import type { CompletionFilter } from '~/components/matches/match-filters'
 import { useMatches, usePlayers } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
 const MatchesPage: React.FC = () => {
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
     const today = new Date().toISOString().split('T')[0]
     const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
@@ -16,6 +32,20 @@ const MatchesPage: React.FC = () => {
     const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all')
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
     const [hasExpandedDateRange, setHasExpandedDateRange] = useState(false)
+    const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
+
+    // Count active filters (non-default values) for badge
+    const activeFilterCount = useMemo(() => {
+        let count = 0
+
+        if (selectedPlayer) count++
+
+        if (divisionId !== null) count++
+
+        if (completionFilter !== 'all') count++
+
+        return count
+    }, [selectedPlayer, divisionId, completionFilter])
 
     // Automatically expand date range to 1 year when a player is first selected
     useEffect(() => {
@@ -113,6 +143,18 @@ const MatchesPage: React.FC = () => {
         return <Alert severity="error">Failed to load matches: {matchesError.message}</Alert>
     }
 
+    const filterProps = {
+        dateRange,
+        onDateRangeChange: setDateRange,
+        selectedPlayer,
+        onPlayerChange: setSelectedPlayer,
+        divisionId,
+        onDivisionIdChange: setDivisionId,
+        completionFilter,
+        onCompletionFilterChange: setCompletionFilter,
+        players: players ?? [],
+    }
+
     return (
         <Box>
             <Box
@@ -124,19 +166,31 @@ const MatchesPage: React.FC = () => {
                 }}
             >
                 <Typography variant="h3">Matches</Typography>
+                {isMobile && (
+                    <IconButton onClick={() => setFilterDrawerOpen(true)}>
+                        <Badge badgeContent={activeFilterCount} color="primary">
+                            <FilterListIcon />
+                        </Badge>
+                    </IconButton>
+                )}
             </Box>
 
-            <MatchFilters
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
-                selectedPlayer={selectedPlayer}
-                onPlayerChange={setSelectedPlayer}
-                divisionId={divisionId}
-                onDivisionIdChange={setDivisionId}
-                completionFilter={completionFilter}
-                onCompletionFilterChange={setCompletionFilter}
-                players={players ?? []}
-            />
+            {isMobile ? (
+                <Drawer
+                    anchor="right"
+                    open={filterDrawerOpen}
+                    onClose={() => setFilterDrawerOpen(false)}
+                >
+                    <Box sx={{ width: 320, p: 3 }}>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            Filters
+                        </Typography>
+                        <MatchFilters {...filterProps} vertical />
+                    </Box>
+                </Drawer>
+            ) : (
+                <MatchFilters {...filterProps} />
+            )}
 
             {isLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -152,15 +206,25 @@ const MatchesPage: React.FC = () => {
                 </Card>
             ) : (
                 <Box>
-                    {sortedMatches.map((match) => (
-                        <MatchAccordion
-                            key={match.match_id}
-                            match={match}
-                            players={players ?? []}
-                            expanded={expandedMatch === match.match_id}
-                            onToggle={handleToggle}
-                        />
-                    ))}
+                    {sortedMatches.map((match) =>
+                        isMobile ? (
+                            <MatchCard
+                                key={match.match_id}
+                                match={match}
+                                players={players ?? []}
+                                expanded={expandedMatch === match.match_id}
+                                onToggle={handleToggle}
+                            />
+                        ) : (
+                            <MatchAccordion
+                                key={match.match_id}
+                                match={match}
+                                players={players ?? []}
+                                expanded={expandedMatch === match.match_id}
+                                onToggle={handleToggle}
+                            />
+                        ),
+                    )}
                 </Box>
             )}
         </Box>

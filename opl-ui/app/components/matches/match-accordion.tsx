@@ -42,7 +42,9 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
         const { data: existingGames } = useGames({
             match_id: expanded ? match.match_id : undefined,
         })
-        const [p1Weight, p2Weight] = getMatchWeight(match.player1_rating, match.player2_rating)
+        const p1Rating = player1?.rating ?? match.player1_rating
+        const p2Rating = player2?.rating ?? match.player2_rating
+        const [p1Weight, p2Weight] = getMatchWeight(p1Rating, p2Rating)
 
         const handleToggle = useCallback(() => onToggle(match.match_id), [onToggle, match.match_id])
 
@@ -61,11 +63,11 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                         </Typography>
                         <Typography sx={{ flex: 1 }}>
                             {player1
-                                ? `${player1.first_name} ${player1.last_name} (${match.player1_rating})`
+                                ? `${player1.first_name} ${player1.last_name} (${p1Rating})`
                                 : 'Unknown'}
                             {' vs '}
                             {player2
-                                ? `${player2.first_name} ${player2.last_name} (${match.player2_rating})`
+                                ? `${player2.first_name} ${player2.last_name} (${p2Rating})`
                                 : 'Unknown'}
                         </Typography>
                         <Typography
@@ -96,7 +98,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                                 {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Rating: {match.player1_rating}
+                                Rating: {p1Rating}
                             </Typography>
                         </Box>
                         <Box sx={{ textAlign: 'center' }}>
@@ -112,7 +114,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                                 {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Rating: {match.player2_rating}
+                                Rating: {p2Rating}
                             </Typography>
                         </Box>
                     </Box>

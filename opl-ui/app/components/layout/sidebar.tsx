@@ -73,12 +73,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
 
     const drawerContent = (
         <>
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 1, bgcolor: 'primary.main' }}>
                 <Box
                     component="img"
                     src="/img/csopl-logo-transparent.svg"
                     alt="CSOPL"
-                    sx={{ height: 36 }}
+                    sx={{ height: 48 }}
                 />
             </Box>
             <Divider />

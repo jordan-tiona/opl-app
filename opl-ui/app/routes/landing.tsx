@@ -34,7 +34,7 @@ export const LandingPage: React.FC = () => {
         <Box>
             <Box
                 sx={{
-                    bgcolor: 'primary.main',
+                    bgcolor: 'primary.light',
                     color: 'white',
                     py: { xs: 8, md: 12 },
                     textAlign: 'center',
@@ -76,10 +76,10 @@ export const LandingPage: React.FC = () => {
                             size="large"
                             onClick={() => navigate('/rules')}
                             sx={{
-                                borderColor: 'secondary.main',
-                                color: 'secondary.main',
+                                borderColor: 'background.default',
+                                color: 'background.default',
                                 '&:hover': {
-                                    borderColor: 'secondary.main',
+                                    borderColor: 'background.paper',
                                     bgcolor: 'rgba(255,255,255,0.1)',
                                 },
                             }}

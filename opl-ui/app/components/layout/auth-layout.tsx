@@ -59,7 +59,7 @@ export const AuthLayout: React.FC = () => {
                         position="static"
                         color="default"
                         elevation={1}
-                        sx={{ bgcolor: 'primary.dark' }}
+                        sx={{ bgcolor: 'primary.main' }}
                     >
                         <Toolbar variant="dense">
                             <IconButton
