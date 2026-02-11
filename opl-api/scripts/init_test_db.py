@@ -98,8 +98,8 @@ def init_games_table():
             p1 = session.exec(select(Player).where(Player.player_id == match.player1_id)).one()
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
-            game_wins: dict[int, int] = {}
-            for _game_num in range(random.randint(2, 3)):
+            game_wins: dict[int, int] = {p1.player_id: 0, p2.player_id: 0}
+            while max(game_wins.values()) < 2:
                 winner, loser = random.sample([p1, p2], 2)
                 balls_remaining = random.randint(1, 8)
 

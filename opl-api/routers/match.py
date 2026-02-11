@@ -83,12 +83,20 @@ def get_scores(
         wins = match_player_wins.setdefault(game.match_id, {})
         wins[game.winner_id] = wins.get(game.winner_id, 0) + 1
 
-    # Calculate scores: 1 win = 1pt, 2 wins = 3pts, 3 wins = 5pts (2*wins - 1)
+    # Calculate scores per match: 2-0 winner gets 3pts, 2-1 winner gets 2pts, 1-2 loser gets 1pt
     player_scores: dict[int, int] = {}
     for wins_by_player in match_player_wins.values():
-        for player_id, wins in wins_by_player.items():
-            score = 2 * wins - 1
-            player_scores[player_id] = player_scores.get(player_id, 0) + score
+        if len(wins_by_player) < 2:
+            # One player won all games (2-0)
+            for player_id in wins_by_player:
+                player_scores[player_id] = player_scores.get(player_id, 0) + 3
+        else:
+            # Both players won at least one game
+            sorted_players = sorted(wins_by_player.items(), key=lambda x: x[1], reverse=True)
+            winner_id, _ = sorted_players[0]
+            loser_id, _ = sorted_players[1]
+            player_scores[winner_id] = player_scores.get(winner_id, 0) + 2
+            player_scores[loser_id] = player_scores.get(loser_id, 0) + 1
 
     return [PlayerScore(player_id=pid, score=s) for pid, s in player_scores.items()]
 
