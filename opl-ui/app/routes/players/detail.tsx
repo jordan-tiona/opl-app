@@ -1,8 +1,4 @@
-import {
-    ArrowBack as ArrowBackIcon,
-    Edit as EditIcon,
-    Save as SaveIcon,
-} from '@mui/icons-material'
+import { ArrowBack as ArrowBackIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -17,7 +13,7 @@ import {
     useMediaQuery,
     useTheme,
 } from '@mui/material'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
 import { MatchAccordion, MatchCard } from '~/components/matches'
@@ -46,6 +42,20 @@ export const PlayerDetailPage: React.FC = () => {
     const [formData, setFormData] = useState<Partial<Player>>({})
     const [isEditing, setIsEditing] = useState(false)
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
+
+    const sortedMatches = useMemo(() => {
+        if (!matches) {
+            return []
+        }
+
+        return [...matches].sort((a, b) => {
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1
+            }
+
+            return new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
+        })
+    }, [matches])
 
     useEffect(() => {
         if (player) {
@@ -239,11 +249,11 @@ export const PlayerDetailPage: React.FC = () => {
                 Matches
             </Typography>
             {matches && allPlayers ? (
-                matches.length === 0 ? (
+                sortedMatches.length === 0 ? (
                     <Typography color="text.secondary">No matches found</Typography>
                 ) : (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 2 : 0 }}>
-                        {matches.map((match) =>
+                        {sortedMatches.map((match) =>
                             isMobile ? (
                                 <MatchCard
                                     expanded={expandedMatch === match.match_id}
