@@ -13,6 +13,7 @@ import {
     CircularProgress,
     IconButton,
     Paper,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -21,6 +22,8 @@ import {
     TableRow,
     TextField,
     Typography,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
@@ -51,6 +54,8 @@ export const SessionDetailPage: React.FC = () => {
     const [formData, setFormData] = useState<Partial<Session>>({})
     const [hasChanges, setHasChanges] = useState(false)
     const [scheduleOpen, setScheduleOpen] = useState(false)
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
     useEffect(() => {
         if (session) {
@@ -208,45 +213,84 @@ export const SessionDetailPage: React.FC = () => {
                     </Box>
 
                     {divisionPlayers.length > 0 ? (
-                        <TableContainer component={Paper} variant="outlined">
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="center">#</TableCell>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell align="right">Score</TableCell>
-                                        <TableCell align="right">Rating</TableCell>
-                                        <TableCell align="right">Games Played</TableCell>
-                                        <TableCell align="right">Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {divisionPlayers.map((player, index) => (
-                                        <TableRow hover key={player.player_id}>
-                                            <TableCell align="center">{index + 1}</TableCell>
-                                            <TableCell>
-                                                {player.first_name} {player.last_name}
-                                            </TableCell>
-                                            <TableCell align="right">{player.score}</TableCell>
-                                            <TableCell align="right">{player.rating}</TableCell>
-                                            <TableCell align="right">
-                                                {player.games_played}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() =>
-                                                        navigate(`/players/${player.player_id}`)
-                                                    }
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                            </TableCell>
+                        isMobile ? (
+                            <Stack spacing={1.5}>
+                                {divisionPlayers.map((player, index) => {
+                                    const rank = index + 1
+
+                                    return (
+                                        <Card
+                                            key={player.player_id}
+                                            sx={{ bgcolor: rank <= 3 ? 'action.hover' : 'inherit', cursor: 'pointer' }}
+                                            variant="outlined"
+                                            onClick={() => navigate(`/players/${player.player_id}`)}
+                                        >
+                                            <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                    <Typography color="text.secondary">#{rank}</Typography>
+                                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                        <Typography noWrap fontWeight={rank <= 3 ? 600 : 400}>
+                                                            {player.first_name} {player.last_name}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Typography color="secondary.main" fontWeight={600}>
+                                                        {player.score} pts
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', gap: 2, mt: 0.5, ml: 4 }}>
+                                                    <Typography color="text.secondary" variant="body2">
+                                                        Rating: {player.rating}
+                                                    </Typography>
+                                                    <Typography color="text.secondary" variant="body2">
+                                                        Games: {player.games_played}
+                                                    </Typography>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    )
+                                })}
+                            </Stack>
+                        ) : (
+                            <TableContainer component={Paper} variant="outlined">
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="center">#</TableCell>
+                                            <TableCell>Name</TableCell>
+                                            <TableCell align="right">Score</TableCell>
+                                            <TableCell align="right">Rating</TableCell>
+                                            <TableCell align="right">Games Played</TableCell>
+                                            <TableCell align="right">Actions</TableCell>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                    </TableHead>
+                                    <TableBody>
+                                        {divisionPlayers.map((player, index) => (
+                                            <TableRow hover key={player.player_id}>
+                                                <TableCell align="center">{index + 1}</TableCell>
+                                                <TableCell>
+                                                    {player.first_name} {player.last_name}
+                                                </TableCell>
+                                                <TableCell align="right">{player.score}</TableCell>
+                                                <TableCell align="right">{player.rating}</TableCell>
+                                                <TableCell align="right">
+                                                    {player.games_played}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() =>
+                                                            navigate(`/players/${player.player_id}`)
+                                                        }
+                                                    >
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        )
                     ) : (
                         <Typography align="center" color="text.secondary" sx={{ py: 3 }}>
                             No players in this division yet.

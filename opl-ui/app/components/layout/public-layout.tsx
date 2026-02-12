@@ -30,7 +30,7 @@ import {
     useTheme,
 } from '@mui/material'
 import { useGoogleOAuth } from '@react-oauth/google'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
 
 import { useAuth } from '../../lib/auth'
@@ -65,6 +65,8 @@ export const PublicLayout: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const { user, login, logout } = useAuth()
     const { clientId } = useGoogleOAuth()
+    const desktopGoogleBtnRef = useRef<HTMLDivElement>(null)
+    const mobileGoogleBtnRef = useRef<HTMLDivElement>(null)
 
     const profileMenuItems = user?.is_admin ? adminNavItems : playerNavItems
 
@@ -79,11 +81,11 @@ export const PublicLayout: React.FC = () => {
         [login, navigate],
     )
 
-    const triggerGoogleSignIn = useCallback(() => {
+    useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const google = (window as any).google
 
-        if (!google?.accounts?.id) {
+        if (!google?.accounts?.id || user) {
             return
         }
 
@@ -93,8 +95,17 @@ export const PublicLayout: React.FC = () => {
                 handleGoogleSuccess({ credential: response.credential })
             },
         })
-        google.accounts.id.prompt()
-    }, [clientId, handleGoogleSuccess])
+
+        for (const ref of [desktopGoogleBtnRef, mobileGoogleBtnRef]) {
+            if (ref.current) {
+                google.accounts.id.renderButton(ref.current, {
+                    type: 'standard',
+                    size: 'large',
+                    width: 250,
+                })
+            }
+        }
+    }, [clientId, handleGoogleSuccess, user])
 
     const drawer = (
         <Box sx={{ p: 2 }}>
@@ -147,12 +158,24 @@ export const PublicLayout: React.FC = () => {
                     <>
                         <Divider sx={{ my: 1 }} />
                         <ListItem disablePadding>
-                            <ListItemButton onClick={triggerGoogleSignIn}>
-                                <ListItemIcon sx={{ minWidth: 36 }}>
-                                    <LoginIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Sign In" />
-                            </ListItemButton>
+                            <Box sx={{ position: 'relative', width: '100%' }}>
+                                <ListItemButton>
+                                    <ListItemIcon sx={{ minWidth: 36 }}>
+                                        <LoginIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Sign In" />
+                                </ListItemButton>
+                                <Box
+                                    ref={mobileGoogleBtnRef}
+                                    sx={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        opacity: 0,
+                                        overflow: 'hidden',
+                                        '& iframe': { width: '100% !important', height: '100% !important' },
+                                    }}
+                                />
+                            </Box>
                         </ListItem>
                     </>
                 )}
@@ -237,13 +260,24 @@ export const PublicLayout: React.FC = () => {
                                     </Menu>
                                 </>
                             ) : (
-                                <Button
-                                    startIcon={<LoginIcon />}
-                                    sx={{ color: 'inherit' }}
-                                    onClick={triggerGoogleSignIn}
-                                >
-                                    Sign In
-                                </Button>
+                                <Box sx={{ position: 'relative' }}>
+                                    <Button
+                                        startIcon={<LoginIcon />}
+                                        sx={{ color: 'inherit' }}
+                                    >
+                                        Sign In
+                                    </Button>
+                                    <Box
+                                        ref={desktopGoogleBtnRef}
+                                        sx={{
+                                            position: 'absolute',
+                                            inset: 0,
+                                            opacity: 0,
+                                            overflow: 'hidden',
+                                            '& iframe': { width: '100% !important', height: '100% !important' },
+                                        }}
+                                    />
+                                </Box>
                             )}
                         </Box>
                     )}

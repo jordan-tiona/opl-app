@@ -1,5 +1,6 @@
 import type { CredentialResponse } from '@react-oauth/google'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import { api } from './api'
 import type { User } from './types'
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const result = await api.auth.login(credential)
 
             localStorage.setItem(STORAGE_KEY, result.token)
-            setUser(result.user)
+            flushSync(() => setUser(result.user))
 
             return { success: true, user: result.user }
         } catch (err) {

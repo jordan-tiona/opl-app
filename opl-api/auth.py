@@ -16,7 +16,7 @@ JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-ADMIN_EMAIL = "tionajordan@gmail.com"
+ADMIN_EMAIL = "admin@csopl.com"
 
 security = HTTPBearer()
 

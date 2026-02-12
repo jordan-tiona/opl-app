@@ -24,8 +24,8 @@ export const ContactPage: React.FC = () => {
                 </Typography>
                 <Typography variant="body1">
                     <strong>Email:</strong>{' '}
-                    <a href="mailto:tionajordan@gmail.com" style={{ color: '#1976d2' }}>
-                        tionajordan@gmail.com
+                    <a href="mailto:admin@csopl.com" style={{ color: '#1976d2' }}>
+                        admin@csopl.com
                     </a>
                 </Typography>
             </Paper>

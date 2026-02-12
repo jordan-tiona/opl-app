@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
     print("Creating admin user...", flush=True)
     with Session(engine) as session:
-        session.add(User(email="tionajordan@gmail.com", is_admin=True))
+        session.add(User(email="admin@csopl.com", is_admin=True))
         session.commit()
     print("  Done.\n", flush=True)
 
