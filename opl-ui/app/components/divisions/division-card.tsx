@@ -86,7 +86,7 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: Division
                                     key={s.session_id}
                                     label={s.name}
                                     size="small"
-                                    variant="outlined"
+                                    variant="filled"
                                     onClick={() => navigate(`/sessions/${s.session_id}`)}
                                 />
                             ))}

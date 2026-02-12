@@ -4,22 +4,22 @@ export const theme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#1d4d71',
-            light: '#4f7591',
-            dark: '#033458',
+            main: '#3d4570',
+            light: '#5c6490',
+            dark: '#2b3155',
         },
         secondary: {
-            main: '#90d9e5',
-            light: '#bce8ef',
-            dark: '#568289',
+            main: '#998888',
+            light: '#bfb8ad',
+            dark: '#6e6060',
         },
         background: {
-            default: '#20201e',
-            paper: '#292826',
+            default: '#14080e',
+            paper: '#221520',
         },
         text: {
-            primary: '#ffffff',
-            secondary: '#b0b0b0',
+            primary: '#eadeda',
+            secondary: '#998888',
         },
     },
     typography: {
@@ -47,6 +47,9 @@ export const theme = createTheme({
                 root: {
                     textTransform: 'none',
                     borderRadius: 8,
+                    '&.MuiButton-text': {
+                        color: '#bfb8ad',
+                    },
                 },
             },
         },

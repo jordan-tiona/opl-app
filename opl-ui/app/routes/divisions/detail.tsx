@@ -197,6 +197,7 @@ export const DivisionDetailPage: React.FC = () => {
                                     color="primary"
                                     key={s.session_id}
                                     label={`${s.name} (${s.start_date} - ${s.end_date})`}
+                                    variant="filled"
                                     onClick={() => navigate(`/sessions/${s.session_id}`)}
                                 />
                             ))}
@@ -235,8 +236,9 @@ export const DivisionDetailPage: React.FC = () => {
                     >
                         <Typography variant="h6">Players ({divisionPlayers.length})</Typography>
                         <Button
+                            color="primary"
                             startIcon={<PersonAddIcon />}
-                            variant="outlined"
+                            variant="contained"
                             onClick={() => setAddPlayerOpen(true)}
                         >
                             Add Player

@@ -104,7 +104,7 @@ export const PlayerDetailPage: React.FC = () => {
         <Box>
             <Button
                 startIcon={<ArrowBackIcon />}
-                sx={{ mb: 2 }}
+                sx={{ mb: 2, color: 'text.secondary' }}
                 onClick={() => navigate('/players')}
             >
                 Back to Players
