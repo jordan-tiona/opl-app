@@ -1,4 +1,4 @@
-import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { Close as CancelIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import { Avatar, Box, Button, Card, CardContent, Chip, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 
@@ -90,23 +90,38 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ player, division, user
                             label={division.name}
                             size="small"
                             sx={{ mt: 1 }}
-                            variant="outlined"
                         />
                     )}
                 </Box>
                 {editing ? (
-                    <Button
-                        disabled={updatePlayer.isPending || !formData.first_name || !formData.last_name}
-                        startIcon={<SaveIcon />}
-                        variant="contained"
-                        onClick={handleSave}
-                    >
-                        {updatePlayer.isPending ? 'Saving...' : 'Save'}
-                    </Button>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                            startIcon={<CancelIcon />}
+                            variant="text"
+                            onClick={() => {
+                                setEditing(false)
+                                setFormData({
+                                    first_name: player.first_name,
+                                    last_name: player.last_name,
+                                    phone: player.phone,
+                                })
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            disabled={updatePlayer.isPending || !formData.first_name || !formData.last_name}
+                            startIcon={<SaveIcon />}
+                            variant="contained"
+                            onClick={handleSave}
+                        >
+                            {updatePlayer.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                    </Box>
                 ) : (
                     <Button
                         startIcon={<EditIcon />}
-                        variant="outlined"
+                        variant="text"
                         onClick={() => setEditing(true)}
                     >
                         Edit
