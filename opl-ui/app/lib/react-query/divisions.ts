@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { CopyDivisionInput, Division, DivisionInput, Player } from '../types'
+import type { Division, DivisionInput, Player } from '../types'
 
 import { queryKeys } from './query-keys'
 
@@ -92,21 +92,6 @@ export const useRemovePlayerFromDivision = (): UseMutationResult<
         mutationFn: ({ divisionId, playerId }) => api.divisions.removePlayer(divisionId, playerId),
         onSuccess: (_, { divisionId }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisionPlayers(divisionId) })
-        },
-    })
-}
-
-export const useCopyDivision = (): UseMutationResult<
-    Division,
-    Error,
-    { divisionId: number; data: CopyDivisionInput }
-> => {
-    const queryClient = useQueryClient()
-
-    return useMutation({
-        mutationFn: ({ divisionId, data }) => api.divisions.copy(divisionId, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
         },
     })
 }

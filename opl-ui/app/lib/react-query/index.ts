@@ -8,7 +8,10 @@ export { usePlayers, usePlayer, useCreatePlayer, useUpdatePlayer, usePlayerDivis
 export { useMatches, useMatch, useCompleteMatch, useScheduleRoundRobin } from './matches'
 
 // Division hooks
-export { useDivisions, useDivision, useCreateDivision, useUpdateDivision, useDivisionPlayers, useAddPlayerToDivision, useRemovePlayerFromDivision, useCopyDivision } from './divisions'
+export { useDivisions, useDivision, useCreateDivision, useUpdateDivision, useDivisionPlayers, useAddPlayerToDivision, useRemovePlayerFromDivision } from './divisions'
+
+// Session hooks
+export { useSessions, useSession, useCreateSession, useUpdateSession } from './sessions'
 
 // Game hooks
 export { useGames } from './games'

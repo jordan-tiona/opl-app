@@ -15,14 +15,14 @@ import { useSnackbar } from '~/lib/snackbar'
 interface ScheduleRoundRobinDialogProps {
     open: boolean
     onClose: () => void
-    divisionId: number
+    sessionId: number
     defaultStartDate: string
 }
 
 export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> = ({
     open,
     onClose,
-    divisionId,
+    sessionId,
     defaultStartDate,
 }: ScheduleRoundRobinDialogProps) => {
     const scheduleRoundRobin = useScheduleRoundRobin()
@@ -38,7 +38,7 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     const handleSubmit = async () => {
         try {
             const scheduledMatches = await scheduleRoundRobin.mutateAsync({
-                division: divisionId,
+                session_id: sessionId,
                 start_date: `${startDate}T00:00:00`,
             })
 

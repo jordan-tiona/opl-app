@@ -15,13 +15,13 @@ export const useMatches = (params: {
     start_date?: string
     end_date?: string
     player_id?: number
-    division_id?: number
+    session_id?: number
     completed?: boolean
 }): UseQueryResult<Match[]> => {
     return useQuery({
         queryKey: queryKeys.matches(params),
         queryFn: () => api.matches.list(params),
-        enabled: !!(params.start_date ?? params.player_id ?? params.division_id),
+        enabled: !!(params.start_date ?? params.player_id ?? params.session_id),
     })
 }
 

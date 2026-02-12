@@ -7,7 +7,8 @@ import type {
     ScheduleInput,
     Division,
     DivisionInput,
-    CopyDivisionInput,
+    Session,
+    SessionInput,
     PlayerScore,
     User,
 } from './types'
@@ -93,7 +94,7 @@ export const api = {
             end_date?: string
             player_id?: number
             match_id?: number
-            division_id?: number
+            session_id?: number
             completed?: boolean
         }): Promise<Match[]> => {
             const searchParams = new URLSearchParams()
@@ -114,8 +115,8 @@ export const api = {
                 searchParams.set('match_id', params.match_id.toString())
             }
 
-            if (params.division_id) {
-                searchParams.set('division_id', params.division_id.toString())
+            if (params.session_id) {
+                searchParams.set('session_id', params.session_id.toString())
             }
 
             if (params.completed !== undefined) {
@@ -145,8 +146,8 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
-        scores: (divisionId: number): Promise<PlayerScore[]> =>
-            fetchJson(`${API_BASE}/matches/scores/?division_id=${divisionId}`),
+        scores: (sessionId: number): Promise<PlayerScore[]> =>
+            fetchJson(`${API_BASE}/matches/scores/?session_id=${sessionId}`),
     },
 
     games: {
@@ -204,10 +205,36 @@ export const api = {
             fetchJson(`${API_BASE}/divisions/${divisionId}/players/${playerId}/`, {
                 method: 'DELETE',
             }),
+    },
 
-        copy: (divisionId: number, data: CopyDivisionInput): Promise<Division> =>
-            fetchJson(`${API_BASE}/divisions/${divisionId}/copy/`, {
+    sessions: {
+        list: (params?: { active?: boolean; division_id?: number }): Promise<Session[]> => {
+            const searchParams = new URLSearchParams()
+
+            if (params?.active !== undefined) {
+                searchParams.set('active', params.active.toString())
+            }
+
+            if (params?.division_id !== undefined) {
+                searchParams.set('division_id', params.division_id.toString())
+            }
+
+            const qs = searchParams.toString()
+
+            return fetchJson(`${API_BASE}/sessions/${qs ? `?${qs}` : ''}`)
+        },
+
+        get: (id: number): Promise<Session> => fetchJson(`${API_BASE}/sessions/${id}/`),
+
+        create: (data: SessionInput): Promise<Session> =>
+            fetchJson(`${API_BASE}/sessions/`, {
                 method: 'POST',
+                body: JSON.stringify(data),
+            }),
+
+        update: (id: number, data: Partial<Session>): Promise<Session> =>
+            fetchJson(`${API_BASE}/sessions/${id}/`, {
+                method: 'PUT',
                 body: JSON.stringify(data),
             }),
     },

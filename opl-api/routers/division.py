@@ -1,17 +1,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, SQLModel, select
+from sqlmodel import Session, select
 
 from auth import get_current_user, require_admin
 from database import get_session
 from models import Division, DivisionPlayer, Player, User
-
-
-class CopyDivisionInput(SQLModel):
-    name: str
-    start_date: str
-    end_date: str
-    match_time: str
 
 
 router = APIRouter(
@@ -111,35 +104,3 @@ def remove_player_from_division(division_id: int, player_id: int, session: Sessi
     session.delete(dp)
     session.commit()
     return {"ok": True}
-
-
-@router.post("/{division_id}/copy/", response_model=Division)
-def copy_division(division_id: int, body: CopyDivisionInput, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
-    source = session.get(Division, division_id)
-    if not source:
-        raise HTTPException(status_code=404, detail="Division not found")
-
-    # Create new division
-    new_division = Division(
-        name=body.name,
-        start_date=body.start_date,
-        end_date=body.end_date,
-        match_time=body.match_time,
-        active=True,
-    )
-    session.add(new_division)
-    session.flush()
-
-    # Copy players from source to new division
-    source_players = session.exec(
-        select(DivisionPlayer).where(DivisionPlayer.division_id == division_id)
-    ).all()
-    for sp in source_players:
-        session.add(DivisionPlayer(division_id=new_division.division_id, player_id=sp.player_id))
-
-    # Deactivate source division
-    source.active = False
-
-    session.commit()
-    session.refresh(new_division)
-    return new_division

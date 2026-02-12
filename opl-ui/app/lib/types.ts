@@ -10,7 +10,7 @@ export interface Player {
 
 export interface Match {
     match_id: number
-    division_id: number | null
+    session_id: number | null
     player1_id: number
     player2_id: number
     player1_rating: number
@@ -41,7 +41,7 @@ export interface GameInput {
 }
 
 export interface ScheduleInput {
-    division: number
+    session_id: number
     start_date: string
 }
 
@@ -50,20 +50,23 @@ export type PlayerInput = Omit<Player, 'player_id'>
 export interface Division {
     division_id: number
     name: string
+    day_of_week: number
+    active: boolean
+}
+
+export type DivisionInput = Omit<Division, 'division_id'>
+
+export interface Session {
+    session_id: number
+    division_id: number
+    name: string
     start_date: string
     end_date: string
     match_time: string
     active: boolean
 }
 
-export type DivisionInput = Omit<Division, 'division_id'>
-
-export interface CopyDivisionInput {
-    name: string
-    start_date: string
-    end_date: string
-    match_time: string
-}
+export type SessionInput = Omit<Session, 'session_id'>
 
 export interface PlayerScore {
     player_id: number

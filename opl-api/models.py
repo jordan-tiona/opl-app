@@ -29,6 +29,15 @@ class Division(SQLModel, table=True):
     __tablename__ = "divisions"
     division_id: int | None = Field(primary_key=True, index=True)
     name: str
+    day_of_week: int = Field(default=0)  # 0=Mon, 1=Tue, ..., 6=Sun
+    active: bool = Field(default=True)
+
+
+class Session(SQLModel, table=True):
+    __tablename__ = "sessions"
+    session_id: int | None = Field(primary_key=True, index=True)
+    division_id: int = Field(foreign_key="divisions.division_id")
+    name: str
     start_date: str  # YYYY-MM-DD
     end_date: str  # YYYY-MM-DD
     match_time: str  # HH:MM
@@ -45,7 +54,7 @@ class DivisionPlayer(SQLModel, table=True):
 class Match(SQLModel, table=True):
     __tablename__ = "matches"
     match_id: int | None = Field(primary_key=True)
-    division_id: int | None = Field(default=None, foreign_key="divisions.division_id")
+    session_id: int | None = Field(default=None, foreign_key="sessions.session_id")
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int = Field(foreign_key="players.player_id")
     player1_rating: int

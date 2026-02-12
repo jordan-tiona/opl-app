@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { useMemo } from 'react'
 
-import { useDivisions } from '~/lib/react-query'
+import { useSessions } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
 export type CompletionFilter = 'all' | 'completed' | 'scheduled'
@@ -21,8 +21,8 @@ interface MatchFiltersProps {
     onDateRangeChange: (dateRange: { start: string; end: string }) => void
     selectedPlayer: Player | null
     onPlayerChange: (player: Player | null) => void
-    divisionId: number | null
-    onDivisionIdChange: (divisionId: number | null) => void
+    sessionId: number | null
+    onSessionIdChange: (sessionId: number | null) => void
     completionFilter: CompletionFilter
     onCompletionFilterChange: (filter: CompletionFilter) => void
     players: Player[]
@@ -34,14 +34,14 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
     onDateRangeChange,
     selectedPlayer,
     onPlayerChange,
-    divisionId,
-    onDivisionIdChange,
+    sessionId,
+    onSessionIdChange,
     completionFilter,
     onCompletionFilterChange,
     players,
     vertical = false,
 }: MatchFiltersProps) => {
-    const { data: divisions } = useDivisions()
+    const { data: sessions } = useSessions()
 
     const sortedPlayers = useMemo(() => {
         return [...players].sort((a, b) => {
@@ -111,18 +111,18 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
             />
 
             <FormControl fullWidth={vertical} size="small" sx={{ minWidth: vertical ? undefined : 130 }}>
-                <InputLabel>Division</InputLabel>
+                <InputLabel>Session</InputLabel>
                 <Select
-                    label="Division"
-                    value={divisionId !== null ? String(divisionId) : ''}
+                    label="Session"
+                    value={sessionId !== null ? String(sessionId) : ''}
                     onChange={(e) =>
-                        onDivisionIdChange(e.target.value === '' ? null : Number(e.target.value))
+                        onSessionIdChange(e.target.value === '' ? null : Number(e.target.value))
                     }
                 >
                     <MenuItem value="">All</MenuItem>
-                    {divisions?.map((d) => (
-                        <MenuItem key={d.division_id} value={String(d.division_id)}>
-                            {d.name}
+                    {sessions?.map((s) => (
+                        <MenuItem key={s.session_id} value={String(s.session_id)}>
+                            {s.name}
                         </MenuItem>
                     ))}
                 </Select>

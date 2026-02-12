@@ -1,10 +1,8 @@
 import {
     ArrowBack as ArrowBackIcon,
-    ContentCopy as ContentCopyIcon,
     Edit as EditIcon,
     PersonAdd as PersonAddIcon,
     Save as SaveIcon,
-    Schedule as ScheduleIcon,
 } from '@mui/icons-material'
 import {
     Alert,
@@ -12,9 +10,14 @@ import {
     Button,
     Card,
     CardContent,
+    Chip,
     CircularProgress,
+    FormControl,
     IconButton,
+    InputLabel,
+    MenuItem,
     Paper,
+    Select,
     Table,
     TableBody,
     TableCell,
@@ -27,15 +30,21 @@ import {
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
-import {
-    AddExistingPlayerDialog,
-    CopyDivisionDialog,
-    ScheduleRoundRobinDialog,
-} from '~/components/divisions'
+import { AddExistingPlayerDialog } from '~/components/divisions'
 import { AddPlayerDialog } from '~/components/players'
-import { useDivision, useDivisionPlayers, usePlayers, useScores, useUpdateDivision } from '~/lib/react-query'
+import { useDivision, useDivisionPlayers, usePlayers, useSessions, useUpdateDivision } from '~/lib/react-query'
 import { useSnackbar } from '~/lib/snackbar'
 import type { Division } from '~/lib/types'
+
+const DAYS_OF_WEEK = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' },
+]
 
 export const DivisionDetailPage: React.FC = () => {
     const { id } = useParams()
@@ -45,7 +54,7 @@ export const DivisionDetailPage: React.FC = () => {
     const { data: division, isLoading, error } = useDivision(divisionId)
     const { data: divisionPlayersList } = useDivisionPlayers(divisionId)
     const { data: allPlayers } = usePlayers()
-    const { data: scores } = useScores(divisionId)
+    const { data: sessions } = useSessions({ division_id: divisionId })
     const updateDivision = useUpdateDivision()
     const { showSnackbar } = useSnackbar()
 
@@ -53,8 +62,6 @@ export const DivisionDetailPage: React.FC = () => {
     const [hasChanges, setHasChanges] = useState(false)
     const [addPlayerOpen, setAddPlayerOpen] = useState(false)
     const [createPlayerOpen, setCreatePlayerOpen] = useState(false)
-    const [scheduleOpen, setScheduleOpen] = useState(false)
-    const [newDivisionOpen, setNewDivisionOpen] = useState(false)
 
     useEffect(() => {
         if (division) {
@@ -62,17 +69,11 @@ export const DivisionDetailPage: React.FC = () => {
         }
     }, [division])
 
-    const scoreMap = useMemo(
-        () => new Map(scores?.map((s) => [s.player_id, s.score]) ?? []),
-        [scores],
-    )
-
     const divisionPlayers = useMemo(
         () =>
             (divisionPlayersList ?? [])
-                .map((p) => ({ ...p, score: scoreMap.get(p.player_id) ?? 0 }))
-                .sort((a, b) => b.score - a.score),
-        [divisionPlayersList, scoreMap],
+                .sort((a, b) => b.rating - a.rating),
+        [divisionPlayersList],
     )
 
     const divisionPlayerIds = useMemo(
@@ -84,13 +85,6 @@ export const DivisionDetailPage: React.FC = () => {
         () => allPlayers?.filter((p) => !divisionPlayerIds.has(p.player_id)) ?? [],
         [allPlayers, divisionPlayerIds],
     )
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-
-        setFormData((prev) => ({ ...prev, [name]: value }))
-        setHasChanges(true)
-    }
 
     const handleSave = async () => {
         try {
@@ -117,6 +111,9 @@ export const DivisionDetailPage: React.FC = () => {
     if (!division) {
         return <Alert severity="warning">Division not found</Alert>
     }
+
+    const activeSessions = sessions?.filter((s) => s.active) ?? []
+    const inactiveSessions = sessions?.filter((s) => !s.active) ?? []
 
     return (
         <Box>
@@ -158,38 +155,71 @@ export const DivisionDetailPage: React.FC = () => {
                             label="Name"
                             name="name"
                             value={formData.name ?? ''}
-                            onChange={handleInputChange}
+                            onChange={(e) => {
+                                setFormData((prev) => ({ ...prev, name: e.target.value }))
+                                setHasChanges(true)
+                            }}
                         />
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Start Date"
-                                name="start_date"
-                                slotProps={{ inputLabel: { shrink: true } }}
-                                type="date"
-                                value={formData.start_date ?? ''}
-                                onChange={handleInputChange}
-                            />
-                            <TextField
-                                fullWidth
-                                label="End Date"
-                                name="end_date"
-                                slotProps={{ inputLabel: { shrink: true } }}
-                                type="date"
-                                value={formData.end_date ?? ''}
-                                onChange={handleInputChange}
-                            />
-                        </Box>
-                        <TextField
-                            fullWidth
-                            label="Match Time"
-                            name="match_time"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="time"
-                            value={formData.match_time ?? ''}
-                            onChange={handleInputChange}
-                        />
+                        <FormControl fullWidth>
+                            <InputLabel>Day of Week</InputLabel>
+                            <Select
+                                label="Day of Week"
+                                value={formData.day_of_week ?? 0}
+                                onChange={(e) => {
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        day_of_week: e.target.value as number,
+                                    }))
+                                    setHasChanges(true)
+                                }}
+                            >
+                                {DAYS_OF_WEEK.map((d) => (
+                                    <MenuItem key={d.value} value={d.value}>
+                                        {d.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Box>
+                </CardContent>
+            </Card>
+
+            <Card sx={{ mb: 3 }}>
+                <CardContent>
+                    <Typography gutterBottom variant="h6">
+                        Sessions
+                    </Typography>
+                    {activeSessions.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                            {activeSessions.map((s) => (
+                                <Chip
+                                    clickable
+                                    color="primary"
+                                    key={s.session_id}
+                                    label={`${s.name} (${s.start_date} - ${s.end_date})`}
+                                    onClick={() => navigate(`/sessions/${s.session_id}`)}
+                                />
+                            ))}
+                        </Box>
+                    )}
+                    {inactiveSessions.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {inactiveSessions.map((s) => (
+                                <Chip
+                                    clickable
+                                    key={s.session_id}
+                                    label={`${s.name} (${s.start_date} - ${s.end_date})`}
+                                    variant="outlined"
+                                    onClick={() => navigate(`/sessions/${s.session_id}`)}
+                                />
+                            ))}
+                        </Box>
+                    )}
+                    {(sessions?.length ?? 0) === 0 && (
+                        <Typography color="text.secondary" variant="body2">
+                            No sessions yet.
+                        </Typography>
+                    )}
                 </CardContent>
             </Card>
 
@@ -204,31 +234,13 @@ export const DivisionDetailPage: React.FC = () => {
                         }}
                     >
                         <Typography variant="h6">Players ({divisionPlayers.length})</Typography>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Button
-                                startIcon={<PersonAddIcon />}
-                                variant="outlined"
-                                onClick={() => setAddPlayerOpen(true)}
-                            >
-                                Add Player
-                            </Button>
-                            <Button
-                                disabled={divisionPlayers.length === 0}
-                                startIcon={<ScheduleIcon />}
-                                variant="outlined"
-                                onClick={() => setScheduleOpen(true)}
-                            >
-                                Schedule Round Robin
-                            </Button>
-                            <Button
-                                disabled={divisionPlayers.length === 0}
-                                startIcon={<ContentCopyIcon />}
-                                variant="outlined"
-                                onClick={() => setNewDivisionOpen(true)}
-                            >
-                                New Division with Same Players
-                            </Button>
-                        </Box>
+                        <Button
+                            startIcon={<PersonAddIcon />}
+                            variant="outlined"
+                            onClick={() => setAddPlayerOpen(true)}
+                        >
+                            Add Player
+                        </Button>
                     </Box>
 
                     {divisionPlayers.length > 0 ? (
@@ -236,22 +248,18 @@ export const DivisionDetailPage: React.FC = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="center">#</TableCell>
                                         <TableCell>Name</TableCell>
-                                        <TableCell align="right">Score</TableCell>
                                         <TableCell align="right">Rating</TableCell>
                                         <TableCell align="right">Games Played</TableCell>
                                         <TableCell align="right">Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {divisionPlayers.map((player, index) => (
+                                    {divisionPlayers.map((player) => (
                                         <TableRow hover key={player.player_id}>
-                                            <TableCell align="center">{index + 1}</TableCell>
                                             <TableCell>
                                                 {player.first_name} {player.last_name}
                                             </TableCell>
-                                            <TableCell align="right">{player.score}</TableCell>
                                             <TableCell align="right">{player.rating}</TableCell>
                                             <TableCell align="right">
                                                 {player.games_played}
@@ -291,21 +299,6 @@ export const DivisionDetailPage: React.FC = () => {
                 divisionId={divisionId}
                 open={createPlayerOpen}
                 onClose={() => setCreatePlayerOpen(false)}
-            />
-
-            <ScheduleRoundRobinDialog
-                defaultStartDate={division.start_date}
-                divisionId={divisionId}
-                open={scheduleOpen}
-                onClose={() => setScheduleOpen(false)}
-            />
-
-            <CopyDivisionDialog
-                defaultMatchTime={division.match_time}
-                divisionId={divisionId}
-                divisionName={division.name}
-                open={newDivisionOpen}
-                onClose={() => setNewDivisionOpen(false)}
             />
         </Box>
     )

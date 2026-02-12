@@ -16,7 +16,7 @@ import { useAuth } from '~/lib/auth'
 import { Sidebar } from './sidebar'
 
 
-const adminPaths = ['/dashboard', '/players', '/divisions', '/matches']
+const adminPaths = ['/dashboard', '/players', '/divisions', '/sessions', '/matches']
 
 export const AuthLayout: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false)

@@ -22,7 +22,7 @@ import { amber, brown, grey } from '@mui/material/colors'
 import { useMemo, useRef } from 'react'
 
 import { useAuth } from '~/lib/auth'
-import { useDivisionPlayers, useDivisions, useMatches, usePlayerDivisions, usePlayers, useScores } from '~/lib/react-query'
+import { useDivisionPlayers, useDivisions, useMatches, usePlayerDivisions, usePlayers, useScores, useSessions } from '~/lib/react-query'
 import type { Match, Player, PlayerScore } from '~/lib/types'
 
 const getRankColor = (rank: number) => {
@@ -213,15 +213,16 @@ const StandingsTable: React.FC<{ players: PlayerWithStats[]; isMobile: boolean }
     )
 }
 
-const DivisionStandings: React.FC<{
+const SessionStandings: React.FC<{
+    sessionId: number
+    sessionName: string
     divisionId: number
-    divisionName: string
     isMobile: boolean
     sectionRef: (el: HTMLDivElement | null) => void
-}> = ({ divisionId, divisionName, isMobile, sectionRef }) => {
+}> = ({ sessionId, sessionName, divisionId, isMobile, sectionRef }) => {
     const { data: divisionPlayers } = useDivisionPlayers(divisionId)
-    const { data: matches, isLoading: matchesLoading } = useMatches({ division_id: divisionId })
-    const { data: scores, isLoading: scoresLoading } = useScores(divisionId)
+    const { data: matches, isLoading: matchesLoading } = useMatches({ session_id: sessionId })
+    const { data: scores, isLoading: scoresLoading } = useScores(sessionId)
 
     const sorted = useMemo(() => {
         if (!divisionPlayers || !matches || !scores) {return []}
@@ -234,7 +235,7 @@ const DivisionStandings: React.FC<{
     return (
         <Box ref={sectionRef} sx={{ mb: 4 }}>
             <Typography gutterBottom variant="h5">
-                {divisionName}
+                {sessionName}
             </Typography>
             {isLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -257,20 +258,23 @@ export const StandingsPage: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const { data: players, isLoading: playersLoading, error } = usePlayers()
     const { data: divisions, isLoading: divisionsLoading } = useDivisions()
+    const { data: sessions, isLoading: sessionsLoading } = useSessions({ active: true })
     const { data: playerActiveDivisions } = usePlayerDivisions(user?.player_id ?? 0, true)
     const sectionRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
+    // For non-admin: find their active session
     const targetDivisionId = user?.is_admin ? null : (playerActiveDivisions?.[0]?.division_id ?? null)
+    const playerActiveSession = sessions?.find((s) => s.division_id === targetDivisionId) ?? null
 
     const { data: targetDivisionPlayers } = useDivisionPlayers(targetDivisionId ?? 0)
 
     const { data: matches, isLoading: matchesLoading } = useMatches({
-        division_id: targetDivisionId ?? undefined,
+        session_id: playerActiveSession?.session_id ?? undefined,
     })
 
-    const { data: scores, isLoading: scoresLoading } = useScores(targetDivisionId ?? 0)
+    const { data: scores, isLoading: scoresLoading } = useScores(playerActiveSession?.session_id ?? 0)
 
-    const isLoading = playersLoading || divisionsLoading || matchesLoading || scoresLoading
+    const isLoading = playersLoading || divisionsLoading || sessionsLoading || matchesLoading || scoresLoading
 
     const playerStandings = useMemo(() => {
         if (!players || !matches || !scores || user?.is_admin) {return []}
@@ -280,16 +284,17 @@ export const StandingsPage: React.FC = () => {
         return buildSortedStandings(divPlayers, matches, scores)
     }, [players, matches, scores, targetDivisionPlayers, user?.is_admin])
 
-    const scrollToDivision = (divisionId: number) => {
-        sectionRefs.current.get(divisionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const scrollToSession = (sessionId: number) => {
+        sectionRefs.current.get(sessionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
 
     if (error) {
         return <Alert severity="error">Failed to load standings: {error.message}</Alert>
     }
 
-    const activeDivisions = divisions?.filter((d) => d.active) ?? []
-    const showDivisionNav = user?.is_admin && activeDivisions.length > 1
+    const activeSessions = sessions ?? []
+    const divisionMap = new Map(divisions?.map((d) => [d.division_id, d.name]) ?? [])
+    const showSessionNav = user?.is_admin && activeSessions.length > 1
 
     return (
         <Box>
@@ -297,7 +302,7 @@ export const StandingsPage: React.FC = () => {
                 Standings
             </Typography>
 
-            {showDivisionNav && (
+            {showSessionNav && (
                 <Box
                     sx={{
                         display: 'flex',
@@ -311,34 +316,35 @@ export const StandingsPage: React.FC = () => {
                         py: 1,
                     }}
                 >
-                    {activeDivisions.map((division) => (
+                    {activeSessions.map((session) => (
                         <Chip
                             clickable
                             color="primary"
-                            key={division.division_id}
-                            label={division.name}
+                            key={session.session_id}
+                            label={`${divisionMap.get(session.division_id) ?? ''} - ${session.name}`}
                             variant="outlined"
-                            onClick={() => scrollToDivision(division.division_id)}
+                            onClick={() => scrollToSession(session.session_id)}
                         />
                     ))}
                 </Box>
             )}
 
-            {playersLoading || divisionsLoading ? (
+            {playersLoading || divisionsLoading || sessionsLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
                 </Box>
             ) : user?.is_admin && divisions && players ? (
-                activeDivisions.map((division) => (
-                    <DivisionStandings
-                        divisionId={division.division_id}
-                        divisionName={division.name}
+                activeSessions.map((session) => (
+                    <SessionStandings
+                        divisionId={session.division_id}
                         isMobile={isMobile}
-                        key={division.division_id}
+                        key={session.session_id}
                         sectionRef={(el) => {
-                            if (el) {sectionRefs.current.set(division.division_id, el)}
-                            else {sectionRefs.current.delete(division.division_id)}
+                            if (el) {sectionRefs.current.set(session.session_id, el)}
+                            else {sectionRefs.current.delete(session.session_id)}
                         }}
+                        sessionId={session.session_id}
+                        sessionName={`${divisionMap.get(session.division_id) ?? ''} - ${session.name}`}
                     />
                 ))
             ) : isLoading ? (

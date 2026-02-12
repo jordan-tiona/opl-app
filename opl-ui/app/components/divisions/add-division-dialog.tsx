@@ -5,6 +5,10 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
     TextField,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
@@ -13,11 +17,19 @@ import { useCreateDivision } from '~/lib/react-query'
 import { useSnackbar } from '~/lib/snackbar'
 import type { DivisionInput } from '~/lib/types'
 
+const DAYS_OF_WEEK = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' },
+]
+
 const initialFormState: DivisionInput = {
     name: '',
-    start_date: '',
-    end_date: '',
-    match_time: '19:00',
+    day_of_week: 0,
     active: true,
 }
 
@@ -36,12 +48,6 @@ export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onCl
             setFormData(initialFormState)
         }
     }, [open])
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
 
     const handleSubmit = async () => {
         try {
@@ -64,51 +70,35 @@ export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onCl
                         label="Name"
                         name="name"
                         value={formData.name}
-                        onChange={handleInputChange}
+                        onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, name: e.target.value }))
+                        }
                     />
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <TextField
-                            fullWidth
-                            required
-                            label="Start Date"
-                            name="start_date"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="date"
-                            value={formData.start_date}
-                            onChange={handleInputChange}
-                        />
-                        <TextField
-                            fullWidth
-                            required
-                            label="End Date"
-                            name="end_date"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="date"
-                            value={formData.end_date}
-                            onChange={handleInputChange}
-                        />
-                    </Box>
-                    <TextField
-                        fullWidth
-                        required
-                        label="Match Time"
-                        name="match_time"
-                        slotProps={{ inputLabel: { shrink: true } }}
-                        type="time"
-                        value={formData.match_time}
-                        onChange={handleInputChange}
-                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Day of Week</InputLabel>
+                        <Select
+                            label="Day of Week"
+                            value={formData.day_of_week}
+                            onChange={(e) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    day_of_week: e.target.value as number,
+                                }))
+                            }
+                        >
+                            {DAYS_OF_WEEK.map((d) => (
+                                <MenuItem key={d.value} value={d.value}>
+                                    {d.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button
-                    disabled={
-                        createDivision.isPending ||
-                        !formData.name ||
-                        !formData.start_date ||
-                        !formData.end_date
-                    }
+                    disabled={createDivision.isPending || !formData.name}
                     variant="contained"
                     onClick={handleSubmit}
                 >

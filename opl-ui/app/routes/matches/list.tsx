@@ -28,7 +28,7 @@ const MatchesPage: React.FC = () => {
 
     const [dateRange, setDateRange] = useState({ start: today, end: nextWeek })
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
-    const [divisionId, setDivisionId] = useState<number | null>(null)
+    const [sessionId, setSessionId] = useState<number | null>(null)
     const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all')
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
     const [hasExpandedDateRange, setHasExpandedDateRange] = useState(false)
@@ -40,12 +40,12 @@ const MatchesPage: React.FC = () => {
 
         if (selectedPlayer) {count++}
 
-        if (divisionId !== null) {count++}
+        if (sessionId !== null) {count++}
 
         if (completionFilter !== 'all') {count++}
 
         return count
-    }, [selectedPlayer, divisionId, completionFilter])
+    }, [selectedPlayer, sessionId, completionFilter])
 
     // Automatically expand date range to 1 year when a player is first selected
     useEffect(() => {
@@ -77,6 +77,7 @@ const MatchesPage: React.FC = () => {
             start_date?: string
             end_date?: string
             player_id?: number
+            session_id?: number
             completed?: boolean
         } = {}
 
@@ -92,6 +93,10 @@ const MatchesPage: React.FC = () => {
             params.player_id = selectedPlayer.player_id
         }
 
+        if (sessionId !== null) {
+            params.session_id = sessionId
+        }
+
         if (completionFilter === 'completed') {
             params.completed = true
         }
@@ -101,7 +106,7 @@ const MatchesPage: React.FC = () => {
         }
 
         return params
-    }, [dateRange, selectedPlayer, completionFilter])
+    }, [dateRange, selectedPlayer, sessionId, completionFilter])
 
     const {
         data: matches,
@@ -117,20 +122,14 @@ const MatchesPage: React.FC = () => {
             return []
         }
 
-        let filtered = [...matches]
-
-        if (divisionId !== null) {
-            filtered = filtered.filter((match) => match.division_id === divisionId)
-        }
-
-        return filtered.sort((a, b) => {
+        return [...matches].sort((a, b) => {
             if (a.completed !== b.completed) {
                 return a.completed ? 1 : -1
             }
 
             return new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
         })
-    }, [matches, divisionId])
+    }, [matches])
 
     if (matchesError) {
         return <Alert severity="error">Failed to load matches: {matchesError.message}</Alert>
@@ -141,8 +140,8 @@ const MatchesPage: React.FC = () => {
         onDateRangeChange: setDateRange,
         selectedPlayer,
         onPlayerChange: setSelectedPlayer,
-        divisionId,
-        onDivisionIdChange: setDivisionId,
+        sessionId,
+        onSessionIdChange: setSessionId,
         completionFilter,
         onCompletionFilterChange: setCompletionFilter,
         players: players ?? [],

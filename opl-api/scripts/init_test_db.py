@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from database import engine
 from models import Division, DivisionPlayer, Game, Match, Player, User
+from models import Session as OPLSession
 
 TEST_DATA = json.loads((Path(__file__).parent / "test_data.json").read_text())
 
@@ -18,13 +19,28 @@ TEST_DATA = json.loads((Path(__file__).parent / "test_data.json").read_text())
 def init_divisions_table():
     with Session(engine) as session:
         session.add(Division(
-            name="Tuesday OPL",
+            name="Tuesday Night",
+            day_of_week=1,  # Tuesday
+        ))
+        session.add(Division(
+            name="Wednesday Night",
+            day_of_week=2,  # Wednesday
+        ))
+        session.commit()
+
+
+def init_sessions_table():
+    with Session(engine) as session:
+        session.add(OPLSession(
+            division_id=1,
+            name="Spring 2026",
             start_date="2026-03-03",
             end_date="2026-06-02",
             match_time="19:00",
         ))
-        session.add(Division(
-            name="Wednesday OPL",
+        session.add(OPLSession(
+            division_id=2,
+            name="Spring 2026",
             start_date="2026-03-04",
             end_date="2026-06-03",
             match_time="19:00",
@@ -60,7 +76,12 @@ def init_players_table(num_players: int, player_emails: list[str]):
             )
             session.add(test_player)
             session.flush()
-            session.add(User(email=email, player_id=test_player.player_id))
+            # Link to existing user if already created (e.g. admin), otherwise create
+            existing_user = session.exec(select(User).where(User.email == email)).first()
+            if existing_user:
+                existing_user.player_id = test_player.player_id
+            else:
+                session.add(User(email=email, player_id=test_player.player_id))
             session.add(DivisionPlayer(division_id=1, player_id=test_player.player_id))
 
         session.commit()
@@ -70,13 +91,13 @@ def init_matches_table(start_date: datetime):
     from utils import schedule_round_robin
 
     with Session(engine) as session:
-        divisions = session.exec(select(Division)).all()
-        for division in divisions:
+        opl_sessions = session.exec(select(OPLSession)).all()
+        for opl_session in opl_sessions:
             players = session.exec(
                 select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
-                .where(DivisionPlayer.division_id == division.division_id)
+                .where(DivisionPlayer.division_id == opl_session.division_id)
             ).all()
-            matches = schedule_round_robin(players, start_date, division.division_id)
+            matches = schedule_round_robin(players, start_date, opl_session.session_id)
             session.add_all(matches)
         session.commit()
 
@@ -182,6 +203,10 @@ if __name__ == "__main__":
 
     print("Creating divisions...", flush=True)
     init_divisions_table()
+    print("  Done.\n", flush=True)
+
+    print("Creating sessions...", flush=True)
+    init_sessions_table()
     print("  Done.\n", flush=True)
 
     print(f"Creating {args.num_players} players...", flush=True)

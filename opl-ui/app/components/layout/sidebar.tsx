@@ -1,4 +1,5 @@
 import {
+    CalendarMonth as CalendarMonthIcon,
     Dashboard as DashboardIcon,
     EmojiEvents as EmojiEventsIcon,
     Home as HomeIcon,
@@ -34,6 +35,7 @@ const adminNavItems = [
     { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
     { label: 'Players', path: '/players', icon: <PeopleIcon /> },
     { label: 'Divisions', path: '/divisions', icon: <EmojiEventsIcon /> },
+    { label: 'Sessions', path: '/sessions', icon: <CalendarMonthIcon /> },
     { label: 'Matches', path: '/matches', icon: <SportsIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
 ]

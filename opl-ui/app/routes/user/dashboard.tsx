@@ -17,18 +17,20 @@ import {
 } from '@mui/material'
 import { useMemo } from 'react'
 
-import { useDivisionPlayers, useDivisions, usePlayers, useScores } from '~/lib/react-query'
-import type { Division } from '~/lib/types'
+import { useDivisionPlayers, useDivisions, usePlayers, useScores, useSessions } from '~/lib/react-query'
+import type { Session } from '~/lib/types'
 
-interface DivisionLeadersProps {
-    division: Division
+interface SessionLeadersProps {
+    session: Session
+    divisionName: string
 }
 
-const DivisionLeaders: React.FC<DivisionLeadersProps> = ({
-    division,
-}: DivisionLeadersProps) => {
-    const { data: scores } = useScores(division.division_id)
-    const { data: divPlayers } = useDivisionPlayers(division.division_id)
+const SessionLeaders: React.FC<SessionLeadersProps> = ({
+    session,
+    divisionName,
+}: SessionLeadersProps) => {
+    const { data: scores } = useScores(session.session_id)
+    const { data: divPlayers } = useDivisionPlayers(session.division_id)
 
     const divisionPlayers = useMemo(
         () => new Map((divPlayers ?? []).map((p) => [p.player_id, p])),
@@ -55,7 +57,7 @@ const DivisionLeaders: React.FC<DivisionLeadersProps> = ({
         <Card>
             <CardContent>
                 <Typography gutterBottom variant="h6">
-                    {division.name}
+                    {divisionName} - {session.name}
                 </Typography>
                 <Table size="small">
                     <TableBody>
@@ -125,9 +127,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }: StatCa
 export const Dashboard: React.FC = () => {
     const { data: players, isLoading } = usePlayers()
     const { data: divisions } = useDivisions()
+    const { data: sessions } = useSessions({ active: true })
 
-    const activeDivisions = useMemo(
-        () => divisions?.filter((d) => d.active) ?? [],
+    const divisionMap = useMemo(
+        () => new Map(divisions?.map((d) => [d.division_id, d.name]) ?? []),
         [divisions],
     )
 
@@ -182,15 +185,18 @@ export const Dashboard: React.FC = () => {
                 </Grid>
             </Grid>
 
-            {activeDivisions.length > 0 && (
+            {sessions && sessions.length > 0 && (
                 <Box sx={{ mt: 4 }}>
                     <Typography gutterBottom variant="h5">
-                        Division Leaders
+                        Session Leaders
                     </Typography>
                     <Grid container spacing={3}>
-                        {activeDivisions.map((division) => (
-                            <Grid key={division.division_id} size={{ xs: 12, sm: 6 }}>
-                                <DivisionLeaders division={division} />
+                        {sessions.map((session) => (
+                            <Grid key={session.session_id} size={{ xs: 12, sm: 6 }}>
+                                <SessionLeaders
+                                    divisionName={divisionMap.get(session.division_id) ?? ''}
+                                    session={session}
+                                />
                             </Grid>
                         ))}
                     </Grid>
