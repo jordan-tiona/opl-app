@@ -155,7 +155,7 @@ def init_games_table():
 
             uncompleted_matches = session.exec(
                 select(Match).where(
-                    not Match.completed,
+                    Match.completed == False,
                     or_(
                         Match.player1_id == p1.player_id,
                         Match.player2_id == p1.player_id,

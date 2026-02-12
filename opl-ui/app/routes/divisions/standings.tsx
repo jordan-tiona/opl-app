@@ -356,7 +356,14 @@ export const StandingsPage: React.FC = () => {
                     <Typography color="text.secondary">No players found</Typography>
                 </Paper>
             ) : (
-                <StandingsTable isMobile={isMobile} players={playerStandings} />
+                <>
+                    {playerActiveSession && (
+                        <Typography color="text.secondary" gutterBottom variant="h5">
+                            {divisionMap.get(playerActiveSession.division_id) ?? ''} - {playerActiveSession.name}
+                        </Typography>
+                    )}
+                    <StandingsTable isMobile={isMobile} players={playerStandings} />
+                </>
             )}
         </Box>
     )

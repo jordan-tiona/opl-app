@@ -76,6 +76,7 @@ export const PlayerDetailPage: React.FC = () => {
         if (player) {
             setFormData(player)
         }
+
         setIsEditing(false)
     }
 

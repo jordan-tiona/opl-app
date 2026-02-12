@@ -125,7 +125,7 @@ def schedule_round_robin(
 
     # Delete uncompleted matches for this session
     old_matches = session.exec(
-        select(Match).where(Match.session_id == body.session_id, not Match.completed)
+        select(Match).where(Match.session_id == body.session_id, Match.completed == False)
     ).all()
     for m in old_matches:
         session.delete(m)
@@ -196,7 +196,7 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
 
     uncompleted_matches = session.exec(
         select(Match).where(
-            not Match.completed,
+            Match.completed == False,
             or_(
                 Match.player1_id == player1.player_id,
                 Match.player2_id == player1.player_id,

@@ -20,7 +20,11 @@ const queryClient = new QueryClient({
     },
 })
 
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }: { children: React.ReactNode }) => {
+export const Layout: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}: {
+    children: React.ReactNode
+}) => {
     return (
         <html lang="en">
             <head>
@@ -42,7 +46,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }: { 
 const GlobalLoadingIndicator: React.FC = () => {
     const isFetching = useIsFetching()
 
-    if (!isFetching) return null
+    if (!isFetching) {
+        return null
+    }
 
     return (
         <LinearProgress
@@ -76,7 +82,9 @@ export const App: React.FC = () => {
     )
 }
 
-export const ErrorBoundary: React.FC<Route.ErrorBoundaryProps> = ({ error }: Route.ErrorBoundaryProps) => {
+export const ErrorBoundary: React.FC<Route.ErrorBoundaryProps> = ({
+    error,
+}: Route.ErrorBoundaryProps) => {
     let message = 'Oops!'
     let details = 'An unexpected error occurred.'
     let stack: string | undefined

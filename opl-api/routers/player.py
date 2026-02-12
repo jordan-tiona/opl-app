@@ -54,11 +54,18 @@ def get_player_divisions(player_id: int, active: bool | None = None, session: Se
 
 
 @router.put("/{player_id}/", response_model=Player)
-def update_player(player_id: int, player: Player, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
+def update_player(player_id: int, player: Player, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    # Allow admin or the player themselves
+    if not current_user.is_admin and current_user.player_id != player_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this player")
     db_player = session.get(Player, player_id)
     if not db_player:
         raise HTTPException(status_code=404, detail="Player not found")
+    # Non-admins can only update name and phone
+    allowed_fields = {"first_name", "last_name", "phone"} if not current_user.is_admin else None
     for key, value in player.model_dump(exclude={"player_id"}).items():
+        if allowed_fields and key not in allowed_fields:
+            continue
         setattr(db_player, key, value)
     session.add(db_player)
     session.commit()
