@@ -46,11 +46,9 @@ async def send_match_reminder(
 
 Hi {player_name},
 
-You have a match scheduled for **today** ({scheduled_date}):
+You have a match scheduled for **today** ({scheduled_date}) at {match_time}:
 
-- **Opponent:** {opponent_name} (rated {opponent_rating})
-- **Your race:** {player_weight}
-- **Time:** {match_time}
+vs. {opponent_name} ({opponent_rating}) | **{player_weight}**
 
 Good luck!
 
