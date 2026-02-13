@@ -40,7 +40,7 @@ import { useSnackbar } from '../../lib/snackbar'
 const navItems = [
     { label: 'Home', path: '/' },
     { label: 'About CSOPL', path: '/about' },
-    { label: 'Contact', path: '/contact' },
+    { label: 'Join CSOPL', path: '/join' },
 ]
 
 const adminNavItems = [

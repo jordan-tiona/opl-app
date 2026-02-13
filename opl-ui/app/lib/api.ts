@@ -241,6 +241,26 @@ export const api = {
             }),
     },
 
+    join: {
+        submit: (data: {
+            name: string
+            email: string
+            phone: string
+            nights: string[]
+            recaptchaToken: string
+        }): Promise<{ message: string }> =>
+            fetchJson(`${API_BASE}/join/`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: data.name,
+                    email: data.email,
+                    phone: data.phone,
+                    nights: data.nights,
+                    recaptcha_token: data.recaptchaToken,
+                }),
+            }),
+    },
+
     sessions: {
         list: (params?: { active?: boolean }): Promise<Session[]> => {
             const searchParams = new URLSearchParams()

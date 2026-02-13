@@ -14,6 +14,7 @@ dependencies = [
     "fastapi-mail>=1.4",
     "apscheduler>=3.10,<4",
     "markdown>=3.5",
+    "httpx>=0.28",
 ]
 
 [dependency-groups]

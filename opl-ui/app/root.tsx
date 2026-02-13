@@ -2,6 +2,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import LinearProgress from '@mui/material/LinearProgress'
 import { ThemeProvider } from '@mui/material/styles'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { QueryClient, QueryClientProvider, useIsFetching } from '@tanstack/react-query'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router'
 
@@ -67,17 +68,19 @@ const GlobalLoadingIndicator: React.FC = () => {
 export const App: React.FC = () => {
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_OPL_CLIENT_ID}>
-            <QueryClientProvider client={queryClient}>
-                <ThemeProvider theme={theme}>
-                    <CssBaseline />
-                    <GlobalLoadingIndicator />
-                    <SnackbarProvider>
-                        <AuthProvider>
-                            <Outlet />
-                        </AuthProvider>
-                    </SnackbarProvider>
-                </ThemeProvider>
-            </QueryClientProvider>
+            <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
+                <QueryClientProvider client={queryClient}>
+                    <ThemeProvider theme={theme}>
+                        <CssBaseline />
+                        <GlobalLoadingIndicator />
+                        <SnackbarProvider>
+                            <AuthProvider>
+                                <Outlet />
+                            </AuthProvider>
+                        </SnackbarProvider>
+                    </ThemeProvider>
+                </QueryClientProvider>
+            </GoogleReCaptchaProvider>
         </GoogleOAuthProvider>
     )
 }

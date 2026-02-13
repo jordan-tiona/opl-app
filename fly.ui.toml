@@ -11,6 +11,7 @@ primary_region = 'dfw'
   [build.args]
     VITE_OPL_CLIENT_ID = '163291147303-sbjs0rr235m0icn9grjbqjh4qfe2glmf.apps.googleusercontent.com'
     VITE_API_BASE_URL = 'https://csopl-api.fly.dev'
+    VITE_RECAPTCHA_SITE_KEY = '6LeO0mosAAAAAMNyZ6lqC69X0knhS_tZ0D3jwNY7'
 
 [env]
   NODE_ENV = 'production'
