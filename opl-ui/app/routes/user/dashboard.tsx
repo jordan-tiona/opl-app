@@ -137,7 +137,7 @@ export const Dashboard: React.FC = () => {
     )
 
     const totalPlayers = players?.length ?? 0
-    const totalGames = players?.reduce((sum, p) => sum + p.games_played, 0) ?? 0
+    const totalGames = Math.floor((players?.reduce((sum, p) => sum + p.games_played, 0) ?? 0) / 2)
     const topRating = players?.length ? Math.max(...players.map((p) => p.rating)) : 0
     const avgRating = players?.length
         ? Math.round(players.reduce((sum, p) => sum + p.rating, 0) / players.length)
