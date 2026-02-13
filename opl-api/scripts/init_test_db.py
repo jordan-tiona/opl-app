@@ -196,6 +196,21 @@ if __name__ == "__main__":
     start_date = datetime.strptime(args.start_date, "%Y-%m-%d") if args.start_date else datetime.now()
 
     print(f"Connecting to database...\n  URL: {engine.url}", flush=True)
+    for attempt in range(1, 13):
+        try:
+            with engine.connect() as conn:
+                from sqlalchemy import text
+                conn.execute(text("SELECT 1"))
+            print("  Connected.\n", flush=True)
+            break
+        except Exception as e:
+            print(f"  Attempt {attempt}/12 failed: {e}", flush=True)
+            if attempt == 12:
+                print("  Could not connect to database. Is the Postgres machine running?", flush=True)
+                sys.exit(1)
+            import time
+            time.sleep(5)
+
     print("Dropping tables...", flush=True)
     SQLModel.metadata.drop_all(engine)
     print("Creating tables...", flush=True)
