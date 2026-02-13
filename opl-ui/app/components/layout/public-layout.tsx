@@ -57,6 +57,7 @@ const playerNavItems = [
     { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'My Profile', path: '/profile', icon: <PersonIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
+    { label: 'Messages', path: '/messages', icon: <MailIcon /> },
 ]
 
 export const PublicLayout: React.FC = () => {

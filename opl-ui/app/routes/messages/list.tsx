@@ -334,3 +334,5 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
         </Dialog>
     )
 }
+
+export default MessageCenter
