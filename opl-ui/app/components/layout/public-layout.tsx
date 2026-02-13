@@ -148,6 +148,7 @@ export const PublicLayout: React.FC = () => {
                             <ListItemButton
                                 onClick={() => {
                                     logout()
+                                    showSnackbar('You have been signed out', 'success')
                                     setMobileOpen(false)
                                 }}
                             >
@@ -254,6 +255,7 @@ export const PublicLayout: React.FC = () => {
                                             onClick={() => {
                                                 setAnchorEl(null)
                                                 logout()
+                                                showSnackbar('You have been signed out', 'success')
                                             }}
                                         >
                                             <ListItemIcon>

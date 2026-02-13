@@ -111,20 +111,29 @@ def init_matches_table(start_date: datetime):
 def init_games_table():
     from datetime import timedelta
 
-    from sqlalchemy import or_
-
     from utils import calculate_rating_change
 
     with Session(engine) as session:
+        # Load all players into a dict to avoid per-match queries
+        all_players = {p.player_id: p for p in session.exec(select(Player)).all()}
         matches = session.exec(select(Match).order_by(Match.scheduled_date)).all()
         completed_matches = matches[:len(matches) // 2]
+        uncompleted_matches = matches[len(matches) // 2:]
+
+        # Index uncompleted matches by player_id for fast lookup
+        uncompleted_by_player: dict[int, list[Match]] = {}
+        for m in uncompleted_matches:
+            uncompleted_by_player.setdefault(m.player1_id, []).append(m)
+            uncompleted_by_player.setdefault(m.player2_id, []).append(m)
+
         num_games = 0
         base_date = datetime.now() - timedelta(days=30)
         total = len(completed_matches)
+        games_to_add = []
 
         for match_idx, match in enumerate(completed_matches):
-            p1 = session.exec(select(Player).where(Player.player_id == match.player1_id)).one()
-            p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
+            p1 = all_players[match.player1_id]
+            p2 = all_players[match.player2_id]
 
             game_wins: dict[int, int] = {p1.player_id: 0, p2.player_id: 0}
             while max(game_wins.values()) < 3:
@@ -137,7 +146,7 @@ def init_games_table():
 
                 played_date = base_date + timedelta(hours=num_games * 6)
 
-                session.add(Game(
+                games_to_add.append(Game(
                     match_id=match.match_id,
                     winner_id=winner.player_id,
                     loser_id=loser.player_id,
@@ -161,29 +170,19 @@ def init_games_table():
             match.loser_id = min(game_wins, key=game_wins.get)
             progress_bar(match_idx + 1, total)
 
-            uncompleted_matches = session.exec(
-                select(Match).where(
-                    Match.completed == False,
-                    or_(
-                        Match.player1_id == p1.player_id,
-                        Match.player2_id == p1.player_id,
-                        Match.player1_id == p2.player_id,
-                        Match.player2_id == p2.player_id,
-                    )
-                )
-            ).all()
+            # Update ratings on uncompleted matches using in-memory index
+            for pid in (p1.player_id, p2.player_id):
+                player = all_players[pid]
+                for m in uncompleted_by_player.get(pid, []):
+                    if m.player1_id == pid:
+                        m.player1_rating = player.rating
+                    if m.player2_id == pid:
+                        m.player2_rating = player.rating
 
-            for m in uncompleted_matches:
-                if m.player1_id == p1.player_id:
-                    m.player1_rating = p1.rating
-                if m.player2_id == p1.player_id:
-                    m.player2_rating = p1.rating
-                if m.player1_id == p2.player_id:
-                    m.player1_rating = p2.rating
-                if m.player2_id == p2.player_id:
-                    m.player2_rating = p2.rating
-
+        print(f"\n  Committing {len(games_to_add)} games...", flush=True)
+        session.add_all(games_to_add)
         session.commit()
+        print("  Committed.", flush=True)
 
 
 if __name__ == "__main__":
@@ -227,4 +226,5 @@ if __name__ == "__main__":
 
     print("Generating games...", flush=True)
     init_games_table()
-    print()
+    print("\nDone!", flush=True)
+    sys.exit(0)

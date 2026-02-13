@@ -15,6 +15,13 @@ deploy_ui() {
     echo "UI deployed."
 }
 
+restart_machines() {
+    echo "Restarting machines..."
+    fly machines restart -a csopl-api
+    fly machines restart -a csopl-ui
+    echo "Machines restarted."
+}
+
 usage() {
     echo "Usage: $0 {api|ui|all}"
     exit 1
@@ -25,8 +32,8 @@ if [[ $# -ne 1 ]]; then
 fi
 
 case "$1" in
-    api) deploy_api ;;
-    ui)  deploy_ui ;;
-    all) deploy_api && deploy_ui ;;
+    api) deploy_api && restart_machines ;;
+    ui)  deploy_ui && restart_machines ;;
+    all) deploy_api && deploy_ui && restart_machines ;;
     *)   usage ;;
 esac
