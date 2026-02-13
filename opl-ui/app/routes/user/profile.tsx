@@ -1,10 +1,6 @@
 import {
     Box,
-    Card,
-    CardContent,
     CircularProgress,
-    FormControlLabel,
-    Switch,
     Typography,
 } from '@mui/material'
 import { useMemo } from 'react'
@@ -23,7 +19,6 @@ import {
     usePlayers,
     useMatches,
     useGames,
-    useUpdatePlayer,
 } from '~/lib/react-query'
 
 export const ProfilePage: React.FC = () => {
@@ -36,8 +31,6 @@ export const ProfilePage: React.FC = () => {
         player_id: user?.player_id ?? undefined,
     })
     const { data: games } = useGames({ player_id: user?.player_id ?? undefined })
-    const updatePlayer = useUpdatePlayer()
-
     // Build rating history from games
     const ratingHistory = useMemo(() => {
         if (!games || !player) {
@@ -125,43 +118,6 @@ export const ProfilePage: React.FC = () => {
                 gamesPlayed={player.games_played}
                 matchesWon={completedMatches.filter((m) => m.winner_id === player.player_id).length}
             />
-
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Typography sx={{ mb: 1 }} variant="h6">
-                        Notification Preferences
-                    </Typography>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={player.email_notifications}
-                                onChange={(_, checked) =>
-                                    updatePlayer.mutate({
-                                        id: player.player_id,
-                                        data: { email_notifications: checked },
-                                    })
-                                }
-                            />
-                        }
-                        label="Email notifications — receive admin messages and announcements via email"
-                    />
-                    <br />
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={player.match_reminders}
-                                onChange={(_, checked) =>
-                                    updatePlayer.mutate({
-                                        id: player.player_id,
-                                        data: { match_reminders: checked },
-                                    })
-                                }
-                            />
-                        }
-                        label="Match reminders — receive match day reminder emails"
-                    />
-                </CardContent>
-            </Card>
 
             <Typography sx={{ mb: 2 }} variant="h5">
                 Upcoming Matches

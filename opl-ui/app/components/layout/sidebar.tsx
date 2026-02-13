@@ -28,6 +28,7 @@ import {
 import { useLocation, useNavigate } from 'react-router'
 
 import { useAuth } from '~/lib/auth'
+import { useMessages } from '~/lib/react-query'
 
 export const DRAWER_WIDTH = 240
 
@@ -61,6 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
+    const { data: messages } = useMessages()
+    const hasUnread = messages?.some((m) => !m.is_read) ?? false
     const navItems = user?.is_admin ? adminNavItems : playerNavItems
 
     const isActive = (path: string) => {
@@ -112,6 +115,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }: SidebarProps)
                         >
                             <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
                             <ListItemText primary={item.label} />
+                            {item.path === '/messages' && hasUnread && (
+                                <Box
+                                    sx={{
+                                        width: 10,
+                                        height: 10,
+                                        borderRadius: '50%',
+                                        bgcolor: isActive(item.path) ? 'white' : 'primary.main',
+                                        flexShrink: 0,
+                                    }}
+                                />
+                            )}
                         </ListItemButton>
                     </ListItem>
                 ))}

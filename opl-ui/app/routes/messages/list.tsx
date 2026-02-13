@@ -7,9 +7,9 @@ import {
     Card,
     CardActionArea,
     CardContent,
-    Chip,
     CircularProgress,
     Collapse,
+    Divider,
     Dialog,
     DialogActions,
     DialogContent,
@@ -39,7 +39,7 @@ import {
 } from '~/lib/react-query'
 import type { MessageInput, Player } from '~/lib/types'
 
-export default function MessageCenter() {
+export const MessageCenter: React.FC = () => {
     const { data: messages, isLoading } = useMessages()
     const markRead = useMarkMessageRead()
     const deleteMessage = useDeleteMessage()
@@ -50,9 +50,12 @@ export default function MessageCenter() {
     const handleToggle = (messageId: number, isRead: boolean) => {
         if (expandedId === messageId) {
             setExpandedId(null)
+
             return
         }
+
         setExpandedId(messageId)
+
         if (!isRead && user?.player_id) {
             markRead.mutate(messageId)
         }
@@ -67,8 +70,15 @@ export default function MessageCenter() {
     }
 
     return (
-        <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ maxWidth: 720 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 2,
+                }}
+            >
                 <Typography variant="h5">
                     {user?.is_admin ? 'Message Center' : 'Messages'}
                 </Typography>
@@ -83,9 +93,7 @@ export default function MessageCenter() {
                 )}
             </Box>
 
-            {!messages?.length && (
-                <Typography color="text.secondary">No messages yet.</Typography>
-            )}
+            {!messages?.length && <Typography color="text.secondary">No messages yet.</Typography>}
 
             {messages?.map((msg) => (
                 <Card
@@ -97,13 +105,24 @@ export default function MessageCenter() {
                     }}
                 >
                     <CardActionArea onClick={() => handleToggle(msg.message_id, msg.is_read)}>
-                        <CardContent sx={{ pb: expandedId === msg.message_id ? 0 : undefined }}>
+                        <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 {!msg.is_read && (
-                                    <Chip color="primary" label="New" size="small" />
+                                    <Box
+                                        sx={{
+                                            width: 10,
+                                            height: 10,
+                                            borderRadius: '50%',
+                                            bgcolor: 'primary.main',
+                                            flexShrink: 0,
+                                        }}
+                                    />
                                 )}
                                 <Typography
-                                    sx={{ fontWeight: msg.is_read ? 'normal' : 'bold', flexGrow: 1 }}
+                                    sx={{
+                                        fontWeight: msg.is_read ? 'normal' : 'bold',
+                                        flexGrow: 1,
+                                    }}
                                     variant="subtitle1"
                                 >
                                     {msg.subject}
@@ -115,7 +134,8 @@ export default function MessageCenter() {
                         </CardContent>
                     </CardActionArea>
                     <Collapse in={expandedId === msg.message_id}>
-                        <CardContent sx={{ pt: 0 }}>
+                        <Divider />
+                        <CardContent>
                             <Box sx={{ '& p': { mt: 0 } }}>
                                 <Markdown>{msg.body}</Markdown>
                             </Box>
@@ -264,9 +284,9 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
                     />
 
                     <TextField
+                        multiline
                         label="Body (Markdown)"
                         minRows={6}
-                        multiline
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
                     />

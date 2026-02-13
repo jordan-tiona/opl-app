@@ -5,6 +5,7 @@ import {
     Leaderboard as LeaderboardIcon,
     Login as LoginIcon,
     Logout as LogoutIcon,
+    Mail as MailIcon,
     Menu as MenuIcon,
     People as PeopleIcon,
     Person as PersonIcon,
@@ -49,6 +50,7 @@ const adminNavItems = [
     { label: 'Divisions', path: '/divisions', icon: <EmojiEventsIcon /> },
     { label: 'Matches', path: '/matches', icon: <SportsIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
+    { label: 'Message Center', path: '/messages', icon: <MailIcon /> },
 ]
 
 const playerNavItems = [
