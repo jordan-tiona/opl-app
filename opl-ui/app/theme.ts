@@ -78,6 +78,13 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiLink: {
+            styleOverrides: {
+                root: {
+                    color: '#8a9bd6',
+                },
+            },
+        },
         MuiPaper: {
             styleOverrides: {
                 root: {

@@ -8,22 +8,22 @@ import { useNavigate } from 'react-router'
 
 const features = [
     {
-        icon: <GroupsIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
-        title: 'Divisions',
+        icon: <LeaderboardIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
+        title: 'Weighted Matches',
         description:
-            'Players are organized into divisions and compete in round-robin format throughout the season.',
+            'An Elo-style rating system determines match weights so every game is competitive, regardless of skill level.',
+    },
+    {
+        icon: <GroupsIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
+        title: 'Weekly Divisions',
+        description:
+            'Play a different opponent from your division each week in a race to three games during a double round robin session.',
     },
     {
         icon: <TrophyIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
-        title: 'Competitive Matches',
+        title: 'End of Session Tournament',
         description:
-            'Each match consists of multiple games of one-pocket, with results tracked and scored.',
-    },
-    {
-        icon: <LeaderboardIcon sx={{ color: 'primary.light', fontSize: 48 }} />,
-        title: 'Rating System',
-        description:
-            'An Elo-based rating system tracks player skill, updating after every game played.',
+            'Top players from every division qualify for a double elimination tournament with thousands of dollars in the prize pool.',
     },
 ]
 
@@ -36,46 +36,56 @@ export const LandingPage: React.FC = () => {
                 sx={{
                     bgcolor: 'primary.light',
                     color: 'white',
-                    py: { xs: 8, md: 12 },
                     textAlign: 'center',
+                    position: 'relative',
                 }}
             >
-                <Container maxWidth="md">
+                <Box
+                    alt="Pikes Peak"
+                    component="img"
+                    src="/img/pikes-peak.png"
+                    sx={{
+                        width: '100%',
+                        display: 'block',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     <Typography
-                        gutterBottom
                         fontWeight={700}
-                        sx={{ fontSize: { xs: '2rem', md: '3rem' } }}
+                        sx={{
+                            fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' },
+                            textShadow: '2px 2px 8px rgba(0,0,0,0.5)',
+                        }}
                         variant="h2"
                     >
-                        One Pocket League
+                        Colorado Springs One Pocket League
                     </Typography>
-                    <Typography
-                        sx={{ mb: 4, opacity: 0.9, fontSize: { xs: '1.1rem', md: '1.5rem' } }}
-                        variant="h5"
+                    <Button
+                        size="large"
+                        sx={{
+                            mt: 3,
+                            borderColor: 'white',
+                            color: 'white',
+                            '&:hover': {
+                                borderColor: 'white',
+                                bgcolor: 'rgba(255,255,255,0.15)',
+                            },
+                        }}
+                        variant="outlined"
+                        onClick={() => navigate('/about')}
                     >
-                        Competitive one-pocket pool, organized into seasons with divisions,
-                        round-robin scheduling, and player ratings.
-                    </Typography>
-                    <Box
-                        sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}
-                    >
-                        <Button
-                            size="large"
-                            sx={{
-                                borderColor: 'background.default',
-                                color: 'background.default',
-                                '&:hover': {
-                                    borderColor: 'background.paper',
-                                    bgcolor: 'rgba(255,255,255,0.1)',
-                                },
-                            }}
-                            variant="outlined"
-                            onClick={() => navigate('/rules')}
-                        >
-                            View Rules
-                        </Button>
-                    </Box>
-                </Container>
+                        About CSOPL
+                    </Button>
+                </Box>
             </Box>
 
             <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
@@ -85,7 +95,7 @@ export const LandingPage: React.FC = () => {
                     textAlign="center"
                     variant="h3"
                 >
-                    How It Works
+                    About CSOPL
                 </Typography>
                 <Typography
                     color="text.secondary"
@@ -93,8 +103,9 @@ export const LandingPage: React.FC = () => {
                     textAlign="center"
                     variant="body1"
                 >
-                    The One Pocket League runs in seasonal divisions. Players compete in round-robin
-                    matches, earn points, and climb the ratings ladder.
+                    A ranked, weighted, weekly one-pocket league. Face opponents every week in a
+                    fairly weighted match and compete to earn an invite to the end of session
+                    tournament.
                 </Typography>
 
                 <Grid container spacing={4}>

@@ -34,10 +34,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
 
 import { useAuth } from '../../lib/auth'
+import { useSnackbar } from '../../lib/snackbar'
 
 const navItems = [
     { label: 'Home', path: '/' },
-    { label: 'Rules', path: '/rules' },
+    { label: 'About CSOPL', path: '/about' },
     { label: 'Contact', path: '/contact' },
 ]
 
@@ -64,6 +65,7 @@ export const PublicLayout: React.FC = () => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const { user, login, logout } = useAuth()
+    const { showSnackbar } = useSnackbar()
     const { clientId } = useGoogleOAuth()
     const desktopGoogleBtnRef = useRef<HTMLDivElement>(null)
     const mobileGoogleBtnRef = useRef<HTMLDivElement>(null)
@@ -76,9 +78,11 @@ export const PublicLayout: React.FC = () => {
 
             if (result.success && result.user) {
                 navigate(result.user.is_admin ? '/dashboard' : '/profile')
+            } else if (result.error) {
+                showSnackbar(result.error, 'error')
             }
         },
-        [login, navigate],
+        [login, navigate, showSnackbar],
     )
 
     useEffect(() => {
