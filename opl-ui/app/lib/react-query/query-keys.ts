@@ -18,4 +18,6 @@ export const queryKeys = {
     sessions: ['sessions'] as const,
     session: (id: number) => ['sessions', id] as const,
     scores: (sessionId: number) => ['scores', sessionId] as const,
+    messages: ['messages'] as const,
+    message: (id: number) => ['messages', id] as const,
 }

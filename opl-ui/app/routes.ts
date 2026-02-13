@@ -19,6 +19,7 @@ export default [
         route('sessions', 'routes/sessions/list.tsx'),
         route('sessions/:id', 'routes/sessions/detail.tsx'),
         route('matches', 'routes/matches/list.tsx'),
+        route('messages', 'routes/messages/list.tsx'),
         route('standings', 'routes/divisions/standings.tsx'),
         route('profile', 'routes/user/profile.tsx'),
     ]),

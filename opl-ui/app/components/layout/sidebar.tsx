@@ -5,6 +5,7 @@ import {
     Home as HomeIcon,
     Leaderboard as LeaderboardIcon,
     Logout as LogoutIcon,
+    Mail as MailIcon,
     People as PeopleIcon,
     Person as PersonIcon,
     Sports as SportsIcon,
@@ -38,12 +39,14 @@ const adminNavItems = [
     { label: 'Sessions', path: '/sessions', icon: <CalendarMonthIcon /> },
     { label: 'Matches', path: '/matches', icon: <SportsIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
+    { label: 'Message Center', path: '/messages', icon: <MailIcon /> },
 ]
 
 const playerNavItems = [
     { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'My Profile', path: '/profile', icon: <PersonIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
+    { label: 'Messages', path: '/messages', icon: <MailIcon /> },
 ]
 
 interface SidebarProps {

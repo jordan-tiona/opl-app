@@ -11,6 +11,8 @@ import type {
     SessionInput,
     PlayerScore,
     User,
+    Message,
+    MessageInput,
 } from './types'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
@@ -213,6 +215,28 @@ export const api = {
 
         removePlayer: (divisionId: number, playerId: number): Promise<void> =>
             fetchJson(`${API_BASE}/divisions/${divisionId}/players/${playerId}/`, {
+                method: 'DELETE',
+            }),
+    },
+
+    messages: {
+        list: (): Promise<Message[]> => fetchJson(`${API_BASE}/messages/`),
+
+        get: (id: number): Promise<Message> => fetchJson(`${API_BASE}/messages/${id}/`),
+
+        create: (data: MessageInput): Promise<Message> =>
+            fetchJson(`${API_BASE}/messages/`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+            }),
+
+        markRead: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/messages/${id}/read/`, {
+                method: 'PUT',
+            }),
+
+        delete: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/messages/${id}/`, {
                 method: 'DELETE',
             }),
     },

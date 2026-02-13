@@ -16,6 +16,15 @@ from models import Session as OPLSession
 TEST_DATA = json.loads((Path(__file__).parent / "test_data.json").read_text())
 
 
+def progress_bar(current: int, total: int, width: int = 30):
+    pct = current / total
+    filled = int(width * pct)
+    bar = "█" * filled + "░" * (width - filled)
+    print(f"\r  [{bar}] {current}/{total}", end="", flush=True)
+    if current == total:
+        print()
+
+
 def init_divisions_table():
     with Session(engine) as session:
         session.add(Division(
@@ -44,6 +53,7 @@ def init_players_table(num_players: int, player_emails: list[str]):
     players = random.sample(TEST_DATA, min(num_players, len(TEST_DATA)))
     divisions = [1] * (len(players) // 2) + [2] * (len(players) - len(players) // 2)
     random.shuffle(divisions)
+    total = len(players) + len(player_emails)
     with Session(engine) as session:
         for i, p in enumerate(players):
             player = Player(
@@ -57,6 +67,7 @@ def init_players_table(num_players: int, player_emails: list[str]):
             session.flush()
             session.add(User(email=player.email, player_id=player.player_id))
             session.add(DivisionPlayer(division_id=divisions[i], player_id=player.player_id))
+            progress_bar(i + 1, total)
 
         for j, email in enumerate(player_emails):
             test_player = Player(
@@ -75,6 +86,7 @@ def init_players_table(num_players: int, player_emails: list[str]):
             else:
                 session.add(User(email=email, player_id=test_player.player_id))
             session.add(DivisionPlayer(division_id=1, player_id=test_player.player_id))
+            progress_bar(len(players) + j + 1, total)
 
         session.commit()
 
@@ -85,13 +97,14 @@ def init_matches_table(start_date: datetime):
     with Session(engine) as session:
         opl_session = session.exec(select(OPLSession)).first()
         divisions = session.exec(select(Division)).all()
-        for division in divisions:
+        for i, division in enumerate(divisions):
             players = session.exec(
                 select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
                 .where(DivisionPlayer.division_id == division.division_id)
             ).all()
             matches = schedule_round_robin(players, start_date, opl_session.session_id, division.division_id)
             session.add_all(matches)
+            progress_bar(i + 1, len(divisions))
         session.commit()
 
 
@@ -107,8 +120,9 @@ def init_games_table():
         completed_matches = matches[:len(matches) // 2]
         num_games = 0
         base_date = datetime.now() - timedelta(days=30)
+        total = len(completed_matches)
 
-        for match in completed_matches:
+        for match_idx, match in enumerate(completed_matches):
             p1 = session.exec(select(Player).where(Player.player_id == match.player1_id)).one()
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
@@ -145,6 +159,7 @@ def init_games_table():
             match.completed = True
             match.winner_id = max(game_wins, key=game_wins.get)
             match.loser_id = min(game_wins, key=game_wins.get)
+            progress_bar(match_idx + 1, total)
 
             uncompleted_matches = session.exec(
                 select(Match).where(
@@ -204,12 +219,12 @@ if __name__ == "__main__":
 
     print(f"Creating {args.num_players} players...", flush=True)
     init_players_table(args.num_players, args.player_email or [])
-    print("  Done.\n", flush=True)
+    print()
 
     print("Scheduling matches...", flush=True)
     init_matches_table(start_date)
-    print("  Done.\n", flush=True)
+    print()
 
     print("Generating games...", flush=True)
     init_games_table()
-    print("  Done.\n", flush=True)
+    print()

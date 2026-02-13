@@ -73,6 +73,25 @@ export interface PlayerScore {
     score: number
 }
 
+export interface Message {
+    message_id: number
+    subject: string
+    body: string
+    sender_id: number
+    recipient_type: 'player' | 'division' | 'league'
+    recipient_id: number | null
+    created_at: string
+    is_read: boolean
+}
+
+export interface MessageInput {
+    subject: string
+    body: string
+    recipient_type: 'player' | 'division' | 'league'
+    recipient_id?: number | null
+    player_ids?: number[]
+}
+
 export interface User {
     user_id: number
     email: string

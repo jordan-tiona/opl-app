@@ -18,3 +18,6 @@ export { useGames } from './games'
 
 // Score hooks
 export { useScores } from './scores'
+
+// Message hooks
+export { useMessages, useMessage, useCreateMessage, useMarkMessageRead, useDeleteMessage } from './messages'
