@@ -5,10 +5,12 @@ import { api } from '../api'
 
 import { queryKeys } from './query-keys'
 
-export const useScores = (sessionId: number): UseQueryResult<PlayerScore[]> => {
+export const useScores = (sessionId: number, divisionId?: number): UseQueryResult<PlayerScore[]> => {
     return useQuery({
-        queryKey: queryKeys.scores(sessionId),
-        queryFn: () => api.matches.scores(sessionId),
+        queryKey: divisionId !== undefined
+            ? [...queryKeys.scores(sessionId), divisionId]
+            : queryKeys.scores(sessionId),
+        queryFn: () => api.matches.scores(sessionId, divisionId),
         enabled: !!sessionId,
     })
 }

@@ -10,6 +10,7 @@ import {
     Button,
     Card,
     CardContent,
+    Chip,
     CircularProgress,
     IconButton,
     Paper,
@@ -30,8 +31,8 @@ import { useNavigate, useParams } from 'react-router'
 
 import { ScheduleRoundRobinDialog } from '~/components/divisions'
 import {
-    useDivision,
     useDivisionPlayers,
+    useDivisions,
     useScores,
     useSession,
     useUpdateSession,
@@ -45,9 +46,12 @@ export const SessionDetailPage: React.FC = () => {
     const sessionId = Number(id)
 
     const { data: session, isLoading, error } = useSession(sessionId)
-    const { data: division } = useDivision(session?.division_id ?? 0)
-    const { data: divisionPlayersList } = useDivisionPlayers(session?.division_id ?? 0)
-    const { data: scores } = useScores(sessionId)
+    const { data: divisions } = useDivisions()
+    const [selectedDivisionId, setSelectedDivisionId] = useState<number>(0)
+
+    const activeDivisionId = selectedDivisionId || (divisions?.[0]?.division_id ?? 0)
+    const { data: divisionPlayersList } = useDivisionPlayers(activeDivisionId)
+    const { data: scores } = useScores(sessionId, activeDivisionId)
     const updateSession = useUpdateSession()
     const { showSnackbar } = useSnackbar()
 
@@ -129,11 +133,6 @@ export const SessionDetailPage: React.FC = () => {
             >
                 <Box>
                     <Typography variant="h3">{session.name}</Typography>
-                    {division && (
-                        <Typography color="text.secondary" variant="subtitle1">
-                            {division.name}
-                        </Typography>
-                    )}
                 </Box>
                 <Button
                     disabled={!hasChanges || updateSession.isPending}
@@ -190,6 +189,21 @@ export const SessionDetailPage: React.FC = () => {
                     </Box>
                 </CardContent>
             </Card>
+
+            {divisions && divisions.length > 1 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    {divisions.map((d) => (
+                        <Chip
+                            clickable
+                            color={d.division_id === activeDivisionId ? 'primary' : 'default'}
+                            key={d.division_id}
+                            label={d.name}
+                            variant={d.division_id === activeDivisionId ? 'filled' : 'outlined'}
+                            onClick={() => setSelectedDivisionId(d.division_id)}
+                        />
+                    ))}
+                </Box>
+            )}
 
             <Card>
                 <CardContent>

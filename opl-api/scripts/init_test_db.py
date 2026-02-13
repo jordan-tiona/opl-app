@@ -32,16 +32,8 @@ def init_divisions_table():
 def init_sessions_table():
     with Session(engine) as session:
         session.add(OPLSession(
-            division_id=1,
             name="Spring 2026",
             start_date="2026-03-03",
-            end_date="2026-06-02",
-            match_time="19:00",
-        ))
-        session.add(OPLSession(
-            division_id=2,
-            name="Spring 2026",
-            start_date="2026-03-04",
             end_date="2026-06-03",
             match_time="19:00",
         ))
@@ -91,13 +83,14 @@ def init_matches_table(start_date: datetime):
     from utils import schedule_round_robin
 
     with Session(engine) as session:
-        opl_sessions = session.exec(select(OPLSession)).all()
-        for opl_session in opl_sessions:
+        opl_session = session.exec(select(OPLSession)).first()
+        divisions = session.exec(select(Division)).all()
+        for division in divisions:
             players = session.exec(
                 select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
-                .where(DivisionPlayer.division_id == opl_session.division_id)
+                .where(DivisionPlayer.division_id == division.division_id)
             ).all()
-            matches = schedule_round_robin(players, start_date, opl_session.session_id)
+            matches = schedule_round_robin(players, start_date, opl_session.session_id, division.division_id)
             session.add_all(matches)
         session.commit()
 
@@ -120,7 +113,7 @@ def init_games_table():
             p2 = session.exec(select(Player).where(Player.player_id == match.player2_id)).one()
 
             game_wins: dict[int, int] = {p1.player_id: 0, p2.player_id: 0}
-            while max(game_wins.values()) < 2:
+            while max(game_wins.values()) < 3:
                 winner, loser = random.sample([p1, p2], 2)
                 balls_remaining = random.randint(1, 8)
 

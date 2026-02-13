@@ -5,20 +5,15 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 
-import { useCreateSession, useDivisions } from '~/lib/react-query'
+import { useCreateSession } from '~/lib/react-query'
 import { useSnackbar } from '~/lib/snackbar'
 import type { SessionInput } from '~/lib/types'
 
 const initialFormState: SessionInput = {
-    division_id: 0,
     name: '',
     start_date: '',
     end_date: '',
@@ -29,24 +24,21 @@ const initialFormState: SessionInput = {
 interface AddSessionDialogProps {
     open: boolean
     onClose: () => void
-    defaultDivisionId?: number
 }
 
 export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
     open,
     onClose,
-    defaultDivisionId,
 }: AddSessionDialogProps) => {
     const createSession = useCreateSession()
     const { showSnackbar } = useSnackbar()
-    const { data: divisions } = useDivisions()
     const [formData, setFormData] = useState<SessionInput>(initialFormState)
 
     useEffect(() => {
         if (open) {
-            setFormData({ ...initialFormState, division_id: defaultDivisionId ?? 0 })
+            setFormData(initialFormState)
         }
-    }, [open, defaultDivisionId])
+    }, [open])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -69,25 +61,6 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
             <DialogTitle>New Session</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                    <FormControl fullWidth required>
-                        <InputLabel>Division</InputLabel>
-                        <Select
-                            label="Division"
-                            value={formData.division_id || ''}
-                            onChange={(e) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    division_id: e.target.value as number,
-                                }))
-                            }
-                        >
-                            {divisions?.map((d) => (
-                                <MenuItem key={d.division_id} value={d.division_id}>
-                                    {d.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
                     <TextField
                         fullWidth
                         required
@@ -135,7 +108,6 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
                 <Button
                     disabled={
                         createSession.isPending ||
-                        !formData.division_id ||
                         !formData.name ||
                         !formData.start_date ||
                         !formData.end_date

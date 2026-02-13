@@ -11,6 +11,7 @@ export interface Player {
 export interface Match {
     match_id: number
     session_id: number | null
+    division_id: number
     player1_id: number
     player2_id: number
     player1_rating: number
@@ -58,7 +59,6 @@ export type DivisionInput = Omit<Division, 'division_id'>
 
 export interface Session {
     session_id: number
-    division_id: number
     name: string
     start_date: string
     end_date: string

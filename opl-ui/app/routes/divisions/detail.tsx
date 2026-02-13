@@ -57,7 +57,7 @@ export const DivisionDetailPage: React.FC = () => {
     const { data: division, isLoading, error } = useDivision(divisionId)
     const { data: divisionPlayersList } = useDivisionPlayers(divisionId)
     const { data: allPlayers } = usePlayers()
-    const { data: sessions } = useSessions({ division_id: divisionId })
+    const { data: sessions } = useSessions()
     const updateDivision = useUpdateDivision()
     const { showSnackbar } = useSnackbar()
 

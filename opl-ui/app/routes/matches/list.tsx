@@ -29,6 +29,7 @@ const MatchesPage: React.FC = () => {
     const [dateRange, setDateRange] = useState({ start: today, end: nextWeek })
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
     const [sessionId, setSessionId] = useState<number | null>(null)
+    const [divisionId, setDivisionId] = useState<number | null>(null)
     const [completionFilter, setCompletionFilter] = useState<CompletionFilter>('all')
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
     const [hasExpandedDateRange, setHasExpandedDateRange] = useState(false)
@@ -42,10 +43,12 @@ const MatchesPage: React.FC = () => {
 
         if (sessionId !== null) {count++}
 
+        if (divisionId !== null) {count++}
+
         if (completionFilter !== 'all') {count++}
 
         return count
-    }, [selectedPlayer, sessionId, completionFilter])
+    }, [selectedPlayer, sessionId, divisionId, completionFilter])
 
     // Automatically expand date range to 1 year when a player is first selected
     useEffect(() => {
@@ -78,6 +81,7 @@ const MatchesPage: React.FC = () => {
             end_date?: string
             player_id?: number
             session_id?: number
+            division_id?: number
             completed?: boolean
         } = {}
 
@@ -97,6 +101,10 @@ const MatchesPage: React.FC = () => {
             params.session_id = sessionId
         }
 
+        if (divisionId !== null) {
+            params.division_id = divisionId
+        }
+
         if (completionFilter === 'completed') {
             params.completed = true
         }
@@ -106,7 +114,7 @@ const MatchesPage: React.FC = () => {
         }
 
         return params
-    }, [dateRange, selectedPlayer, sessionId, completionFilter])
+    }, [dateRange, selectedPlayer, sessionId, divisionId, completionFilter])
 
     const {
         data: matches,
@@ -142,6 +150,8 @@ const MatchesPage: React.FC = () => {
         onPlayerChange: setSelectedPlayer,
         sessionId,
         onSessionIdChange: setSessionId,
+        divisionId,
+        onDivisionIdChange: setDivisionId,
         completionFilter,
         onCompletionFilterChange: setCompletionFilter,
         players: players ?? [],

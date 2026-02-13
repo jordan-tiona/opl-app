@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { useMemo } from 'react'
 
-import { useSessions } from '~/lib/react-query'
+import { useDivisions, useSessions } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
 
 export type CompletionFilter = 'all' | 'completed' | 'scheduled'
@@ -23,6 +23,8 @@ interface MatchFiltersProps {
     onPlayerChange: (player: Player | null) => void
     sessionId: number | null
     onSessionIdChange: (sessionId: number | null) => void
+    divisionId: number | null
+    onDivisionIdChange: (divisionId: number | null) => void
     completionFilter: CompletionFilter
     onCompletionFilterChange: (filter: CompletionFilter) => void
     players: Player[]
@@ -36,12 +38,15 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
     onPlayerChange,
     sessionId,
     onSessionIdChange,
+    divisionId,
+    onDivisionIdChange,
     completionFilter,
     onCompletionFilterChange,
     players,
     vertical = false,
 }: MatchFiltersProps) => {
     const { data: sessions } = useSessions()
+    const { data: divisions } = useDivisions()
 
     const sortedPlayers = useMemo(() => {
         return [...players].sort((a, b) => {
@@ -123,6 +128,24 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                     {sessions?.map((s) => (
                         <MenuItem key={s.session_id} value={String(s.session_id)}>
                             {s.name}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
+            <FormControl fullWidth={vertical} size="small" sx={{ minWidth: vertical ? undefined : 150 }}>
+                <InputLabel>Division</InputLabel>
+                <Select
+                    label="Division"
+                    value={divisionId !== null ? String(divisionId) : ''}
+                    onChange={(e) =>
+                        onDivisionIdChange(e.target.value === '' ? null : Number(e.target.value))
+                    }
+                >
+                    <MenuItem value="">All</MenuItem>
+                    {divisions?.map((d) => (
+                        <MenuItem key={d.division_id} value={String(d.division_id)}>
+                            {d.name}
                         </MenuItem>
                     ))}
                 </Select>

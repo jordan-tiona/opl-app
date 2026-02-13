@@ -7,7 +7,7 @@ from sqlmodel import Session, SQLModel, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from models import Game, Match, Player, User
+from models import Division, DivisionPlayer, Game, Match, Player, User
 
 
 class GameInput(SQLModel):
@@ -38,18 +38,21 @@ def get_matches(
     player_id: int | None = None,
     match_id: int | None = None,
     session_id: int | None = None,
+    division_id: int | None = None,
     completed: bool | None = None,
     session: Session = Depends(get_session),
     _user: User = Depends(get_current_user),
 ):
-    if start_date is None and player_id is None and match_id is None and session_id is None:
-        raise HTTPException(status_code=422, detail="At least one of start_date, player_id, match_id, or session_id is required")
+    if start_date is None and player_id is None and match_id is None and session_id is None and division_id is None:
+        raise HTTPException(status_code=422, detail="At least one of start_date, player_id, match_id, session_id, or division_id is required")
 
     query = select(Match)
     if match_id is not None:
         query = query.where(Match.match_id == match_id)
     if session_id is not None:
         query = query.where(Match.session_id == session_id)
+    if division_id is not None:
+        query = query.where(Match.division_id == division_id)
     if player_id is not None:
         query = query.where(or_(Match.player1_id == player_id, Match.player2_id == player_id))
     if start_date is not None:
@@ -65,12 +68,14 @@ def get_matches(
 @router.get("/scores/", response_model=list[PlayerScore])
 def get_scores(
     session_id: int,
+    division_id: int | None = None,
     session: Session = Depends(get_session),
     _user: User = Depends(get_current_user),
 ):
-    matches = session.exec(
-        select(Match).where(Match.session_id == session_id, Match.completed)
-    ).all()
+    query = select(Match).where(Match.session_id == session_id, Match.completed)
+    if division_id is not None:
+        query = query.where(Match.division_id == division_id)
+    matches = session.exec(query).all()
     match_ids = [m.match_id for m in matches]
     if not match_ids:
         return []
@@ -83,20 +88,23 @@ def get_scores(
         wins = match_player_wins.setdefault(game.match_id, {})
         wins[game.winner_id] = wins.get(game.winner_id, 0) + 1
 
-    # Calculate scores per match: 2-0 winner gets 3pts, 2-1 winner gets 2pts, 1-2 loser gets 1pt
+    # Calculate scores per match (race-agnostic):
+    # - Shutout (loser won 0 games): winner gets 3pts
+    # - Non-shutout: winner gets 2pts
+    # - Loser reached the hill (1 game from winning): loser gets 1pt
     player_scores: dict[int, int] = {}
     for wins_by_player in match_player_wins.values():
-        if len(wins_by_player) < 2:
-            # One player won all games (2-0)
-            for player_id in wins_by_player:
-                player_scores[player_id] = player_scores.get(player_id, 0) + 3
+        sorted_players = sorted(wins_by_player.items(), key=lambda x: x[1], reverse=True)
+        winner_id, winner_wins = sorted_players[0]
+        loser_wins = sorted_players[1][1] if len(sorted_players) > 1 else 0
+
+        if loser_wins == 0:
+            player_scores[winner_id] = player_scores.get(winner_id, 0) + 3
         else:
-            # Both players won at least one game
-            sorted_players = sorted(wins_by_player.items(), key=lambda x: x[1], reverse=True)
-            winner_id, _ = sorted_players[0]
-            loser_id, _ = sorted_players[1]
             player_scores[winner_id] = player_scores.get(winner_id, 0) + 2
-            player_scores[loser_id] = player_scores.get(loser_id, 0) + 1
+            if loser_wins == winner_wins - 1:
+                loser_id = sorted_players[1][0]
+                player_scores[loser_id] = player_scores.get(loser_id, 0) + 1
 
     return [PlayerScore(player_id=pid, score=s) for pid, s in player_scores.items()]
 
@@ -107,35 +115,41 @@ def schedule_round_robin(
     session: Session = Depends(get_session),
     _admin: User = Depends(require_admin),
 ):
-    from models import DivisionPlayer
     from models import Session as SessionModel
     from utils import schedule_round_robin as generate_schedule
 
-    # Look up the session to find its division
     opl_session = session.get(SessionModel, body.session_id)
     if not opl_session:
         raise HTTPException(status_code=404, detail=f"Session {body.session_id} not found")
 
-    players = session.exec(
-        select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
-        .where(DivisionPlayer.division_id == opl_session.division_id)
-    ).all()
-    if not players:
-        raise HTTPException(status_code=404, detail=f"No players found in division {opl_session.division_id}")
-
     # Delete uncompleted matches for this session
     old_matches = session.exec(
-        select(Match).where(Match.session_id == body.session_id, Match.completed == False)
+        select(Match).where(Match.session_id == body.session_id, not Match.completed)
     ).all()
     for m in old_matches:
         session.delete(m)
 
-    matches = generate_schedule(players, body.start_date, body.session_id)
-    session.add_all(matches)
+    # Schedule matches for each division
+    divisions = session.exec(select(Division).where(Division.active)).all()
+    all_matches = []
+    for division in divisions:
+        players = session.exec(
+            select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
+            .where(DivisionPlayer.division_id == division.division_id)
+        ).all()
+        if not players:
+            continue
+        matches = generate_schedule(players, body.start_date, body.session_id, division.division_id)
+        all_matches.extend(matches)
+
+    if not all_matches:
+        raise HTTPException(status_code=404, detail="No players found in any division")
+
+    session.add_all(all_matches)
     session.commit()
-    for match in matches:
+    for match in all_matches:
         session.refresh(match)
-    return matches
+    return all_matches
 
 
 @router.post("/", response_model=Match)
@@ -196,7 +210,7 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
 
     uncompleted_matches = session.exec(
         select(Match).where(
-            Match.completed == False,
+            not Match.completed,
             or_(
                 Match.player1_id == player1.player_id,
                 Match.player2_id == player1.player_id,

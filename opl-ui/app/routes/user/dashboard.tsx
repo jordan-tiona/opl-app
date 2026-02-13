@@ -22,15 +22,17 @@ import type { Session } from '~/lib/types'
 
 interface SessionLeadersProps {
     session: Session
+    divisionId: number
     divisionName: string
 }
 
 const SessionLeaders: React.FC<SessionLeadersProps> = ({
     session,
+    divisionId,
     divisionName,
 }: SessionLeadersProps) => {
-    const { data: scores } = useScores(session.session_id)
-    const { data: divPlayers } = useDivisionPlayers(session.division_id)
+    const { data: scores } = useScores(session.session_id, divisionId)
+    const { data: divPlayers } = useDivisionPlayers(divisionId)
 
     const divisionPlayers = useMemo(
         () => new Map((divPlayers ?? []).map((p) => [p.player_id, p])),
@@ -185,20 +187,23 @@ export const Dashboard: React.FC = () => {
                 </Grid>
             </Grid>
 
-            {sessions && sessions.length > 0 && (
+            {sessions && sessions.length > 0 && divisions && divisions.length > 0 && (
                 <Box sx={{ mt: 4 }}>
                     <Typography gutterBottom variant="h5">
                         Session Leaders
                     </Typography>
                     <Grid container spacing={3}>
-                        {sessions.map((session) => (
-                            <Grid key={session.session_id} size={{ xs: 12, sm: 6 }}>
-                                <SessionLeaders
-                                    divisionName={divisionMap.get(session.division_id) ?? ''}
-                                    session={session}
-                                />
-                            </Grid>
-                        ))}
+                        {sessions.flatMap((session) =>
+                            divisions.map((division) => (
+                                <Grid key={`${session.session_id}-${division.division_id}`} size={{ xs: 12, sm: 6 }}>
+                                    <SessionLeaders
+                                        divisionId={division.division_id}
+                                        divisionName={division.name}
+                                        session={session}
+                                    />
+                                </Grid>
+                            ))
+                        )}
                     </Grid>
                 </Box>
             )}

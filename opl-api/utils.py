@@ -4,7 +4,7 @@ from math import floor
 from models import Match, Player
 
 
-def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int) -> list[Match]:
+def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int, division_id: int) -> list[Match]:
     """Generate a full home-and-away round robin schedule using the circle method.
 
     Each pairing plays twice: once with each player as "home" (player1).
@@ -41,6 +41,7 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
                 home, away = (p1, p2) if leg == 0 else (p2, p1)
                 matches.append(Match(
                     session_id=session_id,
+                    division_id=division_id,
                     player1_id=home.player_id,
                     player2_id=away.player_id,
                     player1_rating=home.rating,

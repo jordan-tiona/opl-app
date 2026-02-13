@@ -4,7 +4,7 @@ from sqlmodel import Session as DBSession, select
 
 from auth import get_current_user, require_admin
 from database import get_session
-from models import Division, Session, User
+from models import Session, User
 
 
 router = APIRouter(
@@ -13,12 +13,10 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[Session])
-def get_sessions(active: bool | None = None, division_id: int | None = None, session: DBSession = Depends(get_session), _user: User = Depends(get_current_user)):
+def get_sessions(active: bool | None = None, session: DBSession = Depends(get_session), _user: User = Depends(get_current_user)):
     query = select(Session)
     if active is not None:
         query = query.where(Session.active == active)
-    if division_id is not None:
-        query = query.where(Session.division_id == division_id)
     return session.exec(query).all()
 
 
@@ -32,9 +30,6 @@ def get_session_by_id(session_id: int, session: DBSession = Depends(get_session)
 
 @router.post("/", response_model=Session)
 def create_session(body: Session, session: DBSession = Depends(get_session), _admin: User = Depends(require_admin)):
-    division = session.get(Division, body.division_id)
-    if not division:
-        raise HTTPException(status_code=404, detail="Division not found")
     session.add(body)
     session.commit()
     session.refresh(body)

@@ -95,6 +95,7 @@ export const api = {
             player_id?: number
             match_id?: number
             session_id?: number
+            division_id?: number
             completed?: boolean
         }): Promise<Match[]> => {
             const searchParams = new URLSearchParams()
@@ -117,6 +118,10 @@ export const api = {
 
             if (params.session_id) {
                 searchParams.set('session_id', params.session_id.toString())
+            }
+
+            if (params.division_id) {
+                searchParams.set('division_id', params.division_id.toString())
             }
 
             if (params.completed !== undefined) {
@@ -146,8 +151,13 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
-        scores: (sessionId: number): Promise<PlayerScore[]> =>
-            fetchJson(`${API_BASE}/matches/scores/?session_id=${sessionId}`),
+        scores: (sessionId: number, divisionId?: number): Promise<PlayerScore[]> => {
+            const params = new URLSearchParams({ session_id: sessionId.toString() })
+            if (divisionId !== undefined) {
+                params.set('division_id', divisionId.toString())
+            }
+            return fetchJson(`${API_BASE}/matches/scores/?${params.toString()}`)
+        },
     },
 
     games: {
@@ -208,15 +218,11 @@ export const api = {
     },
 
     sessions: {
-        list: (params?: { active?: boolean; division_id?: number }): Promise<Session[]> => {
+        list: (params?: { active?: boolean }): Promise<Session[]> => {
             const searchParams = new URLSearchParams()
 
             if (params?.active !== undefined) {
                 searchParams.set('active', params.active.toString())
-            }
-
-            if (params?.division_id !== undefined) {
-                searchParams.set('division_id', params.division_id.toString())
             }
 
             const qs = searchParams.toString()

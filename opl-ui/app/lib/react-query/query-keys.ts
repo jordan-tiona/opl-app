@@ -6,6 +6,7 @@ export const queryKeys = {
         end_date?: string
         player_id?: number
         session_id?: number
+        division_id?: number
         completed?: boolean
     }) => ['matches', params] as const,
     match: (id: number) => ['matches', id] as const,
@@ -16,6 +17,5 @@ export const queryKeys = {
     playerDivisions: (playerId: number) => ['players', playerId, 'divisions'] as const,
     sessions: ['sessions'] as const,
     session: (id: number) => ['sessions', id] as const,
-    sessionsByDivision: (divisionId: number) => ['sessions', 'division', divisionId] as const,
     scores: (sessionId: number) => ['scores', sessionId] as const,
 }

@@ -11,11 +11,9 @@ import type { Session, SessionInput } from '../types'
 
 import { queryKeys } from './query-keys'
 
-export const useSessions = (params?: { active?: boolean; division_id?: number }): UseQueryResult<Session[]> => {
+export const useSessions = (params?: { active?: boolean }): UseQueryResult<Session[]> => {
     return useQuery({
-        queryKey: params?.division_id
-            ? queryKeys.sessionsByDivision(params.division_id)
-            : queryKeys.sessions,
+        queryKey: queryKeys.sessions,
         queryFn: () => api.sessions.list(params),
     })
 }

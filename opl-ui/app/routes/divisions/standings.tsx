@@ -222,7 +222,7 @@ const SessionStandings: React.FC<{
 }> = ({ sessionId, sessionName, divisionId, isMobile, sectionRef }) => {
     const { data: divisionPlayers } = useDivisionPlayers(divisionId)
     const { data: matches, isLoading: matchesLoading } = useMatches({ session_id: sessionId })
-    const { data: scores, isLoading: scoresLoading } = useScores(sessionId)
+    const { data: scores, isLoading: scoresLoading } = useScores(sessionId, divisionId)
 
     const sorted = useMemo(() => {
         if (!divisionPlayers || !matches || !scores) {return []}
@@ -262,9 +262,9 @@ export const StandingsPage: React.FC = () => {
     const { data: playerActiveDivisions } = usePlayerDivisions(user?.player_id ?? 0, true)
     const sectionRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
-    // For non-admin: find their active session
+    // For non-admin: find their active division and session
     const targetDivisionId = user?.is_admin ? null : (playerActiveDivisions?.[0]?.division_id ?? null)
-    const playerActiveSession = sessions?.find((s) => s.division_id === targetDivisionId) ?? null
+    const playerActiveSession = sessions?.[0] ?? null
 
     const { data: targetDivisionPlayers } = useDivisionPlayers(targetDivisionId ?? 0)
 
@@ -272,7 +272,7 @@ export const StandingsPage: React.FC = () => {
         session_id: playerActiveSession?.session_id ?? undefined,
     })
 
-    const { data: scores, isLoading: scoresLoading } = useScores(playerActiveSession?.session_id ?? 0)
+    const { data: scores, isLoading: scoresLoading } = useScores(playerActiveSession?.session_id ?? 0, targetDivisionId ?? undefined)
 
     const isLoading = playersLoading || divisionsLoading || sessionsLoading || matchesLoading || scoresLoading
 
@@ -284,17 +284,26 @@ export const StandingsPage: React.FC = () => {
         return buildSortedStandings(divPlayers, matches, scores)
     }, [players, matches, scores, targetDivisionPlayers, user?.is_admin])
 
-    const scrollToSession = (sessionId: number) => {
-        sectionRefs.current.get(sessionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-
     if (error) {
         return <Alert severity="error">Failed to load standings: {error.message}</Alert>
     }
 
     const activeSessions = sessions ?? []
     const divisionMap = new Map(divisions?.map((d) => [d.division_id, d.name]) ?? [])
-    const showSessionNav = user?.is_admin && activeSessions.length > 1
+
+    // Build session+division combos for admin view
+    const adminCombos = activeSessions.flatMap((session) =>
+        (divisions ?? []).map((division) => ({
+            session,
+            division,
+            key: `${session.session_id}-${division.division_id}`,
+        }))
+    )
+    const showSessionNav = user?.is_admin && adminCombos.length > 1
+
+    const scrollToCombo = (key: string) => {
+        sectionRefs.current.get(key as unknown as number)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
 
     return (
         <Box>
@@ -316,14 +325,14 @@ export const StandingsPage: React.FC = () => {
                         py: 1,
                     }}
                 >
-                    {activeSessions.map((session) => (
+                    {adminCombos.map(({ session, division, key }) => (
                         <Chip
                             clickable
                             color="primary"
-                            key={session.session_id}
-                            label={`${divisionMap.get(session.division_id) ?? ''} - ${session.name}`}
+                            key={key}
+                            label={`${division.name} - ${session.name}`}
                             variant="outlined"
-                            onClick={() => scrollToSession(session.session_id)}
+                            onClick={() => scrollToCombo(key)}
                         />
                     ))}
                 </Box>
@@ -334,17 +343,17 @@ export const StandingsPage: React.FC = () => {
                     <CircularProgress />
                 </Box>
             ) : user?.is_admin && divisions && players ? (
-                activeSessions.map((session) => (
+                adminCombos.map(({ session, division, key }) => (
                     <SessionStandings
-                        divisionId={session.division_id}
+                        divisionId={division.division_id}
                         isMobile={isMobile}
-                        key={session.session_id}
+                        key={key}
                         sectionRef={(el) => {
-                            if (el) {sectionRefs.current.set(session.session_id, el)}
-                            else {sectionRefs.current.delete(session.session_id)}
+                            if (el) {sectionRefs.current.set(key as unknown as number, el)}
+                            else {sectionRefs.current.delete(key as unknown as number)}
                         }}
                         sessionId={session.session_id}
-                        sessionName={`${divisionMap.get(session.division_id) ?? ''} - ${session.name}`}
+                        sessionName={`${division.name} - ${session.name}`}
                     />
                 ))
             ) : isLoading ? (
@@ -357,9 +366,9 @@ export const StandingsPage: React.FC = () => {
                 </Paper>
             ) : (
                 <>
-                    {playerActiveSession && (
+                    {playerActiveSession && targetDivisionId && (
                         <Typography color="text.secondary" gutterBottom variant="h5">
-                            {divisionMap.get(playerActiveSession.division_id) ?? ''} - {playerActiveSession.name}
+                            {divisionMap.get(targetDivisionId) ?? ''} - {playerActiveSession.name}
                         </Typography>
                     )}
                     <StandingsTable isMobile={isMobile} players={playerStandings} />

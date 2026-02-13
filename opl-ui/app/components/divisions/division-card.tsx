@@ -26,7 +26,7 @@ interface DivisionCardProps {
 export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: DivisionCardProps) => {
     const navigate = useNavigate()
     const { data: divisionPlayers } = useDivisionPlayers(division.division_id)
-    const { data: sessions } = useSessions({ division_id: division.division_id })
+    const { data: sessions } = useSessions()
 
     const activeSessions = sessions?.filter((s) => s.active) ?? []
 

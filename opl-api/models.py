@@ -36,7 +36,6 @@ class Division(SQLModel, table=True):
 class Session(SQLModel, table=True):
     __tablename__ = "sessions"
     session_id: int | None = Field(primary_key=True, index=True)
-    division_id: int = Field(foreign_key="divisions.division_id")
     name: str
     start_date: str  # YYYY-MM-DD
     end_date: str  # YYYY-MM-DD
@@ -55,6 +54,7 @@ class Match(SQLModel, table=True):
     __tablename__ = "matches"
     match_id: int | None = Field(primary_key=True)
     session_id: int | None = Field(default=None, foreign_key="sessions.session_id")
+    division_id: int = Field(foreign_key="divisions.division_id")
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int = Field(foreign_key="players.player_id")
     player1_rating: int
