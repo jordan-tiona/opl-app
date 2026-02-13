@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,13 +11,22 @@ from routers.match import router as match_router
 from routers.message import router as message_router
 from routers.player import router as player_router
 from routers.session import router as session_router
+from scheduler import start_scheduler, stop_scheduler
 
 ALLOWED_ORIGINS = os.environ.get(
     "CORS_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173",
 ).split(",")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    start_scheduler()
+    yield
+    stop_scheduler()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

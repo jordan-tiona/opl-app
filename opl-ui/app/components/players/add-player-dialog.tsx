@@ -20,6 +20,8 @@ const initialFormState: PlayerInput = {
     games_played: 0,
     phone: '',
     email: '',
+    email_notifications: false,
+    match_reminders: false,
 }
 
 interface AddPlayerDialogProps {

@@ -15,9 +15,11 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
+    FormControlLabel,
     InputLabel,
     MenuItem,
     Select,
+    Switch,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
@@ -144,6 +146,7 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
     const [recipientType, setRecipientType] = useState<'player' | 'division' | 'league'>('league')
     const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([])
     const [selectedDivisionId, setSelectedDivisionId] = useState<number | ''>('')
+    const [sendEmail, setSendEmail] = useState(false)
     const [showPreview, setShowPreview] = useState(false)
     const [success, setSuccess] = useState(false)
 
@@ -157,6 +160,7 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
         setRecipientType('league')
         setSelectedPlayers([])
         setSelectedDivisionId('')
+        setSendEmail(false)
         setShowPreview(false)
         setSuccess(false)
     }
@@ -177,6 +181,10 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
             data.player_ids = selectedPlayers.map((p) => p.player_id)
         } else if (recipientType === 'division') {
             data.recipient_id = selectedDivisionId as number
+        }
+
+        if (sendEmail) {
+            data.send_email = true
         }
 
         createMessage.mutate(data, {
@@ -281,6 +289,16 @@ function ComposeDialog({ open, onClose }: { open: boolean; onClose: () => void }
                             </CardContent>
                         </Card>
                     )}
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={sendEmail}
+                                onChange={(_, checked) => setSendEmail(checked)}
+                            />
+                        }
+                        label="Also send as email (only to players who opted in)"
+                    />
                 </Box>
             </DialogContent>
             <DialogActions>

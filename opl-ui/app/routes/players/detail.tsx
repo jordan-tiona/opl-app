@@ -7,7 +7,9 @@ import {
     CardContent,
     Chip,
     CircularProgress,
+    FormControlLabel,
     IconButton,
+    Switch,
     TextField,
     Typography,
     useMediaQuery,
@@ -189,6 +191,36 @@ export const PlayerDetailPage: React.FC = () => {
                                     onChange={handleInputChange}
                                 />
                             </Box>
+                            <Box>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={formData.email_notifications ?? false}
+                                            onChange={(_, checked) =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    email_notifications: checked,
+                                                }))
+                                            }
+                                        />
+                                    }
+                                    label="Email notifications"
+                                />
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={formData.match_reminders ?? false}
+                                            onChange={(_, checked) =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    match_reminders: checked,
+                                                }))
+                                            }
+                                        />
+                                    }
+                                    label="Match reminders"
+                                />
+                            </Box>
                             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                                 <Button onClick={handleCancel}>Cancel</Button>
                                 <Button
@@ -219,6 +251,20 @@ export const PlayerDetailPage: React.FC = () => {
                                 <Typography color="text.secondary">
                                     Games played: {player.games_played}
                                 </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Chip
+                                    color={player.email_notifications ? 'success' : 'default'}
+                                    label={player.email_notifications ? 'Email notifications on' : 'Email notifications off'}
+                                    size="small"
+                                    variant={player.email_notifications ? 'filled' : 'outlined'}
+                                />
+                                <Chip
+                                    color={player.match_reminders ? 'success' : 'default'}
+                                    label={player.match_reminders ? 'Match reminders on' : 'Match reminders off'}
+                                    size="small"
+                                    variant={player.match_reminders ? 'filled' : 'outlined'}
+                                />
                             </Box>
                         </Box>
                     )}

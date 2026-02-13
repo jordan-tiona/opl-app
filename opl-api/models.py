@@ -23,6 +23,8 @@ class Player(SQLModel, table=True):
     games_played: int = Field(default=0)
     phone: str
     email: str
+    email_notifications: bool = Field(default=False)
+    match_reminders: bool = Field(default=False)
 
 
 class Division(SQLModel, table=True):
@@ -59,8 +61,11 @@ class Match(SQLModel, table=True):
     player2_id: int = Field(foreign_key="players.player_id")
     player1_rating: int
     player2_rating: int
+    player1_weight: int = Field(default=0)
+    player2_weight: int = Field(default=0)
     scheduled_date: datetime
     completed: bool
+    reminder_sent: bool = Field(default=False)
     winner_id: int | None = Field(default=None, foreign_key="players.player_id")
     loser_id: int | None = Field(default=None, foreign_key="players.player_id")
 

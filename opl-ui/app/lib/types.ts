@@ -6,6 +6,8 @@ export interface Player {
     games_played: number
     phone: string
     email: string
+    email_notifications: boolean
+    match_reminders: boolean
 }
 
 export interface Match {
@@ -16,6 +18,8 @@ export interface Match {
     player2_id: number
     player1_rating: number
     player2_rating: number
+    player1_weight: number
+    player2_weight: number
     scheduled_date: string
     completed: boolean
     winner_id: number | null
@@ -90,6 +94,7 @@ export interface MessageInput {
     recipient_type: 'player' | 'division' | 'league'
     recipient_id?: number | null
     player_ids?: number[]
+    send_email?: boolean
 }
 
 export interface User {

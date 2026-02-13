@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -10,6 +10,7 @@ from models import (
     DivisionPlayer,
     Message,
     MessageRecipient,
+    Player,
     User,
 )
 
@@ -22,6 +23,7 @@ class MessageCreate(BaseModel):
     recipient_type: str  # "player" | "division" | "league"
     recipient_id: int | None = None
     player_ids: list[int] | None = None  # for multi-player targeting
+    send_email: bool = False
 
 
 class MessageOut(BaseModel):
@@ -38,6 +40,7 @@ class MessageOut(BaseModel):
 @router.post("/")
 def create_message(
     data: MessageCreate,
+    background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
     admin: User = Depends(require_admin),
 ):
@@ -57,6 +60,19 @@ def create_message(
         for pid in data.player_ids:
             session.add(MessageRecipient(message_id=msg.message_id, player_id=pid))
         session.commit()
+
+        if data.send_email:
+            # Collect opted-in player emails
+            players = session.exec(
+                select(Player).where(
+                    Player.player_id.in_(data.player_ids),
+                    Player.email_notifications == True,  # noqa: E712
+                )
+            ).all()
+            emails = [p.email for p in players if p.email]
+            if emails:
+                _schedule_email(background_tasks, emails, data.subject, data.body)
+
         return msg
     else:
         msg = Message(
@@ -69,7 +85,47 @@ def create_message(
         session.add(msg)
         session.commit()
         session.refresh(msg)
+
+        if data.send_email:
+            emails = _resolve_recipient_emails(session, data.recipient_type, data.recipient_id)
+            if emails:
+                _schedule_email(background_tasks, emails, data.subject, data.body)
+
         return msg
+
+
+def _resolve_recipient_emails(
+    session: Session, recipient_type: str, recipient_id: int | None
+) -> list[str]:
+    """Get opted-in email addresses for division/league recipients."""
+    if recipient_type == "league":
+        players = session.exec(
+            select(Player).where(Player.email_notifications == True)  # noqa: E712
+        ).all()
+    elif recipient_type == "division" and recipient_id:
+        dp_rows = session.exec(
+            select(DivisionPlayer).where(DivisionPlayer.division_id == recipient_id)
+        ).all()
+        player_ids = [dp.player_id for dp in dp_rows]
+        if not player_ids:
+            return []
+        players = session.exec(
+            select(Player).where(
+                Player.player_id.in_(player_ids),
+                Player.email_notifications == True,  # noqa: E712
+            )
+        ).all()
+    else:
+        return []
+    return [p.email for p in players if p.email]
+
+
+def _schedule_email(
+    background_tasks: BackgroundTasks, emails: list[str], subject: str, body: str
+) -> None:
+    from email_service import send_email
+
+    background_tasks.add_task(send_email, emails, subject, body)
 
 
 @router.get("/", response_model=list[MessageOut])
