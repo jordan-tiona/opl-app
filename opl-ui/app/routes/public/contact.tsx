@@ -8,7 +8,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useState } from 'react'
 
 import { api } from '../../lib/api'
@@ -111,4 +111,10 @@ export const ContactPage: React.FC = () => {
     )
 }
 
-export default ContactPage
+const ContactPageWrapper: React.FC = () => (
+    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
+        <ContactPage />
+    </GoogleReCaptchaProvider>
+)
+
+export default ContactPageWrapper

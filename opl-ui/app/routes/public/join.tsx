@@ -13,7 +13,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useState } from 'react'
 
 import { api } from '../../lib/api'
@@ -147,4 +147,10 @@ export const JoinPage: React.FC = () => {
     )
 }
 
-export default JoinPage
+const JoinPageWrapper: React.FC = () => (
+    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
+        <JoinPage />
+    </GoogleReCaptchaProvider>
+)
+
+export default JoinPageWrapper
