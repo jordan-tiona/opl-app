@@ -241,6 +241,22 @@ export const api = {
             }),
     },
 
+    contact: {
+        submit: (data: {
+            reason: string
+            message: string
+            recaptchaToken: string
+        }): Promise<{ message: string }> =>
+            fetchJson(`${API_BASE}/contact/`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    reason: data.reason,
+                    message: data.message,
+                    recaptcha_token: data.recaptchaToken,
+                }),
+            }),
+    },
+
     join: {
         submit: (data: {
             name: string

@@ -26,7 +26,8 @@ def verify_google_token(credential: str) -> dict:
         raise HTTPException(status_code=500, detail="OPL_GOOGLE_CLIENT_ID not configured")
     try:
         idinfo = id_token.verify_oauth2_token(
-            credential, google_requests.Request(), GOOGLE_CLIENT_ID
+            credential, google_requests.Request(), GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=5,
         )
         return idinfo
     except Exception as e:

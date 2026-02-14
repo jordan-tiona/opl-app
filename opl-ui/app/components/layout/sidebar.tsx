@@ -4,6 +4,7 @@ import {
     EmojiEvents as EmojiEventsIcon,
     Home as HomeIcon,
     Leaderboard as LeaderboardIcon,
+    ContactSupport as ContactSupportIcon,
     Logout as LogoutIcon,
     Mail as MailIcon,
     People as PeopleIcon,
@@ -48,6 +49,7 @@ const playerNavItems = [
     { label: 'My Profile', path: '/profile', icon: <PersonIcon /> },
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
     { label: 'Messages', path: '/messages', icon: <MailIcon /> },
+    { label: 'Contact Us', path: '/contact', icon: <ContactSupportIcon /> },
 ]
 
 interface SidebarProps {

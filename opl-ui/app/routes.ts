@@ -21,6 +21,7 @@ export default [
         route('matches', 'routes/matches/list.tsx'),
         route('messages', 'routes/messages/list.tsx'),
         route('standings', 'routes/divisions/standings.tsx'),
+        route('contact', 'routes/public/contact.tsx'),
         route('profile', 'routes/user/profile.tsx'),
     ]),
 ] satisfies RouteConfig
