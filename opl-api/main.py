@@ -13,7 +13,7 @@ from routers.player import router as player_router
 from routers.contact import router as contact_router
 from routers.join import router as join_router
 from routers.session import router as session_router
-from scheduler import start_scheduler, stop_scheduler
+from services.scheduler import start_scheduler, stop_scheduler
 
 ALLOWED_ORIGINS = os.environ.get(
     "CORS_ORIGINS",

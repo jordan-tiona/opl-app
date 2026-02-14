@@ -4,8 +4,8 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from auth import get_current_user, require_admin
-from database import get_session
+from services.auth import get_current_user, require_admin
+from services.database import get_session
 from models import (
     DivisionPlayer,
     Message,
@@ -123,7 +123,7 @@ def _resolve_recipient_emails(
 def _schedule_email(
     background_tasks: BackgroundTasks, emails: list[str], subject: str, body: str
 ) -> None:
-    from email_service import send_email
+    from services.email_service import send_email
 
     background_tasks.add_task(send_email, emails, subject, body)
 

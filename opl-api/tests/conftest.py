@@ -3,12 +3,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
 
-from auth import get_current_user, require_admin
-from database import get_session
+from services.auth import get_current_user, require_admin
+from services.database import get_session
 from main import app
-from routers.division import Division, DivisionPlayer
-from routers.player import Player
-from routers.user import User
+from models import Division, DivisionPlayer, Player, User
 
 
 @pytest.fixture

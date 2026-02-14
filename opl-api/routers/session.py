@@ -2,8 +2,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session as DBSession, select
 
-from auth import get_current_user, require_admin
-from database import get_session
+from services.auth import get_current_user, require_admin
+from services.database import get_session
 from models import Session, User
 
 

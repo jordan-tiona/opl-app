@@ -8,7 +8,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from sqlmodel import Session
 
-from database import get_session
+from services.database import get_session
 from models import User
 
 GOOGLE_CLIENT_ID = os.environ.get("OPL_GOOGLE_CLIENT_ID", "")

@@ -3,14 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from auth import (
+from services.auth import (
     ADMIN_EMAIL,
     create_jwt,
     get_current_user,
     verify_google_token,
 )
-from database import get_session
-from routers.user import User
+from services.database import get_session
+from models import User
 
 router = APIRouter(prefix="/auth")
 

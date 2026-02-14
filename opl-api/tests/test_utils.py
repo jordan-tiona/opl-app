@@ -38,7 +38,7 @@ class TestCalculateRatingChange:
 
 class TestScheduleRoundRobin:
     def _make_players(self, n):
-        from routers.player import Player
+        from models import Player
 
         return [
             Player(

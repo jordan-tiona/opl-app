@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, field_validator
 
-from email_service import send_email
-from recaptcha import verify_recaptcha
+from services.email_service import send_email
+from services.recaptcha import verify_recaptcha
 
 router = APIRouter(prefix="/contact", tags=["contact"])
 

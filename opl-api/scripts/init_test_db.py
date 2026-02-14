@@ -9,7 +9,7 @@ from sqlmodel import Session, SQLModel, select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from database import engine
+from services.database import engine
 from models import Division, DivisionPlayer, Game, Match, Player, User
 from models import Session as OPLSession
 
