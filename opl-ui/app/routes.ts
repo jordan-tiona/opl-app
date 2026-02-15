@@ -9,6 +9,9 @@ export default [
         route('login', 'routes/public/login.tsx'),
     ]),
 
+    // Standalone routes (no layout chrome)
+    route('matches/print', 'routes/matches/print.tsx'),
+
     // Authenticated routes (requires login)
     layout('components/layout/auth-layout.tsx', [
         route('dashboard', 'routes/user/dashboard.tsx'),

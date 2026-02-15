@@ -1,4 +1,4 @@
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
+import { ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Accordion,
     AccordionDetails,
@@ -6,6 +6,8 @@ import {
     Box,
     Chip,
     Divider,
+    IconButton,
+    Tooltip,
     Typography,
 } from '@mui/material'
 import { memo, useCallback } from 'react'
@@ -81,6 +83,19 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             label={match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
+                        {!match.completed && (
+                            <Tooltip title="Print score sheet">
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        window.open(`/matches/print?match_id=${match.match_id}`, '_blank')
+                                    }}
+                                >
+                                    <PrintIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                     </Box>
                 </AccordionSummary>
                 <AccordionDetails>

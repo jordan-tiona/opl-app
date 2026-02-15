@@ -1,4 +1,4 @@
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
+import { ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Box,
     Card,
@@ -7,6 +7,7 @@ import {
     Collapse,
     Divider,
     IconButton,
+    Tooltip,
     Typography,
 } from '@mui/material'
 import { memo, useCallback } from 'react'
@@ -70,6 +71,20 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                             label={match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
+                        <Box sx={{ flex: 1 }} />
+                        {!match.completed && (
+                            <Tooltip title="Print score sheet">
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        window.open(`/matches/print?match_id=${match.match_id}`, '_blank')
+                                    }}
+                                >
+                                    <PrintIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                         <IconButton
                             size="small"
                             sx={{

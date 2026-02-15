@@ -1,8 +1,9 @@
-import { FilterList as FilterListIcon } from '@mui/icons-material'
+import { FilterList as FilterListIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Alert,
     Badge,
     Box,
+    Button,
     Card,
     CardContent,
     CircularProgress,
@@ -167,7 +168,24 @@ const MatchesPage: React.FC = () => {
                     mb: 3,
                 }}
             >
-                <Typography variant="h3">Matches</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="h3">Matches</Typography>
+                    {divisionId !== null && (
+                        <Button
+                            size="small"
+                            startIcon={<PrintIcon />}
+                            variant="outlined"
+                            onClick={() =>
+                                window.open(
+                                    `/matches/print?date=${dateRange.start}&division_id=${divisionId}`,
+                                    '_blank',
+                                )
+                            }
+                        >
+                            Print All
+                        </Button>
+                    )}
+                </Box>
                 {isMobile && (
                     <IconButton onClick={() => setFilterDrawerOpen(true)}>
                         <Badge badgeContent={activeFilterCount} color="primary">
