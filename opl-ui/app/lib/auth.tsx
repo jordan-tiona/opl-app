@@ -13,6 +13,7 @@ interface AuthContextType {
     login: (
         response: CredentialResponse,
     ) => Promise<{ success: boolean; user?: User; error?: string }>
+    demoLogin: (role: 'admin' | 'player') => Promise<{ success: boolean; user?: User; error?: string }>
     logout: () => void
 }
 
@@ -66,13 +67,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }
 
+    const demoLogin = async (role: 'admin' | 'player') => {
+        try {
+            const result = await api.auth.demoLogin(role)
+
+            localStorage.setItem(STORAGE_KEY, result.token)
+            flushSync(() => setUser(result.user))
+
+            return { success: true, user: result.user }
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Demo login failed'
+
+            return { success: false, error: message }
+        }
+    }
+
     const logout = () => {
         localStorage.removeItem(STORAGE_KEY)
         setUser(null)
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, demoLogin, logout }}>
             {children}
         </AuthContext.Provider>
     )

@@ -37,6 +37,8 @@ import { Outlet, useNavigate, useLocation } from 'react-router'
 import { useAuth } from '../../lib/auth'
 import { useSnackbar } from '../../lib/snackbar'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
 const navItems = [
     { label: 'Home', path: '/' },
     { label: 'About CSOPL', path: '/about' },
@@ -67,13 +69,26 @@ export const PublicLayout: React.FC = () => {
     const location = useLocation()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-    const { user, login, logout } = useAuth()
+    const { user, login, demoLogin, logout } = useAuth()
     const { showSnackbar } = useSnackbar()
     const { clientId } = useGoogleOAuth()
     const desktopGoogleBtnRef = useRef<HTMLDivElement>(null)
     const mobileGoogleBtnRef = useRef<HTMLDivElement>(null)
 
     const profileMenuItems = user?.is_admin ? adminNavItems : playerNavItems
+
+    const handleDemoLogin = useCallback(
+        async (role: 'admin' | 'player') => {
+            const result = await demoLogin(role)
+
+            if (result.success && result.user) {
+                navigate(result.user.is_admin ? '/dashboard' : '/profile')
+            } else if (result.error) {
+                showSnackbar(result.error, 'error')
+            }
+        },
+        [demoLogin, navigate, showSnackbar],
+    )
 
     const handleGoogleSuccess = useCallback(
         async (response: Parameters<typeof login>[0]) => {
@@ -159,6 +174,22 @@ export const PublicLayout: React.FC = () => {
                                     <LogoutIcon />
                                 </ListItemIcon>
                                 <ListItemText primary="Logout" />
+                            </ListItemButton>
+                        </ListItem>
+                    </>
+                ) : DEMO_MODE ? (
+                    <>
+                        <Divider sx={{ my: 1 }} />
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => { handleDemoLogin('admin'); setMobileOpen(false) }}>
+                                <ListItemIcon sx={{ minWidth: 36 }}><LoginIcon /></ListItemIcon>
+                                <ListItemText primary="Try Admin" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => { handleDemoLogin('player'); setMobileOpen(false) }}>
+                                <ListItemIcon sx={{ minWidth: 36 }}><LoginIcon /></ListItemIcon>
+                                <ListItemText primary="Try Player" />
                             </ListItemButton>
                         </ListItem>
                     </>
@@ -268,6 +299,25 @@ export const PublicLayout: React.FC = () => {
                                         </MenuItem>
                                     </Menu>
                                 </>
+                            ) : DEMO_MODE ? (
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button
+                                        startIcon={<LoginIcon />}
+                                        sx={{ color: 'inherit' }}
+                                        variant="outlined"
+                                        onClick={() => handleDemoLogin('admin')}
+                                    >
+                                        Try Admin
+                                    </Button>
+                                    <Button
+                                        startIcon={<LoginIcon />}
+                                        sx={{ color: 'inherit' }}
+                                        variant="outlined"
+                                        onClick={() => handleDemoLogin('player')}
+                                    >
+                                        Try Player
+                                    </Button>
+                                </Box>
                             ) : (
                                 <Box sx={{ position: 'relative' }}>
                                     <Button

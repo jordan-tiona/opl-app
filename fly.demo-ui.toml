@@ -1,0 +1,25 @@
+app = 'csopl-demo-ui'
+primary_region = 'dfw'
+
+[build]
+  dockerfile = 'opl-ui/Dockerfile'
+  [build.args]
+    VITE_OPL_CLIENT_ID = ''
+    VITE_API_BASE_URL = 'https://csopl-demo-api.fly.dev'
+    VITE_RECAPTCHA_SITE_KEY = ''
+    VITE_DEMO_MODE = 'true'
+
+[env]
+  NODE_ENV = 'production'
+  PORT = '3000'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'

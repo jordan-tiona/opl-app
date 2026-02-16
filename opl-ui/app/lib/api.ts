@@ -58,6 +58,12 @@ export const api = {
             }),
 
         me: (): Promise<User> => fetchJson(`${API_BASE}/auth/me`),
+
+        demoLogin: (role: 'admin' | 'player'): Promise<{ token: string; user: User }> =>
+            fetchJson(`${API_BASE}/auth/demo-login`, {
+                method: 'POST',
+                body: JSON.stringify({ role }),
+            }),
     },
 
     players: {

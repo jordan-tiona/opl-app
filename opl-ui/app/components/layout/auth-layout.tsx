@@ -1,5 +1,6 @@
 import { Menu as MenuIcon } from '@mui/icons-material'
 import {
+    Alert,
     AppBar,
     Box,
     CircularProgress,
@@ -15,6 +16,7 @@ import { useAuth } from '~/lib/auth'
 
 import { Sidebar } from './sidebar'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const adminPaths = ['/dashboard', '/players', '/divisions', '/sessions', '/matches']
 
@@ -77,6 +79,12 @@ export const AuthLayout: React.FC = () => {
                             />
                         </Toolbar>
                     </AppBar>
+                )}
+
+                {DEMO_MODE && (
+                    <Alert severity="info" sx={{ borderRadius: 0 }}>
+                        You're viewing a demo — data is read-only
+                    </Alert>
                 )}
 
                 <Box

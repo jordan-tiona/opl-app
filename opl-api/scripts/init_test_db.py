@@ -71,8 +71,8 @@ def init_players_table(num_players: int, player_emails: list[str]):
 
         for j, email in enumerate(player_emails):
             test_player = Player(
-                first_name="Test",
-                last_name=f"Player {j + 1}",
+                first_name="Demo",
+                last_name="Account" if len(player_emails) == 1 else f"Account {j + 1}",
                 phone=f"555-{j + 1:04d}",
                 email=email,
                 games_played=0,

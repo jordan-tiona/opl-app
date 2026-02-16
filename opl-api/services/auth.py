@@ -8,8 +8,8 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from sqlmodel import Session
 
-from services.database import get_session
 from models import User
+from services.database import get_session
 
 GOOGLE_CLIENT_ID = os.environ.get("OPL_GOOGLE_CLIENT_ID", "")
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret-change-in-production")
@@ -17,6 +17,8 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
 ADMIN_EMAIL = "admin@csopl.com"
+DEMO_MODE = os.environ.get("DEMO_MODE", "").lower() == "true"
+DEMO_PLAYER_EMAIL = os.environ.get("DEMO_PLAYER_EMAIL", "demo@csopl.com")
 
 security = HTTPBearer()
 
@@ -65,4 +67,10 @@ def get_current_user(
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+def require_non_demo(user: User = Depends(get_current_user)) -> User:
+    if DEMO_MODE:
+        raise HTTPException(status_code=403, detail="Demo mode: read-only")
     return user

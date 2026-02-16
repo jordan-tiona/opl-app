@@ -1,22 +1,30 @@
+from typing import Literal
+
 import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
+from models import User
 from services.auth import (
     ADMIN_EMAIL,
+    DEMO_MODE,
+    DEMO_PLAYER_EMAIL,
     create_jwt,
     get_current_user,
     verify_google_token,
 )
 from services.database import get_session
-from models import User
 
 router = APIRouter(prefix="/auth")
 
 
 class LoginRequest(BaseModel):
     credential: str
+
+
+class DemoLoginRequest(BaseModel):
+    role: Literal["admin", "player"]
 
 
 class LoginResponse(BaseModel):
@@ -56,6 +64,25 @@ def login(request: LoginRequest, session: Session = Depends(get_session)):
 
     session.commit()
     session.refresh(user)
+
+    token = create_jwt(user)
+    return LoginResponse(token=token, user=user)
+
+
+@router.post("/demo-login", response_model=LoginResponse)
+def demo_login(request: DemoLoginRequest, session: Session = Depends(get_session)):
+    if not DEMO_MODE:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if request.role == "admin":
+        user = session.exec(select(User).where(User.email == ADMIN_EMAIL)).first()
+    else:
+        user = session.exec(
+            select(User).where(User.email == DEMO_PLAYER_EMAIL)
+        ).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail=f"Demo {request.role} user not found")
 
     token = create_jwt(user)
     return LoginResponse(token=token, user=user)
