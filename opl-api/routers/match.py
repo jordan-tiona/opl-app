@@ -19,6 +19,7 @@ class GameInput(SQLModel):
 class ScheduleInput(SQLModel):
     session_id: int
     start_date: datetime
+    double: bool = True
 
 
 class PlayerScore(SQLModel):
@@ -139,7 +140,7 @@ def schedule_round_robin(
         ).all()
         if not players:
             continue
-        matches = generate_schedule(players, body.start_date, body.session_id, division.division_id)
+        matches = generate_schedule(players, body.start_date, body.session_id, division.division_id, double=body.double)
         all_matches.extend(matches)
 
     if not all_matches:

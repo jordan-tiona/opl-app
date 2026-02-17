@@ -48,6 +48,7 @@ export interface GameInput {
 export interface ScheduleInput {
     session_id: number
     start_date: string
+    double?: boolean
 }
 
 export type PlayerInput = Omit<Player, 'player_id'>

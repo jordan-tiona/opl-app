@@ -5,6 +5,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
+    Switch,
     TextField,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
@@ -28,10 +30,12 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     const scheduleRoundRobin = useScheduleRoundRobin()
     const { showSnackbar } = useSnackbar()
     const [startDate, setStartDate] = useState(defaultStartDate)
+    const [double, setDouble] = useState(true)
 
     useEffect(() => {
         if (open) {
             setStartDate(defaultStartDate)
+            setDouble(true)
         }
     }, [open, defaultStartDate])
 
@@ -40,6 +44,7 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
             const scheduledMatches = await scheduleRoundRobin.mutateAsync({
                 session_id: sessionId,
                 start_date: `${startDate}T00:00:00`,
+                double,
             })
 
             showSnackbar(`Successfully scheduled ${scheduledMatches.length} matches`, 'success')
@@ -62,6 +67,15 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
+                    />
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={double}
+                                onChange={(e) => setDouble(e.target.checked)}
+                            />
+                        }
+                        label="Double round robin (home & away)"
                     />
                 </Box>
             </DialogContent>
