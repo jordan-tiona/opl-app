@@ -5,7 +5,7 @@ export default [
     layout('components/layout/public-layout.tsx', [
         index('routes/public/landing.tsx'),
         route('about', 'routes/public/about.tsx'),
-        route('join', 'routes/public/join.tsx'),
+        route('join', 'routes/public/join-closed.tsx'), // swap back to join.tsx to re-enable registration
         route('login', 'routes/public/login.tsx'),
     ]),
 
