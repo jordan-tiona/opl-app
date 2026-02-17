@@ -14,8 +14,10 @@ import {
 import {
     AppBar,
     Avatar,
+    Backdrop,
     Box,
     Button,
+    CircularProgress,
     Divider,
     Drawer,
     IconButton,
@@ -27,6 +29,7 @@ import {
     Menu,
     MenuItem,
     Toolbar,
+    Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
@@ -65,6 +68,7 @@ const playerNavItems = [
 export const PublicLayout: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+    const [demoLoading, setDemoLoading] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()
     const theme = useTheme()
@@ -79,12 +83,18 @@ export const PublicLayout: React.FC = () => {
 
     const handleDemoLogin = useCallback(
         async (role: 'admin' | 'player') => {
-            const result = await demoLogin(role)
+            setDemoLoading(true)
 
-            if (result.success && result.user) {
-                navigate(result.user.is_admin ? '/dashboard' : '/profile')
-            } else if (result.error) {
-                showSnackbar(result.error, 'error')
+            try {
+                const result = await demoLogin(role)
+
+                if (result.success && result.user) {
+                    navigate(result.user.is_admin ? '/dashboard' : '/profile')
+                } else if (result.error) {
+                    showSnackbar(result.error, 'error')
+                }
+            } finally {
+                setDemoLoading(false)
             }
         },
         [demoLogin, navigate, showSnackbar],
@@ -356,6 +366,16 @@ export const PublicLayout: React.FC = () => {
             <Box sx={{ flexGrow: 1 }}>
                 <Outlet />
             </Box>
+
+            <Backdrop open={demoLoading} sx={{ zIndex: (theme) => theme.zIndex.modal + 1, flexDirection: 'column', gap: 2 }}>
+                <CircularProgress color="inherit" />
+                <Typography color="inherit" variant="h6">
+                    Starting demo server...
+                </Typography>
+                <Typography color="inherit" variant="body2">
+                    This may take a few seconds on first visit
+                </Typography>
+            </Backdrop>
         </Box>
     )
 }

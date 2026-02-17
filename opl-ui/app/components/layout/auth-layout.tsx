@@ -6,6 +6,7 @@ import {
     CircularProgress,
     IconButton,
     Toolbar,
+    Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
@@ -32,12 +33,24 @@ export const AuthLayout: React.FC = () => {
             <Box
                 sx={{
                     display: 'flex',
+                    flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
                     minHeight: '100vh',
+                    gap: 2,
                 }}
             >
                 <CircularProgress />
+                {DEMO_MODE && (
+                    <>
+                        <Typography color="text.secondary" variant="h6">
+                            Starting demo server...
+                        </Typography>
+                        <Typography color="text.secondary" variant="body2">
+                            This may take a few seconds on first visit
+                        </Typography>
+                    </>
+                )}
             </Box>
         )
     }
