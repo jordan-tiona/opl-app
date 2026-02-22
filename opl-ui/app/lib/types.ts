@@ -65,13 +65,13 @@ export type DivisionInput = Omit<Division, 'division_id'>
 export interface Session {
     session_id: number
     name: string
-    start_date: string
-    end_date: string
+    start_date: string | null
+    end_date: string | null
     match_time: string
     active: boolean
 }
 
-export type SessionInput = Omit<Session, 'session_id'>
+export type SessionInput = Omit<Session, 'session_id' | 'start_date' | 'end_date'>
 
 export interface PlayerScore {
     player_id: number

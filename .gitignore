@@ -415,6 +415,9 @@ FodyWeavers.xsd
 # Built Visual Studio Code Extensions
 *.vsix
 
+# Local scripts
+fly-db-reset.sh
+
 # Windows Installer files from build outputs
 *.cab
 *.msi

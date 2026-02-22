@@ -42,8 +42,6 @@ def init_sessions_table():
     with Session(engine) as session:
         session.add(OPLSession(
             name="Spring 2026",
-            start_date="2026-03-03",
-            end_date="2026-06-03",
             match_time="19:00",
         ))
         session.commit()

@@ -74,7 +74,9 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName 
                 >
                     <CalendarMonthIcon fontSize="small" />
                     <Typography variant="body2">
-                        {session.start_date} &mdash; {session.end_date}
+                        {session.start_date && session.end_date
+                            ? `${session.start_date} — ${session.end_date}`
+                            : 'No matches scheduled'}
                     </Typography>
                 </Box>
                 <Box

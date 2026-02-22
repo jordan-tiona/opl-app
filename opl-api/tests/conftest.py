@@ -49,9 +49,6 @@ def client(session, test_user):
 def sample_division(session):
     division = Division(
         name='Division A',
-        start_date='2025-01-01',
-        end_date='2025-06-01',
-        match_time='19:00',
     )
     session.add(division)
     session.commit()

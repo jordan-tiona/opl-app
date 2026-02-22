@@ -1,7 +1,7 @@
 from models.user import User
 from models.player import Player
 from models.division import Division, DivisionPlayer
-from models.session import Session
+from models.session import Session, SessionResponse
 from models.match import Match
 from models.game import Game
 from models.message import Message, MessageRecipient
@@ -12,6 +12,7 @@ __all__ = [
     "Division",
     "DivisionPlayer",
     "Session",
+    "SessionResponse",
     "Match",
     "Game",
     "Message",

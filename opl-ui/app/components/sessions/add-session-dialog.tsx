@@ -15,8 +15,6 @@ import type { SessionInput } from '~/lib/types'
 
 const initialFormState: SessionInput = {
     name: '',
-    start_date: '',
-    end_date: '',
     match_time: '19:00',
     active: true,
 }
@@ -69,28 +67,6 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
                         value={formData.name}
                         onChange={handleInputChange}
                     />
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <TextField
-                            fullWidth
-                            required
-                            label="Start Date"
-                            name="start_date"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="date"
-                            value={formData.start_date}
-                            onChange={handleInputChange}
-                        />
-                        <TextField
-                            fullWidth
-                            required
-                            label="End Date"
-                            name="end_date"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="date"
-                            value={formData.end_date}
-                            onChange={handleInputChange}
-                        />
-                    </Box>
                     <TextField
                         fullWidth
                         required
@@ -108,9 +84,7 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
                 <Button
                     disabled={
                         createSession.isPending ||
-                        !formData.name ||
-                        !formData.start_date ||
-                        !formData.end_date
+                        !formData.name
                     }
                     variant="contained"
                     onClick={handleSubmit}

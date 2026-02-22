@@ -18,7 +18,7 @@ interface ScheduleRoundRobinDialogProps {
     open: boolean
     onClose: () => void
     sessionId: number
-    defaultStartDate: string
+    defaultStartDate: string | null
 }
 
 export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> = ({
@@ -29,12 +29,12 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
 }: ScheduleRoundRobinDialogProps) => {
     const scheduleRoundRobin = useScheduleRoundRobin()
     const { showSnackbar } = useSnackbar()
-    const [startDate, setStartDate] = useState(defaultStartDate)
+    const [startDate, setStartDate] = useState(defaultStartDate ?? '')
     const [double, setDouble] = useState(true)
 
     useEffect(() => {
         if (open) {
-            setStartDate(defaultStartDate)
+            setStartDate(defaultStartDate ?? '')
             setDouble(true)
         }
     }, [open, defaultStartDate])
