@@ -9,9 +9,9 @@ from sqlmodel import Session, SQLModel, select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from services.database import engine
 from models import Division, DivisionPlayer, Game, Match, Player, User
 from models import Session as OPLSession
+from services.database import engine
 
 TEST_DATA = json.loads((Path(__file__).parent / "test_data.json").read_text())
 

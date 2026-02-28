@@ -4,8 +4,6 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from services.auth import get_current_user, require_admin
-from services.database import get_session
 from models import (
     DivisionPlayer,
     Message,
@@ -13,6 +11,8 @@ from models import (
     Player,
     User,
 )
+from services.auth import get_current_user, require_admin
+from services.database import get_session
 
 router = APIRouter(prefix="/messages")
 

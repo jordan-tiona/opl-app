@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
 from sqlmodel import Session, SQLModel, select
 
+from models import Division, DivisionPlayer, Game, Match, Player, User
 from services.auth import get_current_user, require_admin
 from services.database import get_session
-from models import Division, DivisionPlayer, Game, Match, Player, User
 
 
 class GameInput(SQLModel):

@@ -1,13 +1,13 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session as DBSession, select
 from sqlalchemy import func
+from sqlmodel import Session as DBSession
+from sqlmodel import select
 
-from services.auth import get_current_user, require_admin
-from services.database import get_session
 from models import Match, Session, User
 from models.session import SessionResponse
-
+from services.auth import get_current_user, require_admin
+from services.database import get_session
 
 router = APIRouter(
     prefix="/sessions"

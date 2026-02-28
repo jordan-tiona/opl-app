@@ -6,8 +6,8 @@ from sqlmodel import SQLModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from services.database import engine
 import models  # noqa: F401 — ensure all models are registered
+from services.database import engine
 
 if __name__ == "__main__":
     print(f"Database URL: {engine.url}", flush=True)

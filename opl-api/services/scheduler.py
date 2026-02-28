@@ -4,10 +4,10 @@ from datetime import date, datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlmodel import Session, select
 
-from services.database import engine
-from services.email_service import send_match_reminder
 from models import Match, Player
 from models import Session as SessionModel
+from services.database import engine
+from services.email_service import send_match_reminder
 
 scheduler = AsyncIOScheduler()
 

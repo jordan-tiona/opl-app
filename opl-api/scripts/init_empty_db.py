@@ -7,8 +7,8 @@ from sqlmodel import Session, SQLModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from models import User
 from services.database import engine
-from models import User  # noqa: F401 — also registers all models via models/__init__
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Initialize an empty OPL database")
