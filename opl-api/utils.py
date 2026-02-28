@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 from math import floor
 
@@ -47,8 +48,12 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
     if n < 2:
         return []
 
+    # Shuffle players before scheduling to randomize matchups
+    shuffled = list(players)
+    random.shuffle(shuffled)
+
     # Circle method requires an even number; pad with None (bye) if odd
-    padded = list(players) + ([None] if n % 2 != 0 else [])
+    padded = shuffled + ([None] if n % 2 != 0 else [])
     num_players = len(padded)
     num_rounds = num_players - 1  # rounds per leg
 
