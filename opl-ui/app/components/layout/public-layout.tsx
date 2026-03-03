@@ -75,7 +75,7 @@ export const PublicLayout: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const { user, login, demoLogin, logout } = useAuth()
     const { showSnackbar } = useSnackbar()
-    const { clientId } = useGoogleOAuth()
+    const { clientId, scriptLoadedSuccessfully } = useGoogleOAuth()
     const desktopGoogleBtnRef = useRef<HTMLDivElement>(null)
     const mobileGoogleBtnRef = useRef<HTMLDivElement>(null)
 
@@ -137,7 +137,7 @@ export const PublicLayout: React.FC = () => {
                 })
             }
         }
-    }, [clientId, handleGoogleSuccess, user])
+    }, [clientId, scriptLoadedSuccessfully, handleGoogleSuccess, user])
 
     const drawer = (
         <Box sx={{ p: 2 }}>
