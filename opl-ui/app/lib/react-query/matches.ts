@@ -66,3 +66,14 @@ export const useScheduleRoundRobin = (): UseMutationResult<
         },
     })
 }
+
+export const useDeleteMatch = (): UseMutationResult<void, Error, number> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: number) => api.matches.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['matches'] })
+        },
+    })
+}

@@ -65,3 +65,15 @@ export const useUpdatePlayer = (): UseMutationResult<
         },
     })
 }
+
+export const useDeletePlayer = (): UseMutationResult<void, Error, number> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: number) => api.players.delete(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.players })
+            queryClient.invalidateQueries({ queryKey: queryKeys.player(id) })
+        },
+    })
+}

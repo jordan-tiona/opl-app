@@ -83,6 +83,9 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
+        delete: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/players/${id}/`, { method: 'DELETE' }),
+
         getDivisions: (id: number, params?: { active?: boolean }): Promise<Division[]> => {
             const searchParams = new URLSearchParams()
 
@@ -159,6 +162,9 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
+        delete: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/matches/${id}/`, { method: 'DELETE' }),
+
         scores: (sessionId: number, divisionId?: number): Promise<PlayerScore[]> => {
             const params = new URLSearchParams({ session_id: sessionId.toString() })
             if (divisionId !== undefined) {
@@ -223,6 +229,9 @@ export const api = {
             fetchJson(`${API_BASE}/divisions/${divisionId}/players/${playerId}/`, {
                 method: 'DELETE',
             }),
+
+        delete: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/divisions/${id}/`, { method: 'DELETE' }),
     },
 
     messages: {
@@ -309,5 +318,8 @@ export const api = {
                 method: 'PUT',
                 body: JSON.stringify(data),
             }),
+
+        delete: (id: number): Promise<void> =>
+            fetchJson(`${API_BASE}/sessions/${id}/`, { method: 'DELETE' }),
     },
 }

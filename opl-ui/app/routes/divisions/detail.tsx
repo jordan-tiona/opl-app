@@ -1,5 +1,6 @@
 import {
     ArrowBack as ArrowBackIcon,
+    Delete as DeleteIcon,
     Edit as EditIcon,
     PersonAdd as PersonAddIcon,
     Save as SaveIcon,
@@ -33,9 +34,11 @@ import {
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
+import { DeleteConfirmDialog } from '~/components/common'
 import { AddExistingPlayerDialog } from '~/components/divisions'
 import { AddPlayerDialog } from '~/components/players'
-import { useDivision, useDivisionPlayers, usePlayers, useSessions, useUpdateDivision } from '~/lib/react-query'
+import { useAuth } from '~/lib/auth'
+import { useDeleteDivision, useDivision, useDivisionPlayers, usePlayers, useSessions, useUpdateDivision } from '~/lib/react-query'
 import { useSnackbar } from '~/lib/snackbar'
 import type { Division } from '~/lib/types'
 
@@ -54,17 +57,20 @@ export const DivisionDetailPage: React.FC = () => {
     const navigate = useNavigate()
     const divisionId = Number(id)
 
+    const { user } = useAuth()
     const { data: division, isLoading, error } = useDivision(divisionId)
     const { data: divisionPlayersList } = useDivisionPlayers(divisionId)
     const { data: allPlayers } = usePlayers()
     const { data: sessions } = useSessions()
     const updateDivision = useUpdateDivision()
+    const deleteDivision = useDeleteDivision()
     const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<Partial<Division>>({})
     const [hasChanges, setHasChanges] = useState(false)
     const [addPlayerOpen, setAddPlayerOpen] = useState(false)
     const [createPlayerOpen, setCreatePlayerOpen] = useState(false)
+    const [deleteOpen, setDeleteOpen] = useState(false)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -99,6 +105,11 @@ export const DivisionDetailPage: React.FC = () => {
         } catch (err) {
             showSnackbar(err instanceof Error ? err.message : 'Failed to update division', 'error')
         }
+    }
+
+    const handleDelete = async () => {
+        await deleteDivision.mutateAsync(divisionId)
+        navigate('/divisions')
     }
 
     if (isLoading) {
@@ -139,14 +150,26 @@ export const DivisionDetailPage: React.FC = () => {
                 }}
             >
                 <Typography variant="h3">{division.name}</Typography>
-                <Button
-                    disabled={!hasChanges || updateDivision.isPending}
-                    startIcon={<SaveIcon />}
-                    variant="contained"
-                    onClick={handleSave}
-                >
-                    {updateDivision.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    {user?.is_admin && (
+                        <Button
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            variant="outlined"
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            Delete
+                        </Button>
+                    )}
+                    <Button
+                        disabled={!hasChanges || updateDivision.isPending}
+                        startIcon={<SaveIcon />}
+                        variant="contained"
+                        onClick={handleSave}
+                    >
+                        {updateDivision.isPending ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </Box>
             </Box>
 
             <Card sx={{ mb: 3 }}>
@@ -337,6 +360,15 @@ export const DivisionDetailPage: React.FC = () => {
                 divisionId={divisionId}
                 open={createPlayerOpen}
                 onClose={() => setCreatePlayerOpen(false)}
+            />
+
+            <DeleteConfirmDialog
+                description={`Are you sure you want to delete "${division.name}"? All matches in this division will also be deleted.`}
+                isPending={deleteDivision.isPending}
+                open={deleteOpen}
+                title="Delete Division"
+                onClose={() => setDeleteOpen(false)}
+                onConfirm={handleDelete}
             />
         </Box>
     )

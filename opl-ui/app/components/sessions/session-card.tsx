@@ -1,5 +1,6 @@
 import {
     CalendarMonth as CalendarMonthIcon,
+    Delete as DeleteIcon,
     Launch as LaunchIcon,
     Schedule as ScheduleIcon,
     SportsScore as SportsScoreIcon,
@@ -20,9 +21,10 @@ import type { Session } from '~/lib/types'
 interface SessionCardProps {
     session: Session
     divisionName?: string
+    onDelete?: () => void
 }
 
-export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName }: SessionCardProps) => {
+export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName, onDelete }: SessionCardProps) => {
     const navigate = useNavigate()
     const { data: matches } = useMatches({ session_id: session.session_id })
 
@@ -55,6 +57,15 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName 
                             label={session.active ? 'Active' : 'Inactive'}
                             size="small"
                         />
+                        {onDelete && (
+                            <IconButton
+                                color="error"
+                                size="small"
+                                onClick={(e) => { e.stopPropagation(); onDelete() }}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
                         <IconButton
                             size="small"
                             onClick={() => navigate(`/sessions/${session.session_id}`)}

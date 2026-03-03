@@ -8,6 +8,7 @@ class Session(SQLModel, table=True):
     name: str
     match_time: str  # HH:MM
     active: bool = Field(default=True)
+    deleted: bool = Field(default=False)
 
 
 class SessionResponse(BaseModel):
@@ -15,5 +16,6 @@ class SessionResponse(BaseModel):
     name: str
     match_time: str
     active: bool
+    deleted: bool
     start_date: str | None = None
     end_date: str | None = None

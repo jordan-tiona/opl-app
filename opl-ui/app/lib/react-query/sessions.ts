@@ -57,3 +57,16 @@ export const useUpdateSession = (): UseMutationResult<
         },
     })
 }
+
+export const useDeleteSession = (): UseMutationResult<void, Error, number> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: number) => api.sessions.delete(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.sessions })
+            queryClient.invalidateQueries({ queryKey: queryKeys.session(id) })
+            queryClient.invalidateQueries({ queryKey: ['matches'] })
+        },
+    })
+}

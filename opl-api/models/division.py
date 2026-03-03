@@ -7,6 +7,7 @@ class Division(SQLModel, table=True):
     name: str
     day_of_week: int = Field(default=0)  # 0=Mon, 1=Tue, ..., 6=Sun
     active: bool = Field(default=True)
+    deleted: bool = Field(default=False)
 
 
 class DivisionPlayer(SQLModel, table=True):

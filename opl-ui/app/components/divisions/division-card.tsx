@@ -1,7 +1,8 @@
 import {
     CalendarMonth as CalendarMonthIcon,
-    Launch as LaunchIcon,
+    Delete as DeleteIcon,
     Groups as GroupsIcon,
+    Launch as LaunchIcon,
 } from '@mui/icons-material'
 import {
     Box,
@@ -21,9 +22,10 @@ const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'S
 
 interface DivisionCardProps {
     division: Division
+    onDelete?: () => void
 }
 
-export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: DivisionCardProps) => {
+export const DivisionCard: React.FC<DivisionCardProps> = ({ division, onDelete }: DivisionCardProps) => {
     const navigate = useNavigate()
     const { data: divisionPlayers } = useDivisionPlayers(division.division_id)
     const { data: sessions } = useSessions()
@@ -43,12 +45,23 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division }: Division
                     <Typography fontWeight={600} variant="h5">
                         {division.name}
                     </Typography>
-                    <IconButton
-                        size="small"
-                        onClick={() => navigate(`/divisions/${division.division_id}`)}
-                    >
-                        <LaunchIcon />
-                    </IconButton>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {onDelete && (
+                            <IconButton
+                                color="error"
+                                size="small"
+                                onClick={(e) => { e.stopPropagation(); onDelete() }}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
+                        <IconButton
+                            size="small"
+                            onClick={() => navigate(`/divisions/${division.division_id}`)}
+                        >
+                            <LaunchIcon />
+                        </IconButton>
+                    </Box>
                 </Box>
                 <Box
                     sx={{

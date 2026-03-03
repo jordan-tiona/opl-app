@@ -3,7 +3,10 @@ import argparse
 import sys
 from pathlib import Path
 
-from sqlmodel import Session, SQLModel
+from alembic.config import Config
+from sqlmodel import Session
+
+from alembic import command
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -21,7 +24,8 @@ if __name__ == "__main__":
         print("Aborted.", flush=True)
         sys.exit(1)
     print("Creating tables...", flush=True)
-    SQLModel.metadata.create_all(engine)
+    alembic_cfg = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
+    command.upgrade(alembic_cfg, "head")
     print("  Done.\n", flush=True)
 
     print(f"Creating admin user ({args.admin_email})...", flush=True)

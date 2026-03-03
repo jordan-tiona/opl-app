@@ -15,6 +15,7 @@ dependencies = [
     "apscheduler>=3.10,<4",
     "markdown>=3.5",
     "httpx>=0.28",
+    "alembic>=1.13",
 ]
 
 [dependency-groups]

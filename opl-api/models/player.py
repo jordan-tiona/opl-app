@@ -12,3 +12,4 @@ class Player(SQLModel, table=True):
     email: str
     email_notifications: bool = Field(default=False)
     match_reminders: bool = Field(default=False)
+    deleted: bool = Field(default=False)

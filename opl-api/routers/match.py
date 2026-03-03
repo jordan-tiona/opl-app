@@ -47,7 +47,7 @@ def get_matches(
     if start_date is None and player_id is None and match_id is None and session_id is None and division_id is None:
         raise HTTPException(status_code=422, detail="At least one of start_date, player_id, match_id, session_id, or division_id is required")
 
-    query = select(Match)
+    query = select(Match).where(Match.deleted == False)  # noqa: E712
     if match_id is not None:
         query = query.where(Match.match_id == match_id)
     if session_id is not None:
@@ -73,7 +73,7 @@ def get_scores(
     session: Session = Depends(get_session),
     _user: User = Depends(get_current_user),
 ):
-    query = select(Match).where(Match.session_id == session_id, Match.completed)
+    query = select(Match).where(Match.session_id == session_id, Match.completed, Match.deleted == False)  # noqa: E712
     if division_id is not None:
         query = query.where(Match.division_id == division_id)
     matches = session.exec(query).all()
@@ -130,13 +130,17 @@ def schedule_round_robin(
     for m in old_matches:
         session.delete(m)
 
-    # Schedule matches for each division
-    divisions = session.exec(select(Division).where(Division.active)).all()
+    # Schedule matches for each active, non-deleted division
+    divisions = session.exec(
+        select(Division).where(Division.active, Division.deleted == False)  # noqa: E712
+    ).all()
     all_matches = []
     for division in divisions:
         players = session.exec(
-            select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
+            select(Player)
+            .join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
             .where(DivisionPlayer.division_id == division.division_id)
+            .where(Player.deleted == False)  # noqa: E712
         ).all()
         if not players:
             continue
@@ -164,7 +168,7 @@ def create_match(match: Match, session: Session = Depends(get_session), _admin: 
 @router.put("/{match_id}/", response_model=Match)
 def update_match(match_id: int, games: list[GameInput], session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_match = session.get(Match, match_id)
-    if not db_match:
+    if not db_match or db_match.deleted:
         raise HTTPException(status_code=404, detail="Match not found")
 
     from utils import calculate_rating_change
@@ -205,13 +209,14 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     db_match.completed = True
     session.add(db_match)
 
-    # Update ratings in uncompleted matches for both players
+    # Update ratings in uncompleted, non-deleted matches for both players
     player1 = session.get(Player, db_match.player1_id)
     player2 = session.get(Player, db_match.player2_id)
 
     uncompleted_matches = session.exec(
         select(Match).where(
             not Match.completed,
+            Match.deleted == False,  # noqa: E712
             or_(
                 Match.player1_id == player1.player_id,
                 Match.player2_id == player1.player_id,
@@ -234,3 +239,14 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     session.commit()
     session.refresh(db_match)
     return db_match
+
+
+@router.delete("/{match_id}/")
+def delete_match(match_id: int, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    db_match.deleted = True
+    session.add(db_match)
+    session.commit()
+    return {"ok": True}

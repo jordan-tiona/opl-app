@@ -8,6 +8,7 @@ export interface Player {
     email: string
     email_notifications: boolean
     match_reminders: boolean
+    deleted: boolean
 }
 
 export interface Match {
@@ -24,6 +25,7 @@ export interface Match {
     completed: boolean
     winner_id: number | null
     loser_id: number | null
+    deleted: boolean
 }
 
 export interface Game {
@@ -51,16 +53,17 @@ export interface ScheduleInput {
     double?: boolean
 }
 
-export type PlayerInput = Omit<Player, 'player_id'>
+export type PlayerInput = Omit<Player, 'player_id' | 'deleted'>
 
 export interface Division {
     division_id: number
     name: string
     day_of_week: number
     active: boolean
+    deleted: boolean
 }
 
-export type DivisionInput = Omit<Division, 'division_id'>
+export type DivisionInput = Omit<Division, 'division_id' | 'deleted'>
 
 export interface Session {
     session_id: number
@@ -69,9 +72,10 @@ export interface Session {
     end_date: string | null
     match_time: string
     active: boolean
+    deleted: boolean
 }
 
-export type SessionInput = Omit<Session, 'session_id' | 'start_date' | 'end_date'>
+export type SessionInput = Omit<Session, 'session_id' | 'start_date' | 'end_date' | 'deleted'>
 
 export interface PlayerScore {
     player_id: number

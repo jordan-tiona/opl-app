@@ -1,4 +1,4 @@
-import { ArrowBack as ArrowBackIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { ArrowBack as ArrowBackIcon, Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -18,8 +18,11 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
+import { DeleteConfirmDialog } from '~/components/common'
 import { MatchAccordion, MatchCard } from '~/components/matches'
 import {
+    useDeleteMatch,
+    useDeletePlayer,
     useMatches,
     usePlayer,
     usePlayerDivisions,
@@ -27,6 +30,7 @@ import {
     useUpdatePlayer,
 } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
+import { useAuth } from '~/lib/auth'
 
 export const PlayerDetailPage: React.FC = () => {
     const { id } = useParams()
@@ -35,15 +39,20 @@ export const PlayerDetailPage: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const playerId = Number(id)
 
+    const { user } = useAuth()
     const { data: player, isLoading, error } = usePlayer(playerId)
     const { data: playerDivisions } = usePlayerDivisions(playerId)
     const updatePlayer = useUpdatePlayer()
+    const deletePlayer = useDeletePlayer()
     const { data: matches } = useMatches({ player_id: playerId })
     const { data: allPlayers } = usePlayers()
 
+    const deleteMatch = useDeleteMatch()
     const [formData, setFormData] = useState<Partial<Player>>({})
     const [isEditing, setIsEditing] = useState(false)
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
+    const [deleteOpen, setDeleteOpen] = useState(false)
+    const [deleteMatchId, setDeleteMatchId] = useState<number | null>(null)
 
     const sortedMatches = useMemo(() => {
         if (!matches) {
@@ -92,6 +101,11 @@ export const PlayerDetailPage: React.FC = () => {
         setIsEditing(false)
     }
 
+    const handleDelete = async () => {
+        await deletePlayer.mutateAsync(playerId)
+        navigate('/players')
+    }
+
     const handleToggleMatch = useCallback((matchId: number) => {
         setExpandedMatch((prev) => (prev === matchId ? null : matchId))
     }, [])
@@ -134,9 +148,16 @@ export const PlayerDetailPage: React.FC = () => {
                     >
                         <Typography variant="h6">Player Information</Typography>
                         {!isEditing && (
-                            <IconButton onClick={() => setIsEditing(true)}>
-                                <EditIcon />
-                            </IconButton>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                <IconButton onClick={() => setIsEditing(true)}>
+                                    <EditIcon />
+                                </IconButton>
+                                {user?.is_admin && (
+                                    <IconButton color="error" onClick={() => setDeleteOpen(true)}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                )}
+                            </Box>
                         )}
                     </Box>
 
@@ -306,6 +327,7 @@ export const PlayerDetailPage: React.FC = () => {
                                     key={match.match_id}
                                     match={match}
                                     players={allPlayers}
+                                    onDelete={user?.is_admin ? setDeleteMatchId : undefined}
                                     onToggle={handleToggleMatch}
                                 />
                             ) : (
@@ -314,6 +336,7 @@ export const PlayerDetailPage: React.FC = () => {
                                     key={match.match_id}
                                     match={match}
                                     players={allPlayers}
+                                    onDelete={user?.is_admin ? setDeleteMatchId : undefined}
                                     onToggle={handleToggleMatch}
                                 />
                             ),
@@ -325,6 +348,29 @@ export const PlayerDetailPage: React.FC = () => {
                     <CircularProgress size={24} />
                 </Box>
             )}
+
+            <DeleteConfirmDialog
+                description={`Are you sure you want to delete ${player.first_name} ${player.last_name}? Their match history will be preserved.`}
+                isPending={deletePlayer.isPending}
+                open={deleteOpen}
+                title="Delete Player"
+                onClose={() => setDeleteOpen(false)}
+                onConfirm={handleDelete}
+            />
+
+            <DeleteConfirmDialog
+                description="Are you sure you want to delete this match?"
+                isPending={deleteMatch.isPending}
+                open={deleteMatchId !== null}
+                title="Delete Match"
+                onClose={() => setDeleteMatchId(null)}
+                onConfirm={async () => {
+                    if (deleteMatchId !== null) {
+                        await deleteMatch.mutateAsync(deleteMatchId)
+                        setDeleteMatchId(null)
+                    }
+                }}
+            />
         </Box>
     )
 }

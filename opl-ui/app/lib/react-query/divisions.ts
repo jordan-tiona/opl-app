@@ -95,3 +95,16 @@ export const useRemovePlayerFromDivision = (): UseMutationResult<
         },
     })
 }
+
+export const useDeleteDivision = (): UseMutationResult<void, Error, number> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: number) => api.divisions.delete(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
+            queryClient.invalidateQueries({ queryKey: queryKeys.division(id) })
+            queryClient.invalidateQueries({ queryKey: ['matches'] })
+        },
+    })
+}

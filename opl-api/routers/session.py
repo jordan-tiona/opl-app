@@ -36,6 +36,7 @@ def _build_session_responses(session: DBSession, sessions: list[Session]) -> lis
             name=s.name,
             match_time=s.match_time,
             active=s.active,
+            deleted=s.deleted,
             start_date=date_map.get(s.session_id, (None, None))[0],
             end_date=date_map.get(s.session_id, (None, None))[1],
         )
@@ -45,7 +46,7 @@ def _build_session_responses(session: DBSession, sessions: list[Session]) -> lis
 
 @router.get("/", response_model=list[SessionResponse])
 def get_sessions(active: bool | None = None, session: DBSession = Depends(get_session), _user: User = Depends(get_current_user)):
-    query = select(Session)
+    query = select(Session).where(Session.deleted == False)  # noqa: E712
     if active is not None:
         query = query.where(Session.active == active)
     sessions = session.exec(query).all()
@@ -55,7 +56,7 @@ def get_sessions(active: bool | None = None, session: DBSession = Depends(get_se
 @router.get("/{session_id}/", response_model=SessionResponse)
 def get_session_by_id(session_id: int, session: DBSession = Depends(get_session), _user: User = Depends(get_current_user)):
     s = session.get(Session, session_id)
-    if not s:
+    if not s or s.deleted:
         raise HTTPException(status_code=404, detail="Session not found")
     return _build_session_responses(session, [s])[0]
 
@@ -71,11 +72,29 @@ def create_session(body: Session, session: DBSession = Depends(get_session), _ad
 @router.put("/{session_id}/", response_model=SessionResponse)
 def update_session(session_id: int, body: Session, session: DBSession = Depends(get_session), _admin: User = Depends(require_admin)):
     db_session = session.get(Session, session_id)
-    if not db_session:
+    if not db_session or db_session.deleted:
         raise HTTPException(status_code=404, detail="Session not found")
-    for key, value in body.model_dump(exclude={"session_id"}).items():
+    for key, value in body.model_dump(exclude={"session_id", "deleted"}).items():
         setattr(db_session, key, value)
     session.add(db_session)
     session.commit()
     session.refresh(db_session)
     return _build_session_responses(session, [db_session])[0]
+
+
+@router.delete("/{session_id}/")
+def delete_session(session_id: int, session: DBSession = Depends(get_session), _admin: User = Depends(require_admin)):
+    db_session = session.get(Session, session_id)
+    if not db_session or db_session.deleted:
+        raise HTTPException(status_code=404, detail="Session not found")
+    db_session.deleted = True
+    session.add(db_session)
+    # Cascade: soft-delete all matches for this session
+    matches = session.exec(
+        select(Match).where(Match.session_id == session_id, Match.deleted == False)  # noqa: E712
+    ).all()
+    for m in matches:
+        m.deleted = True
+        session.add(m)
+    session.commit()
+    return {"ok": True}

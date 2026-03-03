@@ -19,3 +19,4 @@ class Match(SQLModel, table=True):
     reminder_sent: bool = Field(default=False)
     winner_id: int | None = Field(default=None, foreign_key="players.player_id")
     loser_id: int | None = Field(default=None, foreign_key="players.player_id")
+    deleted: bool = Field(default=False)

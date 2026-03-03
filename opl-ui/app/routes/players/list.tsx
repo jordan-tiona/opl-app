@@ -1,4 +1,4 @@
-import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material'
+import { Add as AddIcon, Delete as DeleteIcon, Search as SearchIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -9,6 +9,7 @@ import {
     Chip,
     CircularProgress,
     FormControl,
+    IconButton,
     InputAdornment,
     InputLabel,
     MenuItem,
@@ -28,19 +29,24 @@ import {
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
+import { DeleteConfirmDialog } from '~/components/common'
 import { AddPlayerDialog } from '~/components/players/add-player-dialog'
-import { useDivisionPlayers, useDivisions, usePlayers } from '~/lib/react-query'
+import { useAuth } from '~/lib/auth'
+import { useDeletePlayer, useDivisionPlayers, useDivisions, usePlayers } from '~/lib/react-query'
 
 export const PlayersPage: React.FC = () => {
     const navigate = useNavigate()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+    const { user } = useAuth()
     const { data: players, isLoading, error } = usePlayers()
     const { data: divisions } = useDivisions()
+    const deletePlayer = useDeletePlayer()
 
     const [search, setSearch] = useState('')
     const [divisionFilter, setDivisionFilter] = useState<number | ''>('')
     const [dialogOpen, setDialogOpen] = useState(false)
+    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
     const { data: divisionPlayersList } = useDivisionPlayers(
         typeof divisionFilter === 'number' ? divisionFilter : 0,
@@ -75,6 +81,8 @@ export const PlayersPage: React.FC = () => {
     if (error) {
         return <Alert severity="error">Failed to load players: {error.message}</Alert>
     }
+
+    const deleteTarget = players?.find((p) => p.player_id === deleteTargetId)
 
     return (
         <Box>
@@ -167,11 +175,25 @@ export const PlayersPage: React.FC = () => {
                                         <Typography variant="h6">
                                             {player.first_name} {player.last_name}
                                         </Typography>
-                                        <Chip
-                                            color="primary"
-                                            label={`Rating: ${player.rating}`}
-                                            size="small"
-                                        />
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <Chip
+                                                color="primary"
+                                                label={`Rating: ${player.rating}`}
+                                                size="small"
+                                            />
+                                            {user?.is_admin && (
+                                                <IconButton
+                                                    color="error"
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setDeleteTargetId(player.player_id)
+                                                    }}
+                                                >
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+                                        </Box>
                                     </Box>
                                     {player.email && (
                                         <Typography color="text.secondary" variant="body2">
@@ -205,6 +227,7 @@ export const PlayersPage: React.FC = () => {
                                 <TableCell>Phone</TableCell>
                                 <TableCell align="right">Rating</TableCell>
                                 <TableCell align="right">Games Played</TableCell>
+                                {user?.is_admin && <TableCell align="right">Actions</TableCell>}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -222,6 +245,20 @@ export const PlayersPage: React.FC = () => {
                                     <TableCell>{player.phone}</TableCell>
                                     <TableCell align="right">{player.rating}</TableCell>
                                     <TableCell align="right">{player.games_played}</TableCell>
+                                    {user?.is_admin && (
+                                        <TableCell align="right">
+                                            <IconButton
+                                                color="error"
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setDeleteTargetId(player.player_id)
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -230,6 +267,20 @@ export const PlayersPage: React.FC = () => {
             )}
 
             <AddPlayerDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+
+            <DeleteConfirmDialog
+                description={deleteTarget ? `Are you sure you want to delete ${deleteTarget.first_name} ${deleteTarget.last_name}? Their match history will be preserved.` : ''}
+                isPending={deletePlayer.isPending}
+                open={deleteTargetId !== null}
+                title="Delete Player"
+                onClose={() => setDeleteTargetId(null)}
+                onConfirm={async () => {
+                    if (deleteTargetId !== null) {
+                        await deletePlayer.mutateAsync(deleteTargetId)
+                        setDeleteTargetId(null)
+                    }
+                }}
+            />
         </Box>
     )
 }

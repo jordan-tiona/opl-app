@@ -1,4 +1,4 @@
-import { ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Accordion,
     AccordionDetails,
@@ -34,10 +34,11 @@ interface MatchAccordionProps {
     players: Player[]
     expanded: boolean
     onToggle: (matchId: number) => void
+    onDelete?: (matchId: number) => void
 }
 
 export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
-    ({ match, players, expanded, onToggle }: MatchAccordionProps) => {
+    ({ match, players, expanded, onToggle, onDelete }: MatchAccordionProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
 
@@ -93,6 +94,20 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                                     }}
                                 >
                                     <PrintIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                        {onDelete && (
+                            <Tooltip title="Delete match">
+                                <IconButton
+                                    color="error"
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onDelete(match.match_id)
+                                    }}
+                                >
+                                    <DeleteIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
                         )}

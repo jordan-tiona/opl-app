@@ -1,5 +1,6 @@
 import {
     ArrowBack as ArrowBackIcon,
+    Delete as DeleteIcon,
     Edit as EditIcon,
     Save as SaveIcon,
     Schedule as ScheduleIcon,
@@ -29,14 +30,17 @@ import {
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
+import { DeleteConfirmDialog } from '~/components/common'
 import { ScheduleRoundRobinDialog } from '~/components/divisions'
 import {
+    useDeleteSession,
     useDivisionPlayers,
     useDivisions,
     useScores,
     useSession,
     useUpdateSession,
 } from '~/lib/react-query'
+import { useAuth } from '~/lib/auth'
 import { useSnackbar } from '~/lib/snackbar'
 import type { Session } from '~/lib/types'
 
@@ -45,6 +49,7 @@ export const SessionDetailPage: React.FC = () => {
     const navigate = useNavigate()
     const sessionId = Number(id)
 
+    const { user } = useAuth()
     const { data: session, isLoading, error } = useSession(sessionId)
     const { data: divisions } = useDivisions()
     const [selectedDivisionId, setSelectedDivisionId] = useState<number>(0)
@@ -53,11 +58,13 @@ export const SessionDetailPage: React.FC = () => {
     const { data: divisionPlayersList } = useDivisionPlayers(activeDivisionId)
     const { data: scores } = useScores(sessionId, activeDivisionId)
     const updateSession = useUpdateSession()
+    const deleteSession = useDeleteSession()
     const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<Partial<Session>>({})
     const [hasChanges, setHasChanges] = useState(false)
     const [scheduleOpen, setScheduleOpen] = useState(false)
+    const [deleteOpen, setDeleteOpen] = useState(false)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -97,6 +104,11 @@ export const SessionDetailPage: React.FC = () => {
         }
     }
 
+    const handleDelete = async () => {
+        await deleteSession.mutateAsync(sessionId)
+        navigate('/sessions')
+    }
+
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -134,14 +146,26 @@ export const SessionDetailPage: React.FC = () => {
                 <Box>
                     <Typography variant="h3">{session.name}</Typography>
                 </Box>
-                <Button
-                    disabled={!hasChanges || updateSession.isPending}
-                    startIcon={<SaveIcon />}
-                    variant="contained"
-                    onClick={handleSave}
-                >
-                    {updateSession.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    {user?.is_admin && (
+                        <Button
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            variant="outlined"
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            Delete
+                        </Button>
+                    )}
+                    <Button
+                        disabled={!hasChanges || updateSession.isPending}
+                        startIcon={<SaveIcon />}
+                        variant="contained"
+                        onClick={handleSave}
+                    >
+                        {updateSession.isPending ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </Box>
             </Box>
 
             <Card sx={{ mb: 3 }}>
@@ -318,6 +342,15 @@ export const SessionDetailPage: React.FC = () => {
                 open={scheduleOpen}
                 sessionId={sessionId}
                 onClose={() => setScheduleOpen(false)}
+            />
+
+            <DeleteConfirmDialog
+                description={`Are you sure you want to delete "${session.name}"? All matches in this session will also be deleted.`}
+                isPending={deleteSession.isPending}
+                open={deleteOpen}
+                title="Delete Session"
+                onClose={() => setDeleteOpen(false)}
+                onConfirm={handleDelete}
             />
         </Box>
     )

@@ -5,7 +5,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from alembic.config import Config
 from sqlmodel import Session, SQLModel, select
+
+from alembic import command
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -212,7 +215,8 @@ if __name__ == "__main__":
     print("Dropping tables...", flush=True)
     SQLModel.metadata.drop_all(engine)
     print("Creating tables...", flush=True)
-    SQLModel.metadata.create_all(engine)
+    alembic_cfg = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
+    command.upgrade(alembic_cfg, "head")
     print("  Done.\n", flush=True)
 
     print("Creating admin user...", flush=True)

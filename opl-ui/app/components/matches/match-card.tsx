@@ -1,4 +1,4 @@
-import { ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Box,
     Card,
@@ -36,10 +36,11 @@ interface MatchCardProps {
     players: Player[]
     expanded: boolean
     onToggle: (matchId: number) => void
+    onDelete?: (matchId: number) => void
 }
 
 export const MatchCard: React.FC<MatchCardProps> = memo(
-    ({ match, players, expanded, onToggle }: MatchCardProps) => {
+    ({ match, players, expanded, onToggle, onDelete }: MatchCardProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
 
@@ -82,6 +83,20 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                                     }}
                                 >
                                     <PrintIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                        {onDelete && (
+                            <Tooltip title="Delete match">
+                                <IconButton
+                                    color="error"
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onDelete(match.match_id)
+                                    }}
+                                >
+                                    <DeleteIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
                         )}
