@@ -46,8 +46,8 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
             match_id: expanded ? match.match_id : undefined,
         })
         const p1Rating = player1?.rating ?? match.player1_rating
-        const p2Rating = player2?.rating ?? match.player2_rating
-        const [p1Weight, p2Weight] = getMatchWeight(p1Rating, p2Rating)
+        const p2Rating = player2?.rating ?? match.player2_rating ?? 0
+        const [p1Weight, p2Weight] = match.is_bye ? [null, null] : getMatchWeight(p1Rating, p2Rating)
 
         const handleToggle = useCallback(() => onToggle(match.match_id), [onToggle, match.match_id])
 
@@ -65,26 +65,39 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             {formatDate(match.scheduled_date)}
                         </Typography>
                         <Typography sx={{ flex: 1 }}>
-                            {player1
-                                ? `${player1.first_name} ${player1.last_name} (${p1Rating})`
-                                : 'Unknown'}
-                            {' vs '}
-                            {player2
-                                ? `${player2.first_name} ${player2.last_name} (${p2Rating})`
-                                : 'Unknown'}
+                            {match.is_bye ? (
+                                <>
+                                    {player1
+                                        ? `${player1.first_name} ${player1.last_name}`
+                                        : 'Unknown'}
+                                    {' — Bye'}
+                                </>
+                            ) : (
+                                <>
+                                    {player1
+                                        ? `${player1.first_name} ${player1.last_name} (${p1Rating})`
+                                        : 'Unknown'}
+                                    {' vs '}
+                                    {player2
+                                        ? `${player2.first_name} ${player2.last_name} (${p2Rating})`
+                                        : 'Unknown'}
+                                </>
+                            )}
                         </Typography>
-                        <Typography
-                            color="text.secondary"
-                            sx={{ minWidth: 50, textAlign: 'center' }}
-                        >
-                            {p1Weight}-{p2Weight}
-                        </Typography>
+                        {!match.is_bye && (
+                            <Typography
+                                color="text.secondary"
+                                sx={{ minWidth: 50, textAlign: 'center' }}
+                            >
+                                {p1Weight}-{p2Weight}
+                            </Typography>
+                        )}
                         <Chip
-                            color={match.completed ? 'success' : 'primary'}
-                            label={match.completed ? 'Completed' : 'Scheduled'}
+                            color={match.is_bye ? 'default' : match.completed ? 'success' : 'primary'}
+                            label={match.is_bye ? 'Bye' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
-                        {!match.completed && (
+                        {!match.completed && !match.is_bye && (
                             <Tooltip title="Print score sheet">
                                 <IconButton
                                     size="small"
@@ -114,52 +127,60 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                     </Box>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            mb: 3,
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6">
-                                {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'}
-                            </Typography>
-                            <Typography color="text.secondary" variant="body2">
-                                Rating: {p1Rating}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography color="text.secondary" variant="h6">
-                                VS
-                            </Typography>
-                            <Typography color="text.secondary" variant="body2">
-                                {p1Weight}-{p2Weight}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6">
-                                {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'}
-                            </Typography>
-                            <Typography color="text.secondary" variant="body2">
-                                Rating: {p2Rating}
-                            </Typography>
-                        </Box>
-                    </Box>
+                    {match.is_bye ? (
+                        <Typography color="text.secondary" sx={{ textAlign: 'center', py: 1 }}>
+                            {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'} has a bye this week.
+                        </Typography>
+                    ) : (
+                        <>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                    mb: 3,
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Box sx={{ textAlign: 'center' }}>
+                                    <Typography variant="h6">
+                                        {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'}
+                                    </Typography>
+                                    <Typography color="text.secondary" variant="body2">
+                                        Rating: {p1Rating}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center' }}>
+                                    <Typography color="text.secondary" variant="h6">
+                                        VS
+                                    </Typography>
+                                    <Typography color="text.secondary" variant="body2">
+                                        {p1Weight}-{p2Weight}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center' }}>
+                                    <Typography variant="h6">
+                                        {player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'}
+                                    </Typography>
+                                    <Typography color="text.secondary" variant="body2">
+                                        Rating: {p2Rating}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-                    <Divider sx={{ my: 2 }} />
+                            <Divider sx={{ my: 2 }} />
 
-                    {match.completed && existingGames && existingGames.length > 0 ? (
-                        <GameResults games={existingGames} players={players} />
-                    ) : player1 && player2 ? (
-                        <GameRecorder
-                            matchId={match.match_id}
-                            player1={player1}
-                            player2={player2}
-                        />
-                    ) : null}
+                            {match.completed && existingGames && existingGames.length > 0 ? (
+                                <GameResults games={existingGames} players={players} />
+                            ) : player1 && player2 ? (
+                                <GameRecorder
+                                    matchId={match.match_id}
+                                    player1={player1}
+                                    player2={player2}
+                                />
+                            ) : null}
+                        </>
+                    )}
                 </AccordionDetails>
             </Accordion>
         )

@@ -125,7 +125,7 @@ def schedule_round_robin(
 
     # Delete uncompleted matches for this session
     old_matches = session.exec(
-        select(Match).where(Match.session_id == body.session_id, not Match.completed)
+        select(Match).where(Match.session_id == body.session_id, Match.completed == False)  # noqa: E712
     ).all()
     for m in old_matches:
         session.delete(m)

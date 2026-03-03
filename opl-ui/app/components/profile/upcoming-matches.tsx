@@ -81,12 +81,20 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                                 <Typography gutterBottom color="text.secondary" variant="body2">
                                     {formattedDate}
                                 </Typography>
-                                <Typography sx={{ mb: 1 }} variant="h6">
-                                    vs. {opponentName} ({oppRating})
-                                </Typography>
-                                <Typography color="primary" variant="body1">
-                                    Weight: {weight}
-                                </Typography>
+                                {match.is_bye ? (
+                                    <Typography color="text.secondary" variant="body1">
+                                        Bye week
+                                    </Typography>
+                                ) : (
+                                    <>
+                                        <Typography sx={{ mb: 1 }} variant="h6">
+                                            vs. {opponentName} ({oppRating})
+                                        </Typography>
+                                        <Typography color="primary" variant="body1">
+                                            Weight: {weight}
+                                        </Typography>
+                                    </>
+                                )}
                             </CardContent>
                         </Card>
                     )
@@ -131,9 +139,9 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                             <TableRow key={match.match_id}>
                                 <TableCell>{formattedDate}</TableCell>
                                 <TableCell>
-                                    vs. {opponentName} ({oppRating})
+                                    {match.is_bye ? 'Bye week' : `vs. ${opponentName} (${oppRating})`}
                                 </TableCell>
-                                <TableCell>{weight}</TableCell>
+                                <TableCell>{match.is_bye ? '—' : weight}</TableCell>
                             </TableRow>
                         )
                     })}

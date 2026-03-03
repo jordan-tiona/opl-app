@@ -16,11 +16,12 @@ export interface Match {
     session_id: number | null
     division_id: number
     player1_id: number
-    player2_id: number
+    player2_id: number | null
+    is_bye: boolean
     player1_rating: number
-    player2_rating: number
+    player2_rating: number | null
     player1_weight: number
-    player2_weight: number
+    player2_weight: number | null
     scheduled_date: string
     completed: boolean
     winner_id: number | null

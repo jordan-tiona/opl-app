@@ -70,6 +70,10 @@ def init_players_table(num_players: int, player_emails: list[str]):
             session.add(DivisionPlayer(division_id=divisions[i], player_id=player.player_id))
             progress_bar(i + 1, total)
 
+        # Assign the first test player to whichever division will have an odd count (ensuring byes)
+        div1_count = divisions.count(1)
+        bye_division_id = 1 if div1_count % 2 == 0 else 2
+
         for j, email in enumerate(player_emails):
             test_player = Player(
                 first_name="Demo",
@@ -86,7 +90,8 @@ def init_players_table(num_players: int, player_emails: list[str]):
                 existing_user.player_id = test_player.player_id
             else:
                 session.add(User(email=email, player_id=test_player.player_id))
-            session.add(DivisionPlayer(division_id=1, player_id=test_player.player_id))
+            division_id = bye_division_id if j == 0 else 1
+            session.add(DivisionPlayer(division_id=division_id, player_id=test_player.player_id))
             progress_bar(len(players) + j + 1, total)
 
         session.commit()
@@ -124,14 +129,20 @@ def init_games_table():
         # Index uncompleted matches by player_id for fast lookup
         uncompleted_by_player: dict[int, list[Match]] = {}
         for m in uncompleted_matches:
+            if m.is_bye:
+                continue
             uncompleted_by_player.setdefault(m.player1_id, []).append(m)
             uncompleted_by_player.setdefault(m.player2_id, []).append(m)
 
+        for m in completed_matches:
+            if m.is_bye:
+                m.completed = True
+
         num_games = 0
         base_date = datetime.now() - timedelta(days=30)
+        completed_matches = [m for m in completed_matches if not m.is_bye]
         total = len(completed_matches)
         games_to_add = []
-
         for match_idx, match in enumerate(completed_matches):
             p1 = all_players[match.player1_id]
             p2 = all_players[match.player2_id]
@@ -215,8 +226,9 @@ if __name__ == "__main__":
     print("Dropping tables...", flush=True)
     SQLModel.metadata.drop_all(engine)
     print("Creating tables...", flush=True)
+    SQLModel.metadata.create_all(engine)
     alembic_cfg = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
-    command.upgrade(alembic_cfg, "head")
+    command.stamp(alembic_cfg, "head")
     print("  Done.\n", flush=True)
 
     print("Creating admin user...", flush=True)
@@ -237,8 +249,6 @@ if __name__ == "__main__":
     init_players_table(args.num_players, args.player_email or [])
     print()
 
-    print("Scheduling matches...", flush=True)
-    init_matches_table(start_date)
     print()
 
     print("Generating games...", flush=True)

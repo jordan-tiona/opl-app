@@ -81,8 +81,13 @@ class TestScheduleRoundRobin:
     def test_odd_number_of_players(self):
         players = self._make_players(3)
         matches = schedule_round_robin(players, datetime(2025, 1, 1), 1)
-        # 3 players: 3*2 = 6 matches
-        assert len(matches) == 6
+        real = [m for m in matches if not m.is_bye]
+        byes = [m for m in matches if m.is_bye]
+        # 3 players: 3*2 = 6 real matches, 1 bye per round * 3 rounds * 2 legs = 6 byes
+        assert len(real) == 6
+        assert len(byes) == 6
+        # Each bye match has no opponent
+        assert all(m.player2_id is None for m in byes)
 
     def test_all_matches_have_correct_division(self):
         players = self._make_players(4)

@@ -75,7 +75,17 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
             round_date = start_date + timedelta(weeks=round_num + leg * num_rounds)
             for p1, p2 in get_round_pairings(round_num):
                 if p1 is None or p2 is None:
-                    continue  # bye — skip
+                    bye_player = p2 if p1 is None else p1
+                    matches.append(Match(
+                        session_id=session_id,
+                        division_id=division_id,
+                        player1_id=bye_player.player_id,
+                        player1_rating=bye_player.rating,
+                        scheduled_date=round_date,
+                        completed=False,
+                        is_bye=True,
+                    ))
+                    continue
                 # Swap home/away between legs
                 home, away = (p1, p2) if leg == 0 else (p2, p1)
                 w1, w2 = get_match_weight(home.rating, away.rating)

@@ -77,7 +77,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                 {matches.map((match) => {
                     const isPlayer1 = match.player1_id === player.player_id
                     const opponentId = isPlayer1 ? match.player2_id : match.player1_id
-                    const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
+                    const myRating = isPlayer1 ? match.player1_rating : match.player2_rating ?? 0
                     const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
                     const won = match.winner_id === player.player_id
                     const date = new Date(match.scheduled_date)
@@ -92,7 +92,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                         hour12: true,
                     })
                     const formattedDate = `${datePart} at ${timePart}`
-                    const [myWeight, oppWeight] = getMatchWeight(myRating, oppRating)
+                    const [myWeight, oppWeight] = match.is_bye ? [null, null] : getMatchWeight(myRating, oppRating ?? 0)
                     const weight = `${myWeight}:${oppWeight}`
                     const isExpanded = expandedMatch === match.match_id
                     const { wins, losses, totalRatingChange, games } = getMatchRecord(
@@ -103,68 +103,84 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                     return (
                         <Card key={match.match_id} sx={{ mb: 2 }}>
                             <CardContent
-                                sx={{ cursor: 'pointer', pb: isExpanded ? 2 : undefined }}
-                                onClick={() => setExpandedMatch(isExpanded ? null : match.match_id)}
+                                sx={{ cursor: match.is_bye ? 'default' : 'pointer', pb: isExpanded ? 2 : undefined }}
+                                onClick={() => !match.is_bye && setExpandedMatch(isExpanded ? null : match.match_id)}
                             >
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                    <Chip
-                                        color={won ? 'success' : 'error'}
-                                        label={won ? 'Won' : 'Lost'}
-                                        size="small"
-                                        variant="outlined"
-                                    />
-                                    {games.length > 0 && (
-                                        <Typography sx={{ fontWeight: 600 }} variant="body2">
-                                            {wins}-{losses}
-                                        </Typography>
-                                    )}
-                                    {games.length > 0 && (
-                                        <Typography
-                                            color={
-                                                totalRatingChange > 0
-                                                    ? 'success.main'
-                                                    : 'error.main'
-                                            }
-                                            sx={{ fontWeight: 600 }}
-                                            variant="body2"
-                                        >
-                                            {totalRatingChange > 0 ? '+' : ''}
-                                            {totalRatingChange}
-                                        </Typography>
+                                    {match.is_bye ? (
+                                        <Chip color="default" label="Bye" size="small" variant="outlined" />
+                                    ) : (
+                                        <>
+                                            <Chip
+                                                color={won ? 'success' : 'error'}
+                                                label={won ? 'Won' : 'Lost'}
+                                                size="small"
+                                                variant="outlined"
+                                            />
+                                            {games.length > 0 && (
+                                                <Typography sx={{ fontWeight: 600 }} variant="body2">
+                                                    {wins}-{losses}
+                                                </Typography>
+                                            )}
+                                            {games.length > 0 && (
+                                                <Typography
+                                                    color={
+                                                        totalRatingChange > 0
+                                                            ? 'success.main'
+                                                            : 'error.main'
+                                                    }
+                                                    sx={{ fontWeight: 600 }}
+                                                    variant="body2"
+                                                >
+                                                    {totalRatingChange > 0 ? '+' : ''}
+                                                    {totalRatingChange}
+                                                </Typography>
+                                            )}
+                                        </>
                                     )}
                                 </Box>
                                 <Typography gutterBottom color="text.secondary" variant="body2">
                                     {formattedDate}
                                 </Typography>
-                                <Typography sx={{ mb: 1 }} variant="h6">
-                                    vs. {getPlayerName(opponentId)} ({oppRating})
-                                </Typography>
-                                <Typography color="primary" variant="body1">
-                                    Weight: {weight}
-                                </Typography>
+                                {match.is_bye ? (
+                                    <Typography color="text.secondary" variant="body1">
+                                        Bye week
+                                    </Typography>
+                                ) : (
+                                    <>
+                                        <Typography sx={{ mb: 1 }} variant="h6">
+                                            vs. {getPlayerName(opponentId!)} ({oppRating})
+                                        </Typography>
+                                        <Typography color="primary" variant="body1">
+                                            Weight: {weight}
+                                        </Typography>
+                                    </>
+                                )}
                             </CardContent>
-                            <Collapse unmountOnExit in={isExpanded} timeout="auto">
-                                <CardContent sx={{ pt: 0 }}>
-                                    {games.map((game, index) => (
-                                        <Typography key={game.game_id} variant="body2">
-                                            Game {index + 1}:{' '}
-                                            <Typography
-                                                component="span"
-                                                sx={{ fontWeight: 600 }}
-                                                variant="body2"
-                                            >
-                                                {getPlayerName(game.winner_id)}
-                                            </Typography>{' '}
-                                            wins 8-{8 - game.balls_remaining}
-                                        </Typography>
-                                    ))}
-                                    {games.length === 0 && (
-                                        <Typography color="text.secondary" variant="body2">
-                                            No games recorded.
-                                        </Typography>
-                                    )}
-                                </CardContent>
-                            </Collapse>
+                            {!match.is_bye && (
+                                <Collapse unmountOnExit in={isExpanded} timeout="auto">
+                                    <CardContent sx={{ pt: 0 }}>
+                                        {games.map((game, index) => (
+                                            <Typography key={game.game_id} variant="body2">
+                                                Game {index + 1}:{' '}
+                                                <Typography
+                                                    component="span"
+                                                    sx={{ fontWeight: 600 }}
+                                                    variant="body2"
+                                                >
+                                                    {getPlayerName(game.winner_id)}
+                                                </Typography>{' '}
+                                                wins 8-{8 - game.balls_remaining}
+                                            </Typography>
+                                        ))}
+                                        {games.length === 0 && (
+                                            <Typography color="text.secondary" variant="body2">
+                                                No games recorded.
+                                            </Typography>
+                                        )}
+                                    </CardContent>
+                                </Collapse>
+                            )}
                         </Card>
                     )
                 })}
@@ -189,7 +205,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                     {matches.map((match) => {
                         const isPlayer1 = match.player1_id === player.player_id
                         const opponentId = isPlayer1 ? match.player2_id : match.player1_id
-                        const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
+                        const myRating = isPlayer1 ? match.player1_rating : match.player2_rating ?? 0
                         const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
                         const won = match.winner_id === player.player_id
                         const date = new Date(match.scheduled_date)
@@ -204,7 +220,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                             hour12: true,
                         })
                         const formattedDate = `${datePart} at ${timePart}`
-                        const [myWeight, oppWeight] = getMatchWeight(myRating, oppRating)
+                        const [myWeight, oppWeight] = match.is_bye ? [null, null] : getMatchWeight(myRating, oppRating ?? 0)
                         const weight = `${myWeight}:${oppWeight}`
                         const isExpanded = expandedMatch === match.match_id
                         const { wins, losses, totalRatingChange, games } = getMatchRecord(
@@ -218,26 +234,30 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                     hover
                                     key={match.match_id}
                                     sx={{
-                                        cursor: 'pointer',
+                                        cursor: match.is_bye ? 'default' : 'pointer',
                                         '& > *': { borderBottom: isExpanded ? 0 : undefined },
                                     }}
                                     onClick={() =>
-                                        setExpandedMatch(isExpanded ? null : match.match_id)
+                                        !match.is_bye && setExpandedMatch(isExpanded ? null : match.match_id)
                                     }
                                 >
                                     <TableCell>
-                                        <Chip
-                                            color={won ? 'success' : 'error'}
-                                            label={won ? 'Won' : 'Lost'}
-                                            size="small"
-                                            variant="outlined"
-                                        />
+                                        {match.is_bye ? (
+                                            <Chip color="default" label="Bye" size="small" variant="outlined" />
+                                        ) : (
+                                            <Chip
+                                                color={won ? 'success' : 'error'}
+                                                label={won ? 'Won' : 'Lost'}
+                                                size="small"
+                                                variant="outlined"
+                                            />
+                                        )}
                                     </TableCell>
                                     <TableCell>
-                                        {games.length > 0 ? `${wins}-${losses}` : '—'}
+                                        {match.is_bye ? '—' : games.length > 0 ? `${wins}-${losses}` : '—'}
                                     </TableCell>
                                     <TableCell>
-                                        {games.length > 0 ? (
+                                        {!match.is_bye && games.length > 0 ? (
                                             <Typography
                                                 color={
                                                     totalRatingChange > 0
@@ -255,9 +275,11 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                     </TableCell>
                                     <TableCell>{formattedDate}</TableCell>
                                     <TableCell>
-                                        vs. {getPlayerName(opponentId)} ({oppRating})
+                                        {match.is_bye
+                                            ? 'Bye week'
+                                            : `vs. ${getPlayerName(opponentId!)} (${oppRating})`}
                                     </TableCell>
-                                    <TableCell>{weight}</TableCell>
+                                    <TableCell>{match.is_bye ? '—' : weight}</TableCell>
                                 </TableRow>
                                 <TableRow key={`${match.match_id}-detail`}>
                                     <TableCell

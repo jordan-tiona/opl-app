@@ -30,7 +30,8 @@ const PrintMatchesPage: React.FC = () => {
 
     const { data: players, isLoading: playersLoading } = usePlayers()
 
-    const matches = matchId && singleMatch ? [singleMatch] : (!matchId && date ? bulkMatches ?? [] : [])
+    const matches = (matchId && singleMatch ? [singleMatch] : (!matchId && date ? bulkMatches ?? [] : []))
+        .filter((m) => !m.is_bye)
     const isLoading = (matchId ? singleLoading : bulkLoading) || playersLoading
     const error = singleError ?? bulkError
 
