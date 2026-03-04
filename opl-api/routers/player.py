@@ -68,11 +68,19 @@ def update_player(player_id: int, player: Player, session: Session = Depends(get
         raise HTTPException(status_code=404, detail="Player not found")
     # Non-admins can only update name and phone
     allowed_fields = {"first_name", "last_name", "phone"} if not current_user.is_admin else None
+    old_email = db_player.email
     for key, value in player.model_dump(exclude={"player_id", "deleted"}).items():
         if allowed_fields and key not in allowed_fields:
             continue
         setattr(db_player, key, value)
     session.add(db_player)
+
+    if db_player.email != old_email:
+        user = session.exec(select(User).where(User.player_id == player_id)).first()
+        if user:
+            user.email = db_player.email
+            session.add(user)
+
     session.commit()
     session.refresh(db_player)
     return db_player
