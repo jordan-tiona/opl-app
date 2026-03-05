@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'react-datepicker/dist/react-datepicker.css';
 
 html,
 body {
@@ -9,4 +10,110 @@ body {
 
 #root {
     min-height: 100vh;
+}
+
+/* react-datepicker dark theme overrides */
+.react-datepicker {
+    font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    background-color: #221520;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #eadeda;
+}
+
+.react-datepicker__header {
+    background-color: #2b3155;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px 8px 0 0;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker-time__header {
+    color: #eadeda;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: #eadeda;
+}
+
+.react-datepicker__navigation:hover *::before {
+    border-color: #bfb8ad;
+}
+
+.react-datepicker__day {
+    color: #eadeda;
+    border-radius: 4px;
+}
+
+.react-datepicker__day:hover {
+    background-color: #3d4570;
+    color: #eadeda;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+    background-color: #3d4570 !important;
+    color: #eadeda !important;
+    border-radius: 4px;
+}
+
+.react-datepicker__day--in-range,
+.react-datepicker__day--in-selecting-range {
+    background-color: rgba(61, 69, 112, 0.4);
+    color: #eadeda;
+}
+
+.react-datepicker__day--keyboard-selected {
+    background-color: #2b3155;
+    color: #eadeda;
+}
+
+.react-datepicker__day--outside-month {
+    color: #6e6060;
+}
+
+.react-datepicker__day--disabled {
+    color: #6e6060;
+}
+
+.react-datepicker__triangle {
+    display: none;
+}
+
+.react-datepicker-popper {
+    z-index: 1400;
+}
+
+/* Custom input styling to match MUI TextField (small size) */
+.date-range-picker-input {
+    background-color: transparent;
+    border: 1px solid rgba(234, 222, 218, 0.23);
+    border-radius: 4px;
+    color: #eadeda;
+    font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+    height: 40px;
+    padding: 8.5px 14px;
+    width: 250px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.date-range-picker-input--full {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.date-range-picker-input:hover {
+    border-color: #eadeda;
+}
+
+.date-range-picker-input:focus {
+    border-color: #3d4570;
+    border-width: 2px;
+    padding: 7.5px 13px;
 }

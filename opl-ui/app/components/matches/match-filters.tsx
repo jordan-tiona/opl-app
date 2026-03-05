@@ -1,4 +1,3 @@
-import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material'
 import {
     Autocomplete,
     Box,
@@ -7,9 +6,9 @@ import {
     MenuItem,
     Select,
     TextField,
-    Typography,
 } from '@mui/material'
 import { useMemo } from 'react'
+import DatePicker from 'react-datepicker'
 
 import { useDivisions, useSessions } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
@@ -71,25 +70,27 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 ...(vertical && { flexDirection: 'column', alignItems: 'stretch' }),
             }}
         >
-            {!vertical && <CalendarTodayIcon color="action" />}
-            <TextField
-                fullWidth={vertical}
-                label="From"
-                size="small"
-                slotProps={{ inputLabel: { shrink: true } }}
-                type="date"
-                value={dateRange.start}
-                onChange={(e) => onDateRangeChange({ ...dateRange, start: e.target.value })}
-            />
-            {!vertical && <Typography color="text.secondary">to</Typography>}
-            <TextField
-                fullWidth={vertical}
-                label="To"
-                size="small"
-                slotProps={{ inputLabel: { shrink: true } }}
-                type="date"
-                value={dateRange.end}
-                onChange={(e) => onDateRangeChange({ ...dateRange, end: e.target.value })}
+            <DatePicker
+                selectsRange
+                customInput={
+                    <input
+                        className={
+                            vertical
+                                ? 'date-range-picker-input date-range-picker-input--full'
+                                : 'date-range-picker-input'
+                        }
+                    />
+                }
+                dateFormat="MMM d, yyyy"
+                endDate={dateRange.end ? new Date(dateRange.end + 'T00:00:00') : null}
+                placeholderText="Date range"
+                startDate={dateRange.start ? new Date(dateRange.start + 'T00:00:00') : null}
+                onChange={([start, end]) => {
+                    onDateRangeChange({
+                        start: start ? start.toISOString().split('T')[0] : '',
+                        end: end ? end.toISOString().split('T')[0] : '',
+                    })
+                }}
             />
 
             <Autocomplete
@@ -102,7 +103,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                             String(p.player_id).includes(term),
                     )
                 }}
-                fullWidth={vertical}
+                fullWidth
                 getOptionLabel={(option) =>
                     `${option.first_name} ${option.last_name} (#${option.player_id})`
                 }
@@ -110,7 +111,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 options={sortedPlayers}
                 renderInput={(params) => <TextField {...params} label="Player" />}
                 size="small"
-                sx={{ minWidth: vertical ? undefined : 220 }}
+                sx={{ width: vertical ? '100%' : 220 }}
                 value={selectedPlayer}
                 onChange={(_, value) => onPlayerChange(value)}
             />
