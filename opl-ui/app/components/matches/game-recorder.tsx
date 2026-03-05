@@ -38,8 +38,8 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
     const { showSnackbar } = useSnackbar()
     const [games, setGames] = useState<GameScore[]>([])
     const [p1Weight, p2Weight] = getMatchWeight(player1.rating, player2.rating)
-    const p1Options = Array.from({ length: p1Weight + 1 }, (_, i) => String(i))
-    const p2Options = Array.from({ length: p2Weight + 1 }, (_, i) => String(i))
+    const p1Options = Array.from({ length: p1Weight + 4 }, (_, i) => String(i - 3))
+    const p2Options = Array.from({ length: p2Weight + 4 }, (_, i) => String(i - 3))
     const lastGameRef = useRef<HTMLInputElement>(null)
     const [focusLastGame, setFocusLastGame] = useState(false)
 
@@ -65,7 +65,7 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
         player: 'player1Score' | 'player2Score',
         value: string | number,
     ) => {
-        const numValue = Math.max(0, Number(value) || 0)
+        const numValue = Math.max(-3, Number(value) || 0)
 
         setGames((prev) =>
             prev.map((game, i) => (i === index ? { ...game, [player]: numValue } : game)),
