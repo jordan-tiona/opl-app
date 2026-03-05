@@ -20,8 +20,19 @@ import { getMatchWeight } from '~/lib/utils'
 import { GameRecorder } from './game-recorder'
 import { GameResults } from './game-results'
 
-function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+function formatDate(dateString: string, isWeekly: boolean): string {
+    const date = new Date(dateString)
+    if (isWeekly) {
+        const monday = new Date(date)
+        monday.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1))
+        return 'Week of ' + monday.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+    }
+    return date.toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
         month: 'short',
@@ -62,7 +73,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                         sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', pr: 2 }}
                     >
                         <Typography color="text.secondary" sx={{ minWidth: 140 }}>
-                            {formatDate(match.scheduled_date)}
+                            {formatDate(match.scheduled_date, match.is_weekly)}
                         </Typography>
                         <Typography sx={{ flex: 1 }}>
                             {match.is_bye ? (

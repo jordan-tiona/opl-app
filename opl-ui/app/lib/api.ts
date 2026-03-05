@@ -7,8 +7,10 @@ import type {
     ScheduleInput,
     Division,
     DivisionInput,
+    DivisionUpdateInput,
     Session,
     SessionInput,
+    SessionUpdateInput,
     PlayerScore,
     User,
     Message,
@@ -211,7 +213,7 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
-        update: (id: number, data: Partial<Division>): Promise<Division> =>
+        update: (id: number, data: DivisionUpdateInput): Promise<Division> =>
             fetchJson(`${API_BASE}/divisions/${id}/`, {
                 method: 'PUT',
                 body: JSON.stringify(data),
@@ -313,7 +315,7 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
-        update: (id: number, data: Partial<Session>): Promise<Session> =>
+        update: (id: number, data: SessionUpdateInput): Promise<Session> =>
             fetchJson(`${API_BASE}/sessions/${id}/`, {
                 method: 'PUT',
                 body: JSON.stringify(data),

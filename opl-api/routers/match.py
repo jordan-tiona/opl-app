@@ -1,5 +1,5 @@
 from datetime import date as date_type
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
@@ -144,7 +144,15 @@ def schedule_round_robin(
         ).all()
         if not players:
             continue
-        matches = generate_schedule(players, body.start_date, body.session_id, division.division_id, double=body.double)
+        is_weekly = division.day_of_week is None
+        if is_weekly:
+            # Snap to Monday of the start week
+            div_start_date = body.start_date - timedelta(days=body.start_date.weekday())
+        else:
+            # Snap to the correct day of week within the start week
+            monday = body.start_date - timedelta(days=body.start_date.weekday())
+            div_start_date = monday + timedelta(days=division.day_of_week)
+        matches = generate_schedule(players, div_start_date, body.session_id, division.division_id, double=body.double, is_weekly=is_weekly)
         all_matches.extend(matches)
 
     if not all_matches:

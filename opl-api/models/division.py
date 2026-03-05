@@ -5,7 +5,7 @@ class Division(SQLModel, table=True):
     __tablename__ = "divisions"
     division_id: int | None = Field(primary_key=True, index=True)
     name: str
-    day_of_week: int = Field(default=0)  # 0=Mon, 1=Tue, ..., 6=Sun
+    day_of_week: int | None = Field(default=None)  # 0=Mon, 1=Tue, ..., 6=Sun; None=flexible
     active: bool = Field(default=True)
     deleted: bool = Field(default=False)
 

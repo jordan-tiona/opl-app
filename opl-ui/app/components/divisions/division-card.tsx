@@ -74,7 +74,7 @@ export const DivisionCard: React.FC<DivisionCardProps> = ({ division, onDelete }
                 >
                     <CalendarMonthIcon fontSize="small" />
                     <Typography variant="body2">
-                        {DAYS_OF_WEEK[division.day_of_week]}
+                        {division.day_of_week !== null ? DAYS_OF_WEEK[division.day_of_week] : 'Flexible schedule'}
                     </Typography>
                 </Box>
 

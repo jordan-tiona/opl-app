@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { Session, SessionInput } from '../types'
+import type { Session, SessionInput, SessionUpdateInput } from '../types'
 
 import { queryKeys } from './query-keys'
 
@@ -44,16 +44,19 @@ export const useCreateSession = (): UseMutationResult<
 export const useUpdateSession = (): UseMutationResult<
     Session,
     Error,
-    { id: number; data: Partial<Session> }
+    { id: number; data: SessionUpdateInput }
 > => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: Partial<Session> }) =>
+        mutationFn: ({ id, data }: { id: number; data: SessionUpdateInput }) =>
             api.sessions.update(id, data),
-        onSuccess: (_, { id }) => {
+        onSuccess: (_, { id, data }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.sessions })
             queryClient.invalidateQueries({ queryKey: queryKeys.session(id) })
+            if (data.update_existing_matches) {
+                queryClient.invalidateQueries({ queryKey: ['matches'] })
+            }
         },
     })
 }

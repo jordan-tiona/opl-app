@@ -18,6 +18,7 @@ import { useSnackbar } from '~/lib/snackbar'
 import type { DivisionInput } from '~/lib/types'
 
 const DAYS_OF_WEEK = [
+    { value: null, label: 'No specific day (flexible)' },
     { value: 0, label: 'Monday' },
     { value: 1, label: 'Tuesday' },
     { value: 2, label: 'Wednesday' },
@@ -29,7 +30,7 @@ const DAYS_OF_WEEK = [
 
 const initialFormState: DivisionInput = {
     name: '',
-    day_of_week: 0,
+    day_of_week: null,
     active: true,
 }
 
@@ -78,16 +79,16 @@ export const AddDivisionDialog: React.FC<AddDivisionDialogProps> = ({ open, onCl
                         <InputLabel>Day of Week</InputLabel>
                         <Select
                             label="Day of Week"
-                            value={formData.day_of_week}
+                            value={formData.day_of_week ?? 'none'}
                             onChange={(e) =>
                                 setFormData((prev) => ({
                                     ...prev,
-                                    day_of_week: e.target.value as number,
+                                    day_of_week: e.target.value === 'none' ? null : e.target.value as number,
                                 }))
                             }
                         >
                             {DAYS_OF_WEEK.map((d) => (
-                                <MenuItem key={d.value} value={d.value}>
+                                <MenuItem key={d.value ?? 'none'} value={d.value ?? 'none'}>
                                     {d.label}
                                 </MenuItem>
                             ))}

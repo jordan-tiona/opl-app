@@ -5,6 +5,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
+    Switch,
     TextField,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
@@ -15,7 +17,7 @@ import type { SessionInput } from '~/lib/types'
 
 const initialFormState: SessionInput = {
     name: '',
-    match_time: '19:00',
+    match_time: null,
     active: true,
 }
 
@@ -67,16 +69,31 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
                         value={formData.name}
                         onChange={handleInputChange}
                     />
-                    <TextField
-                        fullWidth
-                        required
-                        label="Match Time"
-                        name="match_time"
-                        slotProps={{ inputLabel: { shrink: true } }}
-                        type="time"
-                        value={formData.match_time}
-                        onChange={handleInputChange}
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.match_time !== null}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        match_time: e.target.checked ? '19:00' : null,
+                                    }))
+                                }
+                            />
+                        }
+                        label="Specific match time"
                     />
+                    {formData.match_time !== null && (
+                        <TextField
+                            fullWidth
+                            label="Match Time"
+                            name="match_time"
+                            slotProps={{ inputLabel: { shrink: true } }}
+                            type="time"
+                            value={formData.match_time}
+                            onChange={handleInputChange}
+                        />
+                    )}
                 </Box>
             </DialogContent>
             <DialogActions>

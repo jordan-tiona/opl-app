@@ -11,9 +11,11 @@ import {
     Button,
     Card,
     CardContent,
+    Checkbox,
     Chip,
     CircularProgress,
     FormControl,
+    FormControlLabel,
     IconButton,
     InputLabel,
     MenuItem,
@@ -51,6 +53,7 @@ import { useSnackbar } from '~/lib/snackbar'
 import type { Division } from '~/lib/types'
 
 const DAYS_OF_WEEK = [
+    { value: null, label: 'No specific day (flexible)' },
     { value: 0, label: 'Monday' },
     { value: 1, label: 'Tuesday' },
     { value: 2, label: 'Wednesday' },
@@ -77,6 +80,8 @@ export const DivisionDetailPage: React.FC = () => {
 
     const [formData, setFormData] = useState<Partial<Division>>({})
     const [hasChanges, setHasChanges] = useState(false)
+    const [dayOfWeekChanged, setDayOfWeekChanged] = useState(false)
+    const [updateExistingMatches, setUpdateExistingMatches] = useState(false)
     const [addPlayerOpen, setAddPlayerOpen] = useState(false)
     const [createPlayerOpen, setCreatePlayerOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
@@ -90,6 +95,8 @@ export const DivisionDetailPage: React.FC = () => {
     useEffect(() => {
         if (division) {
             setFormData(division)
+            setDayOfWeekChanged(false)
+            setUpdateExistingMatches(false)
         }
     }, [division])
 
@@ -110,9 +117,19 @@ export const DivisionDetailPage: React.FC = () => {
 
     const handleSave = async () => {
         try {
-            await updateDivision.mutateAsync({ id: divisionId, data: formData })
+            await updateDivision.mutateAsync({
+                id: divisionId,
+                data: {
+                    name: formData.name ?? '',
+                    day_of_week: formData.day_of_week ?? null,
+                    active: formData.active ?? true,
+                    update_existing_matches: updateExistingMatches,
+                },
+            })
             showSnackbar('Division updated', 'success')
             setHasChanges(false)
+            setDayOfWeekChanged(false)
+            setUpdateExistingMatches(false)
         } catch (err) {
             showSnackbar(err instanceof Error ? err.message : 'Failed to update division', 'error')
         }
@@ -218,22 +235,38 @@ export const DivisionDetailPage: React.FC = () => {
                             <InputLabel>Day of Week</InputLabel>
                             <Select
                                 label="Day of Week"
-                                value={formData.day_of_week ?? 0}
+                                value={formData.day_of_week ?? 'none'}
                                 onChange={(e) => {
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        day_of_week: e.target.value as number,
-                                    }))
+                                    const newVal = e.target.value === 'none' ? null : e.target.value as number
+
+                                    setFormData((prev) => ({ ...prev, day_of_week: newVal }))
                                     setHasChanges(true)
+                                    setDayOfWeekChanged(newVal !== division?.day_of_week)
+
+
+                                    if (newVal === division?.day_of_week) {
+                                        setUpdateExistingMatches(false)
+                                    }
                                 }}
                             >
                                 {DAYS_OF_WEEK.map((d) => (
-                                    <MenuItem key={d.value} value={d.value}>
+                                    <MenuItem key={d.value ?? 'none'} value={d.value ?? 'none'}>
                                         {d.label}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
+                        {dayOfWeekChanged && (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={updateExistingMatches}
+                                        onChange={(e) => setUpdateExistingMatches(e.target.checked)}
+                                    />
+                                }
+                                label="Update scheduled (uncompleted) matches to reflect new scheduling format"
+                            />
+                        )}
                     </Box>
                 </CardContent>
             </Card>

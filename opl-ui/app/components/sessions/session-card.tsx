@@ -100,7 +100,9 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName,
                     }}
                 >
                     <ScheduleIcon fontSize="small" />
-                    <Typography variant="body2">Match time: {session.match_time}</Typography>
+                    <Typography variant="body2">
+                        {session.match_time ? `Match time: ${session.match_time}` : 'No specific match time'}
+                    </Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, color: 'text.secondary' }}>

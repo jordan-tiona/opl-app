@@ -1,5 +1,8 @@
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import func
 from sqlmodel import Session as DBSession
 from sqlmodel import select
@@ -8,6 +11,13 @@ from models import Match, Session, User
 from models.session import SessionResponse
 from services.auth import get_current_user, require_admin
 from services.database import get_session
+
+
+class SessionUpdate(BaseModel):
+    name: str
+    match_time: str | None
+    active: bool
+    update_existing_matches: bool = False
 
 router = APIRouter(
     prefix="/sessions"
@@ -70,12 +80,28 @@ def create_session(body: Session, session: DBSession = Depends(get_session), _ad
 
 
 @router.put("/{session_id}/", response_model=SessionResponse)
-def update_session(session_id: int, body: Session, session: DBSession = Depends(get_session), _admin: User = Depends(require_admin)):
+def update_session(session_id: int, body: SessionUpdate, session: DBSession = Depends(get_session), _admin: User = Depends(require_admin)):
     db_session = session.get(Session, session_id)
     if not db_session or db_session.deleted:
         raise HTTPException(status_code=404, detail="Session not found")
-    for key, value in body.model_dump(exclude={"session_id", "deleted"}).items():
-        setattr(db_session, key, value)
+
+    db_session.name = body.name
+    db_session.match_time = body.match_time
+    db_session.active = body.active
+
+    if body.update_existing_matches and body.match_time is not None:
+        h, m = map(int, body.match_time.split(':'))
+        matches = session.exec(
+            select(Match).where(
+                Match.session_id == session_id,
+                Match.completed == False,  # noqa: E712
+                Match.deleted == False,  # noqa: E712
+            )
+        ).all()
+        for match in matches:
+            match.scheduled_date = match.scheduled_date.replace(hour=h, minute=m, second=0, microsecond=0)
+            session.add(match)
+
     session.add(db_session)
     session.commit()
     session.refresh(db_session)

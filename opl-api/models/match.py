@@ -11,6 +11,7 @@ class Match(SQLModel, table=True):
     player1_id: int = Field(foreign_key="players.player_id")
     player2_id: int | None = Field(default=None, foreign_key="players.player_id")
     is_bye: bool = Field(default=False)
+    is_weekly: bool = Field(default=False)
     player1_rating: int
     player2_rating: int | None = Field(default=None)
     player1_weight: int = Field(default=0)

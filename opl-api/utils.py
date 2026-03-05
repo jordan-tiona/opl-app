@@ -37,7 +37,7 @@ def get_match_weight(rating1: int, rating2: int) -> tuple[int, int]:
     return (low, high)
 
 
-def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int, division_id: int, *, double: bool = True) -> list[Match]:
+def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int, division_id: int, *, double: bool = True, is_weekly: bool = False) -> list[Match]:
     """Generate a round robin schedule using the circle method.
 
     When *double* is True (default), each pairing plays twice (home-and-away).
@@ -73,6 +73,9 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
     for leg in range(num_legs):
         for round_num in range(num_rounds):
             round_date = start_date + timedelta(weeks=round_num + leg * num_rounds)
+            if is_weekly:
+                # Snap to Monday of the week
+                round_date = round_date - timedelta(days=round_date.weekday())
             for p1, p2 in get_round_pairings(round_num):
                 if p1 is None or p2 is None:
                     bye_player = p2 if p1 is None else p1
@@ -84,6 +87,7 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
                         scheduled_date=round_date,
                         completed=False,
                         is_bye=True,
+                        is_weekly=is_weekly,
                     ))
                     continue
                 # Swap home/away between legs
@@ -100,6 +104,7 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
                     player2_weight=w2,
                     scheduled_date=round_date,
                     completed=False,
+                    is_weekly=is_weekly,
                 ))
 
     return matches

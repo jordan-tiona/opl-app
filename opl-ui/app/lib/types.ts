@@ -18,6 +18,7 @@ export interface Match {
     player1_id: number
     player2_id: number | null
     is_bye: boolean
+    is_weekly: boolean
     player1_rating: number
     player2_rating: number | null
     player1_weight: number
@@ -59,24 +60,26 @@ export type PlayerInput = Omit<Player, 'player_id' | 'deleted'>
 export interface Division {
     division_id: number
     name: string
-    day_of_week: number
+    day_of_week: number | null
     active: boolean
     deleted: boolean
 }
 
 export type DivisionInput = Omit<Division, 'division_id' | 'deleted'>
+export type DivisionUpdateInput = DivisionInput & { update_existing_matches?: boolean }
 
 export interface Session {
     session_id: number
     name: string
     start_date: string | null
     end_date: string | null
-    match_time: string
+    match_time: string | null
     active: boolean
     deleted: boolean
 }
 
 export type SessionInput = Omit<Session, 'session_id' | 'start_date' | 'end_date' | 'deleted'>
+export type SessionUpdateInput = SessionInput & { update_existing_matches?: boolean }
 
 export interface PlayerScore {
     player_id: number

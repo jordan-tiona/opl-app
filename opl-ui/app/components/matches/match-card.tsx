@@ -19,16 +19,25 @@ import { getMatchWeight } from '~/lib/utils'
 import { GameRecorder } from './game-recorder'
 import { GameResults } from './game-results'
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, isWeekly: boolean): string {
     const date = new Date(dateString)
-    const datePart = date.toLocaleDateString('en-US', {
+    if (isWeekly) {
+        // Show the Monday of the week
+        const monday = new Date(date)
+        monday.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1))
+        return 'Week of ' + monday.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+    }
+    return date.toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
         month: 'short',
         day: 'numeric',
     })
-
-    return datePart
 }
 
 interface MatchCardProps {
@@ -111,7 +120,7 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                         </IconButton>
                     </Box>
                     <Typography gutterBottom color="text.secondary" variant="body2">
-                        {formatDate(match.scheduled_date)}
+                        {formatDate(match.scheduled_date, match.is_weekly)}
                     </Typography>
                     <Typography sx={{ mb: 0.5 }} variant="h6">
                         {player1 ? `${player1.first_name} ${player1.last_name}` : 'Unknown'} (

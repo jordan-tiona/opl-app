@@ -11,11 +11,14 @@ import {
     Button,
     Card,
     CardContent,
+    Checkbox,
     Chip,
     CircularProgress,
+    FormControlLabel,
     IconButton,
     Paper,
     Stack,
+    Switch,
     Table,
     TableBody,
     TableCell,
@@ -63,6 +66,8 @@ export const SessionDetailPage: React.FC = () => {
 
     const [formData, setFormData] = useState<Partial<Session>>({})
     const [hasChanges, setHasChanges] = useState(false)
+    const [matchTimeChanged, setMatchTimeChanged] = useState(false)
+    const [updateExistingMatches, setUpdateExistingMatches] = useState(false)
     const [scheduleOpen, setScheduleOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
     const theme = useTheme()
@@ -71,6 +76,8 @@ export const SessionDetailPage: React.FC = () => {
     useEffect(() => {
         if (session) {
             setFormData(session)
+            setMatchTimeChanged(false)
+            setUpdateExistingMatches(false)
         }
     }, [session])
 
@@ -96,9 +103,19 @@ export const SessionDetailPage: React.FC = () => {
 
     const handleSave = async () => {
         try {
-            await updateSession.mutateAsync({ id: sessionId, data: formData })
+            await updateSession.mutateAsync({
+                id: sessionId,
+                data: {
+                    name: formData.name ?? '',
+                    match_time: formData.match_time ?? null,
+                    active: formData.active ?? true,
+                    update_existing_matches: updateExistingMatches,
+                },
+            })
             showSnackbar('Session updated', 'success')
             setHasChanges(false)
+            setMatchTimeChanged(false)
+            setUpdateExistingMatches(false)
         } catch (err) {
             showSnackbar(err instanceof Error ? err.message : 'Failed to update session', 'error')
         }
@@ -182,34 +199,64 @@ export const SessionDetailPage: React.FC = () => {
                             onChange={handleInputChange}
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Start Date"
-                                name="start_date"
-                                slotProps={{ inputLabel: { shrink: true } }}
-                                type="date"
-                                value={formData.start_date ?? ''}
-                                onChange={handleInputChange}
-                            />
-                            <TextField
-                                fullWidth
-                                label="End Date"
-                                name="end_date"
-                                slotProps={{ inputLabel: { shrink: true } }}
-                                type="date"
-                                value={formData.end_date ?? ''}
-                                onChange={handleInputChange}
-                            />
+                            <Box sx={{ flex: 1 }}>
+                                <Typography color="text.secondary" variant="caption">Start Date</Typography>
+                                <Typography variant="body1">{session.start_date ?? '—'}</Typography>
+                            </Box>
+                            <Box sx={{ flex: 1 }}>
+                                <Typography color="text.secondary" variant="caption">End Date</Typography>
+                                <Typography variant="body1">{session.end_date ?? '—'}</Typography>
+                            </Box>
                         </Box>
-                        <TextField
-                            fullWidth
-                            label="Match Time"
-                            name="match_time"
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            type="time"
-                            value={formData.match_time ?? ''}
-                            onChange={handleInputChange}
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={formData.match_time !== null && formData.match_time !== undefined}
+                                    onChange={(e) => {
+                                        const newTime = e.target.checked ? '19:00' : null
+                                        setFormData((prev) => ({ ...prev, match_time: newTime }))
+                                        setHasChanges(true)
+                                        setMatchTimeChanged(newTime !== session?.match_time)
+
+                                        if (newTime === session?.match_time) {
+                                            setUpdateExistingMatches(false)
+                                        }
+                                    }}
+                                />
+                            }
+                            label="Specific match time"
                         />
+                        {(formData.match_time !== null && formData.match_time !== undefined) && (
+                            <TextField
+                                fullWidth
+                                label="Match Time"
+                                name="match_time"
+                                slotProps={{ inputLabel: { shrink: true } }}
+                                type="time"
+                                value={formData.match_time}
+                                onChange={(e) => {
+                                    const { value } = e.target
+                                    setFormData((prev) => ({ ...prev, match_time: value }))
+                                    setHasChanges(true)
+                                    setMatchTimeChanged(value !== session?.match_time)
+
+                                    if (value === session?.match_time) {
+                                        setUpdateExistingMatches(false)
+                                    }
+                                }}
+                            />
+                        )}
+                        {matchTimeChanged && (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={updateExistingMatches}
+                                        onChange={(e) => setUpdateExistingMatches(e.target.checked)}
+                                    />
+                                }
+                                label="Update scheduled (uncompleted) matches to reflect new time"
+                            />
+                        )}
                     </Box>
                 </CardContent>
             </Card>

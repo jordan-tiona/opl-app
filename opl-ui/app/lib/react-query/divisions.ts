@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 
 import { api } from '../api'
-import type { Division, DivisionInput, Player } from '../types'
+import type { Division, DivisionInput, DivisionUpdateInput, Player } from '../types'
 
 import { queryKeys } from './query-keys'
 
@@ -44,16 +44,19 @@ export const useCreateDivision = (): UseMutationResult<
 export const useUpdateDivision = (): UseMutationResult<
     Division,
     Error,
-    { id: number; data: Partial<Division> }
+    { id: number; data: DivisionUpdateInput }
 > => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: Partial<Division> }) =>
+        mutationFn: ({ id, data }: { id: number; data: DivisionUpdateInput }) =>
             api.divisions.update(id, data),
-        onSuccess: (_, { id }) => {
+        onSuccess: (_, { id, data }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
             queryClient.invalidateQueries({ queryKey: queryKeys.division(id) })
+            if (data.update_existing_matches) {
+                queryClient.invalidateQueries({ queryKey: ['matches'] })
+            }
         },
     })
 }

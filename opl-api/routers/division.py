@@ -1,10 +1,20 @@
 
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from models import Division, DivisionPlayer, Match, Player, User
 from services.auth import get_current_user, require_admin
 from services.database import get_session
+
+
+class DivisionUpdate(BaseModel):
+    name: str
+    day_of_week: int | None
+    active: bool
+    update_existing_matches: bool = False
 
 router = APIRouter(
     prefix="/divisions"
@@ -36,12 +46,33 @@ def create_division(division: Division, session: Session = Depends(get_session),
 
 
 @router.put("/{division_id}/", response_model=Division)
-def update_division(division_id: int, division: Division, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
+def update_division(division_id: int, body: DivisionUpdate, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_division = session.get(Division, division_id)
     if not db_division or db_division.deleted:
         raise HTTPException(status_code=404, detail="Division not found")
-    for key, value in division.model_dump(exclude={"division_id", "deleted"}).items():
-        setattr(db_division, key, value)
+
+    db_division.name = body.name
+    db_division.day_of_week = body.day_of_week
+    db_division.active = body.active
+
+    if body.update_existing_matches:
+        matches = session.exec(
+            select(Match).where(
+                Match.division_id == division_id,
+                Match.completed == False,  # noqa: E712
+                Match.deleted == False,  # noqa: E712
+            )
+        ).all()
+        for m in matches:
+            monday = m.scheduled_date - timedelta(days=m.scheduled_date.weekday())
+            if body.day_of_week is None:
+                m.is_weekly = True
+                m.scheduled_date = monday
+            else:
+                m.is_weekly = False
+                m.scheduled_date = monday + timedelta(days=body.day_of_week)
+            session.add(m)
+
     session.add(db_division)
     session.commit()
     session.refresh(db_division)
