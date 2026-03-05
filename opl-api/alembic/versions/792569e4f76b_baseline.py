@@ -18,6 +18,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    existing_tables = inspector.get_table_names()
+
+    if 'players' in existing_tables:
+        return
+
     op.create_table(
         'players',
         sa.Column('player_id', sa.Integer(), primary_key=True, autoincrement=True),

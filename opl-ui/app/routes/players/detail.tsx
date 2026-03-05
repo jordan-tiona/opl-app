@@ -1,4 +1,4 @@
-import { ArrowBack as ArrowBackIcon, Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { Add as AddIcon, ArrowBack as ArrowBackIcon, Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -7,8 +7,12 @@ import {
     CardContent,
     Chip,
     CircularProgress,
+    FormControl,
     FormControlLabel,
     IconButton,
+    InputLabel,
+    MenuItem,
+    Select,
     Switch,
     TextField,
     Typography,
@@ -21,12 +25,15 @@ import { useNavigate, useParams } from 'react-router'
 import { DeleteConfirmDialog } from '~/components/common'
 import { MatchAccordion, MatchCard } from '~/components/matches'
 import {
+    useAddPlayerToDivision,
     useDeleteMatch,
     useDeletePlayer,
+    useDivisions,
     useMatches,
     usePlayer,
     usePlayerDivisions,
     usePlayers,
+    useRemovePlayerFromDivision,
     useUpdatePlayer,
 } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
@@ -42,8 +49,11 @@ export const PlayerDetailPage: React.FC = () => {
     const { user } = useAuth()
     const { data: player, isLoading, error } = usePlayer(playerId)
     const { data: playerDivisions } = usePlayerDivisions(playerId)
+    const { data: allDivisions } = useDivisions()
     const updatePlayer = useUpdatePlayer()
     const deletePlayer = useDeletePlayer()
+    const addPlayerToDivision = useAddPlayerToDivision()
+    const removePlayerFromDivision = useRemovePlayerFromDivision()
     const { data: matches } = useMatches({ player_id: playerId })
     const { data: allPlayers } = usePlayers()
 
@@ -53,6 +63,21 @@ export const PlayerDetailPage: React.FC = () => {
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
     const [deleteOpen, setDeleteOpen] = useState(false)
     const [deleteMatchId, setDeleteMatchId] = useState<number | null>(null)
+    const [selectedDivisionId, setSelectedDivisionId] = useState<number | ''>('')
+    const [addingDivision, setAddingDivision] = useState(false)
+    const [divisionEdits, setDivisionEdits] = useState<{ added: number[]; removed: number[] }>({ added: [], removed: [] })
+
+    const displayedDivisions = useMemo(() => {
+        const base = playerDivisions ?? []
+        const afterRemove = base.filter((d) => !divisionEdits.removed.includes(d.division_id))
+        const addedDivisions = (allDivisions ?? []).filter((d) => divisionEdits.added.includes(d.division_id))
+        return [...afterRemove, ...addedDivisions]
+    }, [playerDivisions, allDivisions, divisionEdits])
+
+    const availableDivisions = useMemo(
+        () => (allDivisions ?? []).filter((d) => !displayedDivisions.some((p) => p.division_id === d.division_id)),
+        [allDivisions, displayedDivisions],
+    )
 
     const sortedMatches = useMemo(() => {
         if (!matches) {
@@ -89,7 +114,12 @@ export const PlayerDetailPage: React.FC = () => {
     }
 
     const handleSave = async () => {
-        await updatePlayer.mutateAsync({ id: playerId, data: formData })
+        await Promise.all([
+            updatePlayer.mutateAsync({ id: playerId, data: formData }),
+            ...divisionEdits.added.map((divisionId) => addPlayerToDivision.mutateAsync({ divisionId, playerId })),
+            ...divisionEdits.removed.map((divisionId) => removePlayerFromDivision.mutateAsync({ divisionId, playerId })),
+        ])
+        setDivisionEdits({ added: [], removed: [] })
         setIsEditing(false)
     }
 
@@ -98,6 +128,9 @@ export const PlayerDetailPage: React.FC = () => {
             setFormData(player)
         }
 
+        setDivisionEdits({ added: [], removed: [] })
+        setSelectedDivisionId('')
+        setAddingDivision(false)
         setIsEditing(false)
     }
 
@@ -290,25 +323,65 @@ export const PlayerDetailPage: React.FC = () => {
                         </Box>
                     )}
 
-                    {playerDivisions && playerDivisions.length > 0 && (
-                        <Box sx={{ mt: 2 }}>
-                            <Typography color="text.secondary" sx={{ mb: 1 }} variant="body2">
-                                Divisions
-                            </Typography>
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                {playerDivisions.map((d) => (
-                                    <Chip
-                                        clickable
-                                        color={d.active ? 'primary' : 'default'}
-                                        key={d.division_id}
-                                        label={d.name}
-                                        variant={d.active ? 'filled' : 'outlined'}
-                                        onClick={() => navigate(`/divisions/${d.division_id}`)}
-                                    />
-                                ))}
-                            </Box>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography color="text.secondary" sx={{ mb: 1 }} variant="body2">
+                            Divisions
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                            {displayedDivisions.map((d) => (
+                                <Chip
+                                    clickable={!isEditing}
+                                    color={d.active ? 'primary' : 'default'}
+                                    key={d.division_id}
+                                    label={d.name}
+                                    variant={d.active ? 'filled' : 'outlined'}
+                                    onClick={!isEditing ? () => navigate(`/divisions/${d.division_id}`) : undefined}
+                                    {...(isEditing ? {
+                                        onDelete: () => setDivisionEdits((prev) => ({
+                                            added: prev.added.filter((id) => id !== d.division_id),
+                                            removed: prev.removed.includes(d.division_id) ? prev.removed : [...prev.removed, d.division_id],
+                                        })),
+                                    } : {})}
+                                />
+                            ))}
+                            {displayedDivisions.length === 0 && !addingDivision && (
+                                <Typography color="text.secondary" variant="body2">No divisions</Typography>
+                            )}
+                            {isEditing && !addingDivision && (
+                                <IconButton color="primary" size="small" onClick={() => setAddingDivision(true)}>
+                                    <AddIcon />
+                                </IconButton>
+                            )}
+                            {isEditing && addingDivision && (
+                                <FormControl size="small" sx={{ minWidth: 160 }}>
+                                    <InputLabel>Division</InputLabel>
+                                    <Select
+                                        autoFocus
+                                        label="Division"
+                                        value={selectedDivisionId}
+                                        onChange={(e) => {
+                                            const id = e.target.value as number
+                                            setDivisionEdits((prev) => ({
+                                                added: prev.added.includes(id) ? prev.added : [...prev.added, id],
+                                                removed: prev.removed.filter((r) => r !== id),
+                                            }))
+                                            setSelectedDivisionId('')
+                                            setAddingDivision(false)
+                                        }}
+                                        onClose={() => {
+                                            if (!selectedDivisionId) setAddingDivision(false)
+                                        }}
+                                    >
+                                        {availableDivisions.map((d) => (
+                                            <MenuItem key={d.division_id} value={d.division_id}>
+                                                {d.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
                         </Box>
-                    )}
+                    </Box>
                 </CardContent>
             </Card>
 

@@ -38,7 +38,15 @@ import { DeleteConfirmDialog } from '~/components/common'
 import { AddExistingPlayerDialog } from '~/components/divisions'
 import { AddPlayerDialog } from '~/components/players'
 import { useAuth } from '~/lib/auth'
-import { useDeleteDivision, useDivision, useDivisionPlayers, usePlayers, useSessions, useUpdateDivision } from '~/lib/react-query'
+import {
+    useDeleteDivision,
+    useDivision,
+    useDivisionPlayers,
+    usePlayers,
+    useRemovePlayerFromDivision,
+    useSessions,
+    useUpdateDivision,
+} from '~/lib/react-query'
 import { useSnackbar } from '~/lib/snackbar'
 import type { Division } from '~/lib/types'
 
@@ -64,6 +72,7 @@ export const DivisionDetailPage: React.FC = () => {
     const { data: sessions } = useSessions()
     const updateDivision = useUpdateDivision()
     const deleteDivision = useDeleteDivision()
+    const removePlayer = useRemovePlayerFromDivision()
     const { showSnackbar } = useSnackbar()
 
     const [formData, setFormData] = useState<Partial<Division>>({})
@@ -71,6 +80,10 @@ export const DivisionDetailPage: React.FC = () => {
     const [addPlayerOpen, setAddPlayerOpen] = useState(false)
     const [createPlayerOpen, setCreatePlayerOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
+    const [removePlayerTarget, setRemovePlayerTarget] = useState<{
+        id: number
+        name: string
+    } | null>(null)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -81,9 +94,7 @@ export const DivisionDetailPage: React.FC = () => {
     }, [division])
 
     const divisionPlayers = useMemo(
-        () =>
-            (divisionPlayersList ?? [])
-                .sort((a, b) => b.rating - a.rating),
+        () => (divisionPlayersList ?? []).sort((a, b) => b.rating - a.rating),
         [divisionPlayersList],
     )
 
@@ -110,6 +121,21 @@ export const DivisionDetailPage: React.FC = () => {
     const handleDelete = async () => {
         await deleteDivision.mutateAsync(divisionId)
         navigate('/divisions')
+    }
+
+    const handleRemovePlayer = async () => {
+        if (!removePlayerTarget) {
+            return
+        }
+
+        try {
+            await removePlayer.mutateAsync({ divisionId, playerId: removePlayerTarget.id })
+            showSnackbar('Player removed from division', 'success')
+        } catch (err) {
+            showSnackbar(err instanceof Error ? err.message : 'Failed to remove player', 'error')
+        } finally {
+            setRemovePlayerTarget(null)
+        }
     }
 
     if (isLoading) {
@@ -277,15 +303,23 @@ export const DivisionDetailPage: React.FC = () => {
                         isMobile ? (
                             <Stack spacing={1.5}>
                                 {divisionPlayers.map((player) => (
-                                    <Card
-                                        key={player.player_id}
-                                        variant="outlined"
-                                        sx={{ cursor: 'pointer' }}
-                                        onClick={() => navigate(`/players/${player.player_id}`)}
-                                    >
-                                        <CardContent sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Card key={player.player_id} variant="outlined">
+                                        <CardContent
+                                            sx={{ py: 1.5, px: 2, '&:last-child': { pb: 1.5 } }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1.5,
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                                                    onClick={() =>
+                                                        navigate(`/players/${player.player_id}`)
+                                                    }
+                                                >
                                                     <Typography noWrap fontWeight={500}>
                                                         {player.first_name} {player.last_name}
                                                     </Typography>
@@ -293,6 +327,20 @@ export const DivisionDetailPage: React.FC = () => {
                                                 <Typography color="secondary.main" fontWeight={600}>
                                                     {player.rating}
                                                 </Typography>
+                                                {user?.is_admin && (
+                                                    <IconButton
+                                                        color="error"
+                                                        size="small"
+                                                        onClick={() =>
+                                                            setRemovePlayerTarget({
+                                                                id: player.player_id,
+                                                                name: `${player.first_name} ${player.last_name}`,
+                                                            })
+                                                        }
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                )}
                                             </Box>
                                             <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
                                                 <Typography color="text.secondary" variant="body2">
@@ -333,6 +381,20 @@ export const DivisionDetailPage: React.FC = () => {
                                                     >
                                                         <EditIcon />
                                                     </IconButton>
+                                                    {user?.is_admin && (
+                                                        <IconButton
+                                                            color="error"
+                                                            size="small"
+                                                            onClick={() =>
+                                                                setRemovePlayerTarget({
+                                                                    id: player.player_id,
+                                                                    name: `${player.first_name} ${player.last_name}`,
+                                                                })
+                                                            }
+                                                        >
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -369,6 +431,15 @@ export const DivisionDetailPage: React.FC = () => {
                 title="Delete Division"
                 onClose={() => setDeleteOpen(false)}
                 onConfirm={handleDelete}
+            />
+
+            <DeleteConfirmDialog
+                description={`Remove ${removePlayerTarget?.name} from this division?`}
+                isPending={removePlayer.isPending}
+                open={!!removePlayerTarget}
+                title="Remove Player"
+                onClose={() => setRemovePlayerTarget(null)}
+                onConfirm={handleRemovePlayer}
             />
         </Box>
     )

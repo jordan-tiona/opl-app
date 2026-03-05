@@ -75,8 +75,9 @@ export const useAddPlayerToDivision = (): UseMutationResult<
 
     return useMutation({
         mutationFn: ({ divisionId, playerId }) => api.divisions.addPlayer(divisionId, playerId),
-        onSuccess: (_, { divisionId }) => {
+        onSuccess: (_, { divisionId, playerId }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisionPlayers(divisionId) })
+            queryClient.invalidateQueries({ queryKey: queryKeys.playerDivisions(playerId) })
         },
     })
 }
@@ -90,8 +91,9 @@ export const useRemovePlayerFromDivision = (): UseMutationResult<
 
     return useMutation({
         mutationFn: ({ divisionId, playerId }) => api.divisions.removePlayer(divisionId, playerId),
-        onSuccess: (_, { divisionId }) => {
+        onSuccess: (_, { divisionId, playerId }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisionPlayers(divisionId) })
+            queryClient.invalidateQueries({ queryKey: queryKeys.playerDivisions(playerId) })
         },
     })
 }
