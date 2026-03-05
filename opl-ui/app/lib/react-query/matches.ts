@@ -48,6 +48,7 @@ export const useCompleteMatch = (): UseMutationResult<
             queryClient.invalidateQueries({ queryKey: ['matches'] })
             queryClient.invalidateQueries({ queryKey: queryKeys.games(id) })
             queryClient.invalidateQueries({ queryKey: queryKeys.players })
+            queryClient.invalidateQueries({ queryKey: ['scores'] })
         },
     })
 }
