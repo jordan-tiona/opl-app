@@ -12,6 +12,7 @@ import {
     Sports as SportsIcon,
 } from '@mui/icons-material'
 import {
+    Alert,
     AppBar,
     Avatar,
     Backdrop,
@@ -42,6 +43,11 @@ import { useSnackbar } from '../../lib/snackbar'
 
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
+const isInAppBrowser = () => {
+    const ua = navigator.userAgent
+    return /FBAN|FBAV|Instagram|FB_IAB/.test(ua)
+}
+
 const navItems = [
     { label: 'Home', path: '/' },
     { label: 'About CSOPL', path: '/about' },
@@ -64,6 +70,45 @@ const playerNavItems = [
     { label: 'Standings', path: '/standings', icon: <LeaderboardIcon /> },
     { label: 'Messages', path: '/messages', icon: <MailIcon /> },
 ]
+
+const InAppBrowserBanner: React.FC = () => {
+    const [copied, setCopied] = useState(false)
+    const url = window.location.href
+
+    // Android: intent:// URL opens the page directly in Chrome
+    const isAndroid = /Android/i.test(navigator.userAgent)
+    const intentUrl = isAndroid
+        ? `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`
+        : null
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(url).then(() => {
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        })
+    }
+
+    return (
+        <Alert
+            severity="warning"
+            sx={{ borderRadius: 0 }}
+            action={
+                intentUrl ? (
+                    <Button color="inherit" size="small" component="a" href={intentUrl}>
+                        Open in Browser
+                    </Button>
+                ) : (
+                    <Button color="inherit" size="small" onClick={handleCopy}>
+                        {copied ? 'Copied!' : 'Copy Link'}
+                    </Button>
+                )
+            }
+        >
+            Sign-in doesn't work inside Facebook or Instagram.{' '}
+            {intentUrl ? 'Tap to open in your browser.' : 'Copy the link and paste it into Safari or Chrome.'}
+        </Alert>
+    )
+}
 
 export const PublicLayout: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false)
@@ -232,8 +277,13 @@ export const PublicLayout: React.FC = () => {
         </Box>
     )
 
+    const inAppBrowser = isInAppBrowser()
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            {inAppBrowser && !user && (
+                <InAppBrowserBanner />
+            )}
             <AppBar
                 color="default"
                 elevation={1}
