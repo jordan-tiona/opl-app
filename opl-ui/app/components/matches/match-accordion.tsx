@@ -60,7 +60,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
         const p2Rating = player2?.rating ?? match.player2_rating ?? 0
         const [p1Weight, p2Weight] = match.is_bye
             ? [null, null]
-            : match.status === 'completed'
+            : match.completed
               ? [match.player1_weight, match.player2_weight]
               : getMatchWeight(p1Rating, p2Rating)
 
