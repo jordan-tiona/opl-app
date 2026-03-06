@@ -44,8 +44,8 @@ import { useSnackbar } from '../../lib/snackbar'
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const isInAppBrowser = () => {
-    const ua = navigator.userAgent
-    return /FBAN|FBAV|Instagram|FB_IAB/.test(ua)
+    if (typeof navigator === 'undefined') return false
+    return /FBAN|FBAV|Instagram|FB_IAB/.test(navigator.userAgent)
 }
 
 const navItems = [
