@@ -33,7 +33,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-    const getPlayerName = (id: number) => {
+    const getPlayerName = (id: number | null) => {
         const p = players?.find((pl) => pl.player_id === id)
 
         return p ? `${p.first_name} ${p.last_name}` : `Player #${id}`
@@ -72,7 +72,9 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                     })
                     const formattedDate = `${datePart} at ${timePart}`
                     const opponentName = getPlayerName(opponentId)
-                    const [myWeight, oppWeight] = getMatchWeight(myRating, oppRating)
+                    const currentMyRating = players?.find((p) => p.player_id === player.player_id)?.rating ?? myRating ?? 0
+                    const currentOppRating = players?.find((p) => p.player_id === opponentId)?.rating ?? oppRating ?? 0
+                    const [myWeight, oppWeight] = getMatchWeight(currentMyRating, currentOppRating)
                     const weight = `${myWeight}:${oppWeight}`
 
                     return (
@@ -132,7 +134,9 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                         })
                         const formattedDate = `${datePart} at ${timePart}`
                         const opponentName = getPlayerName(opponentId)
-                        const [myWeight, oppWeight] = getMatchWeight(myRating, oppRating)
+                        const currentMyRating = players?.find((p) => p.player_id === player.player_id)?.rating ?? myRating ?? 0
+                        const currentOppRating = players?.find((p) => p.player_id === opponentId)?.rating ?? oppRating ?? 0
+                        const [myWeight, oppWeight] = getMatchWeight(currentMyRating, currentOppRating)
                         const weight = `${myWeight}:${oppWeight}`
 
                         return (
