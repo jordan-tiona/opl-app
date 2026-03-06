@@ -35,8 +35,8 @@ def init_divisions_table():
             day_of_week=1,  # Tuesday
         ))
         session.add(Division(
-            name="Wednesday Night",
-            day_of_week=2,  # Wednesday
+            name="Flexible",
+            day_of_week=None,  # Flexible match dates
         ))
         session.commit()
 
