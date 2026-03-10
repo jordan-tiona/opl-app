@@ -158,6 +158,12 @@ export const api = {
                 body: JSON.stringify(games),
             }),
 
+        rescore: (id: number, games: GameInput[]): Promise<Match> =>
+            fetchJson(`${API_BASE}/matches/${id}/rescore/`, {
+                method: 'PUT',
+                body: JSON.stringify(games),
+            }),
+
         scheduleRoundRobin: (data: ScheduleInput): Promise<Match[]> =>
             fetchJson(`${API_BASE}/matches/schedule-round-robin/`, {
                 method: 'POST',

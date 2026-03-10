@@ -1,4 +1,4 @@
-import { Block as BlockIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
+import { Block as BlockIcon, Delete as DeleteIcon, Edit as EditIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Accordion,
     AccordionDetails,
@@ -10,11 +10,11 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState } from 'react'
 
 
-import { useGames, useMarkIncompletedMatch } from '~/lib/react-query'
-import type { Match, Player } from '~/lib/types'
+import { useGames, useMarkIncompletedMatch, useRescoreMatch } from '~/lib/react-query'
+import type { Game, Match, Player } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
 
 import { GameRecorder } from './game-recorder'
@@ -53,6 +53,8 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
     ({ match, players, expanded, onToggle, onDelete, onMarkIncompleted }: MatchAccordionProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
+        const [isEditing, setIsEditing] = useState(false)
+        const rescoreMatch = useRescoreMatch()
 
         const { data: existingGames } = useGames({
             match_id: expanded ? match.match_id : undefined,
@@ -65,7 +67,27 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
               ? [match.player1_weight, match.player2_weight]
               : getMatchWeight(p1Rating, p2Rating)
 
-        const handleToggle = useCallback(() => onToggle(match.match_id), [onToggle, match.match_id])
+        const handleToggle = useCallback(() => {
+            onToggle(match.match_id)
+            setIsEditing(false)
+        }, [onToggle, match.match_id])
+
+        const buildInitialScores = (games: Game[], p1Weight: number, p2Weight: number) =>
+            games.map((g) => {
+                if (g.winner_id === match.player1_id) {
+                    return { player1Score: p1Weight, player2Score: p2Weight - g.balls_remaining }
+                } else {
+                    return { player1Score: p1Weight - g.balls_remaining, player2Score: p2Weight }
+                }
+            })
+
+        const handleRescore = useCallback(
+            async (gameInputs: import('~/lib/types').GameInput[]) => {
+                await rescoreMatch.mutateAsync({ id: match.match_id, games: gameInputs })
+                setIsEditing(false)
+            },
+            [rescoreMatch, match.match_id],
+        )
 
         return (
             <Accordion
@@ -201,7 +223,27 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             <Divider sx={{ my: 2 }} />
 
                             {match.completed && existingGames && existingGames.length > 0 ? (
-                                <GameResults games={existingGames} match={match} players={players} />
+                                isEditing && player1 && player2 ? (
+                                    <GameRecorder
+                                        matchId={match.match_id}
+                                        player1={player1}
+                                        player2={player2}
+                                        initialGames={buildInitialScores(existingGames, p1Weight!, p2Weight!)}
+                                        weights={[p1Weight!, p2Weight!]}
+                                        onSubmit={handleRescore}
+                                    />
+                                ) : (
+                                    <Box>
+                                        <GameResults games={existingGames} match={match} players={players} />
+                                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                                            <Tooltip title="Edit match scores">
+                                                <IconButton size="small" onClick={() => setIsEditing(true)}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Box>
+                                    </Box>
+                                )
                             ) : player1 && player2 ? (
                                 <GameRecorder
                                     matchId={match.match_id}

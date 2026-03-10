@@ -53,6 +53,25 @@ export const useCompleteMatch = (): UseMutationResult<
     })
 }
 
+export const useRescoreMatch = (): UseMutationResult<
+    Match,
+    Error,
+    { id: number; games: GameInput[] }
+> => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ id, games }: { id: number; games: GameInput[] }) =>
+            api.matches.rescore(id, games),
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: ['matches'] })
+            queryClient.invalidateQueries({ queryKey: queryKeys.games(id) })
+            queryClient.invalidateQueries({ queryKey: queryKeys.players })
+            queryClient.invalidateQueries({ queryKey: ['scores'] })
+        },
+    })
+}
+
 export const useScheduleRoundRobin = (): UseMutationResult<
     Match[],
     Error,

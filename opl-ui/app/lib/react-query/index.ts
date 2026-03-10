@@ -5,7 +5,7 @@ export { queryKeys } from './query-keys'
 export { usePlayers, usePlayer, useCreatePlayer, useUpdatePlayer, usePlayerDivisions, useDeletePlayer } from './players'
 
 // Match hooks
-export { useMatches, useMatch, useCompleteMatch, useScheduleRoundRobin, useMarkIncompletedMatch, useDeleteMatch } from './matches'
+export { useMatches, useMatch, useCompleteMatch, useRescoreMatch, useScheduleRoundRobin, useMarkIncompletedMatch, useDeleteMatch } from './matches'
 
 // Division hooks
 export { useDivisions, useDivision, useCreateDivision, useUpdateDivision, useDivisionPlayers, useAddPlayerToDivision, useRemovePlayerFromDivision, useDeleteDivision } from './divisions'

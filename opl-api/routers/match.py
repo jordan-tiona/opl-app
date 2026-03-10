@@ -249,6 +249,117 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     return db_match
 
 
+@router.put("/{match_id}/rescore/", response_model=Match)
+def rescore_match(match_id: int, games: list[GameInput], session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if not db_match.completed:
+        raise HTTPException(status_code=400, detail="Match is not completed; use the regular scoring endpoint")
+
+    from utils import calculate_rating_change
+
+    # Get existing games for this match ordered by game_id
+    old_games = session.exec(select(Game).where(Game.match_id == match_id).order_by(Game.game_id)).all()
+    if not old_games:
+        raise HTTPException(status_code=400, detail="No games found for this match")
+
+    # Use the earliest played_date so rescored games keep their original timestamp
+    original_played_date = min(g.played_date for g in old_games)
+
+    # Collect the two match players
+    match_player_ids = {db_match.player1_id, db_match.player2_id}
+
+    # Find all subsequent games (any match) involving either player, ordered chronologically
+    subsequent_games = session.exec(
+        select(Game)
+        .where(Game.match_id != match_id)
+        .where(Game.played_date > original_played_date)
+        .where(or_(Game.winner_id.in_(match_player_ids), Game.loser_id.in_(match_player_ids)))
+        .order_by(Game.played_date, Game.game_id)
+    ).all()
+
+    # Reverse subsequent games (reverse order) to unwind their rating/games_played changes
+    for g in reversed(subsequent_games):
+        winner = session.get(Player, g.winner_id)
+        loser = session.get(Player, g.loser_id)
+        winner.rating -= g.winner_rating_change
+        loser.rating -= g.loser_rating_change
+        winner.games_played -= 1
+        loser.games_played -= 1
+
+    # Reverse this match's games (reverse order)
+    for g in reversed(old_games):
+        winner = session.get(Player, g.winner_id)
+        loser = session.get(Player, g.loser_id)
+        winner.rating -= g.winner_rating_change
+        loser.rating -= g.loser_rating_change
+        winner.games_played -= 1
+        loser.games_played -= 1
+        session.delete(g)
+
+    # Apply new games
+    for game_input in games:
+        winner = session.get(Player, game_input.winner_id)
+        loser = session.get(Player, game_input.loser_id)
+
+        winner_change, loser_change = calculate_rating_change(
+            winner.games_played, loser.games_played, game_input.balls_remaining
+        )
+
+        session.add(Game(
+            match_id=match_id,
+            winner_id=game_input.winner_id,
+            loser_id=game_input.loser_id,
+            winner_rating=winner.rating,
+            loser_rating=loser.rating,
+            winner_rating_change=winner_change,
+            loser_rating_change=loser_change,
+            balls_remaining=game_input.balls_remaining,
+            played_date=original_played_date,
+        ))
+
+        winner.rating += winner_change
+        loser.rating += loser_change
+        winner.games_played += 1
+        loser.games_played += 1
+
+    # Update match winner/loser
+    game_wins: dict[int, int] = {}
+    for game_input in games:
+        game_wins[game_input.winner_id] = game_wins.get(game_input.winner_id, 0) + 1
+    if game_wins:
+        db_match.winner_id = max(game_wins, key=game_wins.get)
+        db_match.loser_id = min(game_wins, key=game_wins.get)
+
+    session.add(db_match)
+
+    # Re-apply subsequent games with recalculated rating changes
+    for g in subsequent_games:
+        winner = session.get(Player, g.winner_id)
+        loser = session.get(Player, g.loser_id)
+
+        winner_change, loser_change = calculate_rating_change(
+            winner.games_played, loser.games_played, g.balls_remaining
+        )
+
+        g.winner_rating = winner.rating
+        g.loser_rating = loser.rating
+        g.winner_rating_change = winner_change
+        g.loser_rating_change = loser_change
+
+        winner.rating += winner_change
+        loser.rating += loser_change
+        winner.games_played += 1
+        loser.games_played += 1
+
+        session.add(g)
+
+    session.commit()
+    session.refresh(db_match)
+    return db_match
+
+
 @router.patch("/{match_id}/incompleted/", response_model=Match)
 def mark_incompleted(match_id: int, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_match = session.get(Match, match_id)

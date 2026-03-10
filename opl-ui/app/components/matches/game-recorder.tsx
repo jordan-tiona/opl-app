@@ -25,19 +25,25 @@ interface GameRecorderProps {
     matchId: number
     player1: Player
     player2: Player
+    initialGames?: GameScore[]
+    weights?: [number, number]
+    onSubmit?: (games: GameInput[]) => Promise<void>
 }
 
 export const GameRecorder: React.FC<GameRecorderProps> = ({
     matchId,
     player1,
     player2,
+    initialGames,
+    weights,
+    onSubmit,
 }: GameRecorderProps) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const completeMatch = useCompleteMatch()
     const { showSnackbar } = useSnackbar()
-    const [games, setGames] = useState<GameScore[]>([])
-    const [p1Weight, p2Weight] = getMatchWeight(player1.rating, player2.rating)
+    const [games, setGames] = useState<GameScore[]>(initialGames ?? [])
+    const [p1Weight, p2Weight] = weights ?? getMatchWeight(player1.rating, player2.rating)
     const p1Options = Array.from({ length: p1Weight + 4 }, (_, i) => String(i - 3))
     const p2Options = Array.from({ length: p2Weight + 4 }, (_, i) => String(i - 3))
     const lastGameRef = useRef<HTMLInputElement>(null)
@@ -103,9 +109,13 @@ export const GameRecorder: React.FC<GameRecorderProps> = ({
         const gameInputs = games.map(convertToGameInput)
 
         try {
-            await completeMatch.mutateAsync({ id: matchId, games: gameInputs })
-            showSnackbar('Match completed', 'success')
-            setGames([])
+            if (onSubmit) {
+                await onSubmit(gameInputs)
+            } else {
+                await completeMatch.mutateAsync({ id: matchId, games: gameInputs })
+                showSnackbar('Match completed', 'success')
+                setGames([])
+            }
         } catch (err) {
             showSnackbar(err instanceof Error ? err.message : 'Failed to complete match', 'error')
         }
