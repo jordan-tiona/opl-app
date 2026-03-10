@@ -290,6 +290,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                         <Collapse unmountOnExit in={isExpanded} timeout="auto">
                                             <Box sx={{ py: 2 }}>
                                                 <MatchGamesDetail
+                                                    match={match}
                                                     matchId={match.match_id}
                                                     playerId={player.player_id}
                                                     players={players}

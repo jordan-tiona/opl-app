@@ -16,12 +16,14 @@ interface MatchGamesDetailProps {
     matchId: number
     playerId: number
     players?: Player[]
+    match?: import('~/lib/types').Match
 }
 
 export const MatchGamesDetail: React.FC<MatchGamesDetailProps> = ({
     matchId,
     playerId,
     players,
+    match,
 }) => {
     const { data: games, isLoading } = useGames({ match_id: matchId })
 
@@ -60,7 +62,14 @@ export const MatchGamesDetail: React.FC<MatchGamesDetailProps> = ({
                         : game.loser_rating_change
                     const winnerName = getPlayerName(game.winner_id)
                     const loserName = getPlayerName(game.loser_id)
-                    const loserScore = 8 - game.balls_remaining
+                    const isPlayer1Winner = match && game.winner_id === match.player1_id
+                    const winnerWeight = match
+                        ? (isPlayer1Winner ? match.player1_weight : (match.player2_weight ?? 8))
+                        : 8
+                    const loserWeight = match
+                        ? (isPlayer1Winner ? (match.player2_weight ?? 8) : match.player1_weight)
+                        : 8
+                    const loserScore = loserWeight - game.balls_remaining
 
                     return (
                         <TableRow key={game.game_id}>
@@ -74,7 +83,7 @@ export const MatchGamesDetail: React.FC<MatchGamesDetailProps> = ({
                                         component="span"
                                         sx={{ mx: 1, color: 'text.secondary' }}
                                     >
-                                        8:{loserScore}
+                                        {winnerWeight}:{loserScore}
                                     </Typography>
                                     <Typography component="span">{loserName}</Typography>
                                 </Box>
