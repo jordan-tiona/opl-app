@@ -212,7 +212,9 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
         game_wins[game_input.winner_id] = game_wins.get(game_input.winner_id, 0) + 1
     if game_wins:
         db_match.winner_id = max(game_wins, key=game_wins.get)
-        db_match.loser_id = min(game_wins, key=game_wins.get)
+        db_match.loser_id = (
+            db_match.player2_id if db_match.winner_id == db_match.player1_id else db_match.player1_id
+        )
 
     db_match.completed = True
     session.add(db_match)
@@ -330,7 +332,9 @@ def rescore_match(match_id: int, games: list[GameInput], session: Session = Depe
         game_wins[game_input.winner_id] = game_wins.get(game_input.winner_id, 0) + 1
     if game_wins:
         db_match.winner_id = max(game_wins, key=game_wins.get)
-        db_match.loser_id = min(game_wins, key=game_wins.get)
+        db_match.loser_id = (
+            db_match.player2_id if db_match.winner_id == db_match.player1_id else db_match.player1_id
+        )
 
     session.add(db_match)
 
