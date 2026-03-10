@@ -60,8 +60,11 @@ export const ProfilePage: React.FC = () => {
     }, [games, player])
 
     const now = Date.now()
-    const isPastDue = (m: NonNullable<typeof matches>[number]) =>
-        !m.completed && new Date(m.scheduled_date).getTime() < now
+    const isPastDue = (m: NonNullable<typeof matches>[number]) => {
+        if (m.completed) return false
+        const gracePeriodMs = m.is_weekly ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+        return new Date(m.scheduled_date).getTime() + gracePeriodMs <= now
+    }
 
     const upcomingMatches =
         matches
