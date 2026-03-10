@@ -164,6 +164,9 @@ export const api = {
                 body: JSON.stringify(data),
             }),
 
+        markIncompleted: (id: number): Promise<Match> =>
+            fetchJson(`${API_BASE}/matches/${id}/incompleted/`, { method: 'PATCH' }),
+
         delete: (id: number): Promise<void> =>
             fetchJson(`${API_BASE}/matches/${id}/`, { method: 'DELETE' }),
 

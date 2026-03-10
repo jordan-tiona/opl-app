@@ -25,6 +25,7 @@ export interface Match {
     player2_weight: number | null
     scheduled_date: string
     completed: boolean
+    incompleted: boolean
     winner_id: number | null
     loser_id: number | null
     deleted: boolean

@@ -108,6 +108,8 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                     {match.is_bye ? (
                                         <Chip color="default" label="Bye" size="small" variant="outlined" />
+                                    ) : !match.completed ? (
+                                        <Chip color="warning" label="Not Played" size="small" variant="outlined" />
                                     ) : (
                                         <>
                                             <Chip
@@ -122,17 +124,16 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                                 </Typography>
                                             )}
                                             {games.length > 0 && (
-                                                <Typography
-                                                    color={
-                                                        totalRatingChange > 0
-                                                            ? 'success.main'
-                                                            : 'error.main'
-                                                    }
-                                                    sx={{ fontWeight: 600 }}
-                                                    variant="body2"
-                                                >
-                                                    {myRating} ({totalRatingChange > 0 ? '+' : ''}
-                                                    {totalRatingChange})
+                                                <Typography variant="body2">
+                                                    {myRating}{' '}
+                                                    <Typography
+                                                        color={totalRatingChange > 0 ? 'success.main' : 'error.main'}
+                                                        component="span"
+                                                        sx={{ fontWeight: 600 }}
+                                                        variant="body2"
+                                                    >
+                                                        ({totalRatingChange > 0 ? '+' : ''}{totalRatingChange})
+                                                    </Typography>
                                                 </Typography>
                                             )}
                                         </>
@@ -243,6 +244,8 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                     <TableCell>
                                         {match.is_bye ? (
                                             <Chip color="default" label="Bye" size="small" variant="outlined" />
+                                        ) : !match.completed ? (
+                                            <Chip color="warning" label="Not Played" size="small" variant="outlined" />
                                         ) : (
                                             <Chip
                                                 color={won ? 'success' : 'error'}
@@ -257,16 +260,15 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                     </TableCell>
                                     <TableCell>
                                         {!match.is_bye && games.length > 0 ? (
-                                            <Typography
-                                                color={
-                                                    totalRatingChange > 0
-                                                        ? 'success.main'
-                                                        : 'error.main'
-                                                }
-                                                sx={{ fontWeight: 600 }}
-                                            >
-                                                {myRating} ({totalRatingChange > 0 ? '+' : ''}
-                                                {totalRatingChange})
+                                            <Typography>
+                                                {myRating}{' '}
+                                                <Typography
+                                                    color={totalRatingChange > 0 ? 'success.main' : 'error.main'}
+                                                    component="span"
+                                                    sx={{ fontWeight: 600 }}
+                                                >
+                                                    ({totalRatingChange > 0 ? '+' : ''}{totalRatingChange})
+                                                </Typography>
                                             </Typography>
                                         ) : (
                                             '—'

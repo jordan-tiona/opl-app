@@ -249,6 +249,20 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     return db_match
 
 
+@router.patch("/{match_id}/incompleted/", response_model=Match)
+def mark_incompleted(match_id: int, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if db_match.completed:
+        raise HTTPException(status_code=400, detail="Cannot mark a completed match as incompleted")
+    db_match.incompleted = True
+    session.add(db_match)
+    session.commit()
+    session.refresh(db_match)
+    return db_match
+
+
 @router.delete("/{match_id}/")
 def delete_match(match_id: int, session: Session = Depends(get_session), _admin: User = Depends(require_admin)):
     db_match = session.get(Match, match_id)

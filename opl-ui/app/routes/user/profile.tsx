@@ -60,12 +60,12 @@ export const ProfilePage: React.FC = () => {
     }, [games, player])
 
     const now = Date.now()
-    const isPastBye = (m: NonNullable<typeof matches>[number]) =>
-        m.is_bye && new Date(m.scheduled_date).getTime() < now
+    const isPastDue = (m: NonNullable<typeof matches>[number]) =>
+        !m.completed && new Date(m.scheduled_date).getTime() < now
 
     const upcomingMatches =
         matches
-            ?.filter((m) => !m.completed && !isPastBye(m))
+            ?.filter((m) => !m.completed && !isPastDue(m))
             .sort(
                 (a, b) =>
                     new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime(),
@@ -73,7 +73,7 @@ export const ProfilePage: React.FC = () => {
 
     const completedMatches =
         matches
-            ?.filter((m) => m.completed || isPastBye(m))
+            ?.filter((m) => m.completed || isPastDue(m))
             .sort(
                 (a, b) =>
                     new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime(),

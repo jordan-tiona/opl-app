@@ -1,4 +1,4 @@
-import { Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
+import { Block as BlockIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, Print as PrintIcon } from '@mui/icons-material'
 import {
     Box,
     Card,
@@ -46,10 +46,11 @@ interface MatchCardProps {
     expanded: boolean
     onToggle: (matchId: number) => void
     onDelete?: (matchId: number) => void
+    onMarkIncompleted?: (matchId: number) => void
 }
 
 export const MatchCard: React.FC<MatchCardProps> = memo(
-    ({ match, players, expanded, onToggle, onDelete }: MatchCardProps) => {
+    ({ match, players, expanded, onToggle, onDelete, onMarkIncompleted }: MatchCardProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
 
@@ -81,12 +82,12 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                         }}
                     >
                         <Chip
-                            color={match.is_bye ? 'default' : match.completed ? 'success' : 'primary'}
-                            label={match.is_bye ? 'Bye' : match.completed ? 'Completed' : 'Scheduled'}
+                            color={match.is_bye ? 'default' : match.incompleted ? 'warning' : match.completed ? 'success' : 'primary'}
+                            label={match.is_bye ? 'Bye' : match.incompleted ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
                         <Box sx={{ flex: 1 }} />
-                        {!match.completed && !match.is_bye && (
+                        {!match.completed && !match.incompleted && !match.is_bye && (
                             <Tooltip title="Print score sheet">
                                 <IconButton
                                     size="small"
@@ -96,6 +97,20 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                                     }}
                                 >
                                     <PrintIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                        {onMarkIncompleted && !match.completed && !match.incompleted && !match.is_bye && (
+                            <Tooltip title="Mark as not played">
+                                <IconButton
+                                    color="warning"
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onMarkIncompleted(match.match_id)
+                                    }}
+                                >
+                                    <BlockIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
                         )}

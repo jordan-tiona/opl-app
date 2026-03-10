@@ -29,6 +29,7 @@ import {
     useDeleteMatch,
     useDeletePlayer,
     useDivisions,
+    useMarkIncompletedMatch,
     useMatches,
     usePlayer,
     usePlayerDivisions,
@@ -58,6 +59,7 @@ export const PlayerDetailPage: React.FC = () => {
     const { data: allPlayers } = usePlayers()
 
     const deleteMatch = useDeleteMatch()
+    const markIncompletedMatch = useMarkIncompletedMatch()
     const [formData, setFormData] = useState<Partial<Player>>({})
     const [isEditing, setIsEditing] = useState(false)
     const [expandedMatch, setExpandedMatch] = useState<number | null>(null)
@@ -401,6 +403,7 @@ export const PlayerDetailPage: React.FC = () => {
                                     match={match}
                                     players={allPlayers}
                                     onDelete={user?.is_admin ? setDeleteMatchId : undefined}
+                                    onMarkIncompleted={user?.is_admin ? (id) => markIncompletedMatch.mutate(id) : undefined}
                                     onToggle={handleToggleMatch}
                                 />
                             ) : (
@@ -410,6 +413,7 @@ export const PlayerDetailPage: React.FC = () => {
                                     match={match}
                                     players={allPlayers}
                                     onDelete={user?.is_admin ? setDeleteMatchId : undefined}
+                                    onMarkIncompleted={user?.is_admin ? (id) => markIncompletedMatch.mutate(id) : undefined}
                                     onToggle={handleToggleMatch}
                                 />
                             ),
