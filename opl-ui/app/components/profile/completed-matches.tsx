@@ -77,6 +77,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                     const isPlayer1 = match.player1_id === player.player_id
                     const opponentId = isPlayer1 ? match.player2_id : match.player1_id
                     const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
+                    const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
                     const won = match.winner_id === player.player_id
                     const date = new Date(match.scheduled_date)
                     const datePart = date.toLocaleDateString('en-US', {
@@ -130,8 +131,8 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                                     sx={{ fontWeight: 600 }}
                                                     variant="body2"
                                                 >
-                                                    {totalRatingChange > 0 ? '+' : ''}
-                                                    {totalRatingChange}
+                                                    {myRating} ({totalRatingChange > 0 ? '+' : ''}
+                                                    {totalRatingChange})
                                                 </Typography>
                                             )}
                                         </>
@@ -204,6 +205,7 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                         const isPlayer1 = match.player1_id === player.player_id
                         const opponentId = isPlayer1 ? match.player2_id : match.player1_id
                         const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
+                        const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
                         const won = match.winner_id === player.player_id
                         const date = new Date(match.scheduled_date)
                         const datePart = date.toLocaleDateString('en-US', {
@@ -263,8 +265,8 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                                                 }
                                                 sx={{ fontWeight: 600 }}
                                             >
-                                                {totalRatingChange > 0 ? '+' : ''}
-                                                {totalRatingChange}
+                                                {myRating} ({totalRatingChange > 0 ? '+' : ''}
+                                                {totalRatingChange})
                                             </Typography>
                                         ) : (
                                             '—'
