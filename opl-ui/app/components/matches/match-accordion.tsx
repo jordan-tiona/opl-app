@@ -201,7 +201,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             <Divider sx={{ my: 2 }} />
 
                             {match.completed && existingGames && existingGames.length > 0 ? (
-                                <GameResults games={existingGames} players={players} />
+                                <GameResults games={existingGames} match={match} players={players} />
                             ) : player1 && player2 ? (
                                 <GameRecorder
                                     matchId={match.match_id}

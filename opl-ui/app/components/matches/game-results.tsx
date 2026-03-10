@@ -1,15 +1,15 @@
 import { TrendingDown as TrendingDownIcon, TrendingUp as TrendingUpIcon } from '@mui/icons-material'
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 
-import type { Game, Player } from '~/lib/types'
-import { getMatchWeight } from '~/lib/utils'
+import type { Game, Match, Player } from '~/lib/types'
 
 interface GameResultsProps {
     games: Game[]
+    match: Match
     players: Player[]
 }
 
-export const GameResults: React.FC<GameResultsProps> = ({ games, players }: GameResultsProps) => {
+export const GameResults: React.FC<GameResultsProps> = ({ games, match, players }: GameResultsProps) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -21,11 +21,12 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
             {games.map((game, index) => {
                 const winner = players.find((p) => p.player_id === game.winner_id)
                 const loser = players.find((p) => p.player_id === game.loser_id)
-                const [winnerWeight, loserWeight] = getMatchWeight(
-                    game.winner_rating,
-                    game.loser_rating,
-                )
-                const loserScore = loserWeight - game.balls_remaining
+                // Use the match's stored weights (set at match creation from initial ratings)
+                // to correctly decode balls_remaining, which was recorded using those same weights.
+                const isPlayer1Winner = game.winner_id === match.player1_id
+                const thisWinnerWeight = isPlayer1Winner ? match.player1_weight : (match.player2_weight ?? 8)
+                const thisLoserWeight = isPlayer1Winner ? (match.player2_weight ?? 8) : match.player1_weight
+                const loserScore = thisLoserWeight - game.balls_remaining
                 const winnerNewRating = game.winner_rating + game.winner_rating_change
                 const loserNewRating = game.loser_rating + game.loser_rating_change
 
@@ -47,7 +48,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                                 fontWeight={600}
                                 sx={{ mb: 0.5 }}
                             >
-                                {winnerWeight}:{loserScore}
+                                {thisWinnerWeight}:{loserScore}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                 <TrendingUpIcon
@@ -118,7 +119,7 @@ export const GameResults: React.FC<GameResultsProps> = ({ games, players }: Game
                             )
                         </Typography>
                         <Typography fontWeight={600}>
-                            {winnerWeight}:{loserScore}
+                            {thisWinnerWeight}:{loserScore}
                         </Typography>
                         <Typography component="span">
                             {loser?.first_name} {loser?.last_name} ({loserNewRating}
