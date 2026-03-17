@@ -131,11 +131,6 @@ export const Dashboard: React.FC = () => {
     const { data: divisions } = useDivisions()
     const { data: sessions } = useSessions({ active: true })
 
-    const divisionMap = useMemo(
-        () => new Map(divisions?.map((d) => [d.division_id, d.name]) ?? []),
-        [divisions],
-    )
-
     const totalPlayers = players?.length ?? 0
     const totalGames = Math.floor((players?.reduce((sum, p) => sum + p.games_played, 0) ?? 0) / 2)
     const topRating = players?.length ? Math.max(...players.map((p) => p.rating)) : 0

@@ -13,8 +13,8 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useState } from 'react'
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { api } from '../../lib/api'
 import { useSnackbar } from '../../lib/snackbar'
@@ -39,33 +39,42 @@ export const JoinPage: React.FC = () => {
     }
 
     const validate = (): string | null => {
-        if (!name.trim()) return 'Name is required'
+        if (!name.trim()) {return 'Name is required'}
+
         if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-            return 'A valid email is required'
-        if (!phone.trim()) return 'Phone number is required'
-        if (nights.length === 0) return 'Select at least one preferred night'
+            {return 'A valid email is required'}
+
+        if (!phone.trim()) {return 'Phone number is required'}
+
+        if (nights.length === 0) {return 'Select at least one preferred night'}
+
         return null
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const error = validate()
+
         if (error) {
             showSnackbar(error, 'error')
+
             return
         }
         if (DEMO_MODE) {
             showSnackbar('Join form is disabled in demo mode', 'info')
             return
         }
+
         if (!executeRecaptcha) {
             showSnackbar('reCAPTCHA not ready, please try again', 'error')
+
             return
         }
 
         setSubmitting(true)
         try {
             const recaptchaToken = await executeRecaptcha('join')
+
             await api.join.submit({ name: name.trim(), email: email.trim(), phone: phone.trim(), nights, recaptchaToken })
             showSnackbar('Your request has been submitted!', 'success')
             setName('')

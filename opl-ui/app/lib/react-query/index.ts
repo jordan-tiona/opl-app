@@ -21,3 +21,9 @@ export { useScores } from './scores'
 
 // Message hooks
 export { useMessages, useMessage, useCreateMessage, useMarkMessageRead, useDeleteMessage } from './messages'
+
+// Score submission hooks
+export { useMatchScoreSubmission, useSubmitMatchScore, useConfirmMatchScore, useDisputeMatchScore } from './score-submission'
+
+// Payment hooks
+export { useMatchPayments, usePlayerPayments, useReportPayment, useConfirmPayment } from './payment'

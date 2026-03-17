@@ -35,6 +35,7 @@ import { useNavigate, useParams } from 'react-router'
 
 import { DeleteConfirmDialog } from '~/components/common'
 import { ScheduleRoundRobinDialog } from '~/components/divisions'
+import { useAuth } from '~/lib/auth'
 import {
     useDeleteSession,
     useDivisionPlayers,
@@ -43,7 +44,6 @@ import {
     useSession,
     useUpdateSession,
 } from '~/lib/react-query'
-import { useAuth } from '~/lib/auth'
 import { useSnackbar } from '~/lib/snackbar'
 import type { Session } from '~/lib/types'
 
@@ -214,6 +214,7 @@ export const SessionDetailPage: React.FC = () => {
                                     checked={formData.match_time !== null && formData.match_time !== undefined}
                                     onChange={(e) => {
                                         const newTime = e.target.checked ? '19:00' : null
+
                                         setFormData((prev) => ({ ...prev, match_time: newTime }))
                                         setHasChanges(true)
                                         setMatchTimeChanged(newTime !== session?.match_time)
@@ -236,6 +237,7 @@ export const SessionDetailPage: React.FC = () => {
                                 value={formData.match_time}
                                 onChange={(e) => {
                                     const { value } = e.target
+
                                     setFormData((prev) => ({ ...prev, match_time: value }))
                                     setHasChanges(true)
                                     setMatchTimeChanged(value !== session?.match_time)

@@ -8,8 +8,8 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useState } from 'react'
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { api } from '../../lib/api'
 import { useSnackbar } from '../../lib/snackbar'
@@ -26,30 +26,37 @@ export const ContactPage: React.FC = () => {
     const { showSnackbar } = useSnackbar()
 
     const validate = (): string | null => {
-        if (!reason) return 'Please select a reason for contact'
-        if (!message.trim()) return 'Message is required'
+        if (!reason) {return 'Please select a reason for contact'}
+
+        if (!message.trim()) {return 'Message is required'}
+
         return null
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const error = validate()
+
         if (error) {
             showSnackbar(error, 'error')
+
             return
         }
         if (DEMO_MODE) {
             showSnackbar('Contact form is disabled in demo mode', 'info')
             return
         }
+
         if (!executeRecaptcha) {
             showSnackbar('reCAPTCHA not ready, please try again', 'error')
+
             return
         }
 
         setSubmitting(true)
         try {
             const recaptchaToken = await executeRecaptcha('contact')
+
             await api.contact.submit({ reason, message: message.trim(), recaptchaToken })
             showSnackbar('Your message has been sent!', 'success')
             setReason('')

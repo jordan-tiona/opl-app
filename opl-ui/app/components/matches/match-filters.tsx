@@ -95,6 +95,7 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
             />
 
             <Autocomplete
+                fullWidth
                 filterOptions={(options, { inputValue }) => {
                     const term = inputValue.toLowerCase()
 
@@ -104,7 +105,6 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                             String(p.player_id).includes(term),
                     )
                 }}
-                fullWidth
                 getOptionLabel={(option) =>
                     `${option.first_name} ${option.last_name} (#${option.player_id})`
                 }

@@ -29,6 +29,31 @@ export interface Match {
     winner_id: number | null
     loser_id: number | null
     deleted: boolean
+    score_status: 'pending' | 'confirmed' | 'disputed' | null
+}
+
+export interface MatchScoreSubmission {
+    submission_id: number
+    match_id: number
+    submitted_by_player_id: number
+    games_json: string
+    submitted_at: string
+    confirmed_by_player_id: number | null
+    confirmed_at: string | null
+    disputed_by_player_id: number | null
+    disputed_at: string | null
+    status: 'pending' | 'confirmed' | 'disputed'
+}
+
+export interface Payment {
+    payment_id: number
+    match_id: number
+    player_id: number
+    amount: number
+    payment_method: string | null
+    player_confirmed_at: string | null
+    admin_confirmed_at: string | null
+    status: 'unpaid' | 'player_pending' | 'confirmed'
 }
 
 export interface Game {

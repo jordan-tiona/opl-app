@@ -2,7 +2,6 @@ import CssBaseline from '@mui/material/CssBaseline'
 import LinearProgress from '@mui/material/LinearProgress'
 import { ThemeProvider } from '@mui/material/styles'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-
 import { QueryClient, QueryClientProvider, useIsFetching } from '@tanstack/react-query'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router'
 

@@ -13,8 +13,8 @@ import {
 import { memo, useCallback, useState } from 'react'
 
 
-import { useGames, useMarkIncompletedMatch, useRescoreMatch } from '~/lib/react-query'
-import type { Game, Match, Player } from '~/lib/types'
+import { useGames, useRescoreMatch } from '~/lib/react-query'
+import type { Game, GameInput, Match, Player } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
 
 import { GameRecorder } from './game-recorder'
@@ -22,9 +22,12 @@ import { GameResults } from './game-results'
 
 function formatDate(dateString: string, isWeekly: boolean): string {
     const date = new Date(dateString)
+
     if (isWeekly) {
         const monday = new Date(date)
+
         monday.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1))
+
         return 'Week of ' + monday.toLocaleDateString('en-US', {
             weekday: 'short',
             year: 'numeric',
@@ -32,6 +35,7 @@ function formatDate(dateString: string, isWeekly: boolean): string {
             day: 'numeric',
         })
     }
+
     return date.toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
@@ -87,7 +91,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
             })
 
         const handleRescore = useCallback(
-            async (gameInputs: import('~/lib/types').GameInput[]) => {
+            async (gameInputs: GameInput[]) => {
                 await rescoreMatch.mutateAsync({ id: match.match_id, games: gameInputs })
                 setIsEditing(false)
             },
@@ -226,10 +230,10 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             {match.completed && existingGames && existingGames.length > 0 ? (
                                 isEditing && player1 && player2 ? (
                                     <GameRecorder
+                                        initialGames={buildInitialScores(existingGames, p1Weight!, p2Weight!)}
                                         matchId={match.match_id}
                                         player1={player1}
                                         player2={player2}
-                                        initialGames={buildInitialScores(existingGames, p1Weight!, p2Weight!)}
                                         weights={[p1Weight!, p2Weight!]}
                                         onSubmit={handleRescore}
                                     />

@@ -3,8 +3,7 @@ import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { ScoreSheet } from '~/components/matches/score-sheet'
-import { useMatch, useMatches } from '~/lib/react-query'
-import { usePlayers } from '~/lib/react-query'
+import { useMatch, useMatches , usePlayers } from '~/lib/react-query'
 
 const PrintMatchesPage: React.FC = () => {
     const [searchParams] = useSearchParams()
@@ -41,20 +40,24 @@ const PrintMatchesPage: React.FC = () => {
             hasPrinted.current = true
             const d = new Date(matches[0].scheduled_date)
             const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}-${d.getFullYear()}`
+
             if (matchId && players) {
                 const m = matches[0]
                 const p1 = players.find((p) => p.player_id === m.player1_id)
                 const p2 = players.find((p) => p.player_id === m.player2_id)
                 const p1Name = p1 ? `${p1.first_name} ${p1.last_name}` : 'Unknown'
                 const p2Name = p2 ? `${p2.first_name} ${p2.last_name}` : 'Unknown'
+
                 document.title = `${p1Name} vs ${p2Name} - ${dateStr}`
             } else {
                 document.title = `Score Sheets - ${dateStr}`
             }
+
             const timer = setTimeout(() => window.print(), 500)
+
             return () => clearTimeout(timer)
         }
-    }, [isLoading, matches.length, players, matchId])
+    }, [isLoading, matches, players, matchId])
 
     if (error) {
         return <Alert severity="error">Failed to load matches: {error.message}</Alert>

@@ -44,7 +44,7 @@ export const ScoreSheet: React.FC<ScoreSheetProps> = ({ match, players }) => {
     const p2Name = player2 ? `${player2.first_name} ${player2.last_name}` : 'Unknown'
     const p1Rating = player1?.rating ?? match.player1_rating
     const p2Rating = player2?.rating ?? match.player2_rating
-    const [p1Weight, p2Weight] = getMatchWeight(p1Rating, p2Rating)
+    const [p1Weight, p2Weight] = getMatchWeight(p1Rating, p2Rating ?? 0)
 
     return (
         <Box

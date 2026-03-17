@@ -22,6 +22,7 @@ import {
     usePlayers,
     useMatches,
     useGames,
+    usePlayerPayments,
 } from '~/lib/react-query'
 
 export const ProfilePage: React.FC = () => {
@@ -38,6 +39,7 @@ export const ProfilePage: React.FC = () => {
         player_id: effectivePlayerId || undefined,
     })
     const { data: games } = useGames({ player_id: effectivePlayerId || undefined })
+    const { data: payments } = usePlayerPayments(user?.player_id ?? 0)
     // Build rating history from games
     const ratingHistory = useMemo(() => {
         if (!games || !player) {
@@ -68,8 +70,10 @@ export const ProfilePage: React.FC = () => {
 
     const now = Date.now()
     const isPastDue = (m: NonNullable<typeof matches>[number]) => {
-        if (m.completed) return false
+        if (m.completed) {return false}
+
         const gracePeriodMs = m.is_weekly ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+
         return new Date(m.scheduled_date).getTime() + gracePeriodMs <= now
     }
 
@@ -153,6 +157,7 @@ export const ProfilePage: React.FC = () => {
             <UpcomingMatches
                 isLoading={matchesLoading}
                 matches={upcomingMatches}
+                payments={payments}
                 player={player}
                 players={players}
             />

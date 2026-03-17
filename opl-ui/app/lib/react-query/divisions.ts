@@ -54,6 +54,7 @@ export const useUpdateDivision = (): UseMutationResult<
         onSuccess: (_, { id, data }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.divisions })
             queryClient.invalidateQueries({ queryKey: queryKeys.division(id) })
+
             if (data.update_existing_matches) {
                 queryClient.invalidateQueries({ queryKey: ['matches'] })
             }

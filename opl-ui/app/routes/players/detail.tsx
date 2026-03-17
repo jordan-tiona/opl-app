@@ -24,6 +24,7 @@ import { useNavigate, useParams } from 'react-router'
 
 import { DeleteConfirmDialog } from '~/components/common'
 import { MatchAccordion, MatchCard } from '~/components/matches'
+import { useAuth } from '~/lib/auth'
 import {
     useAddPlayerToDivision,
     useDeleteMatch,
@@ -38,7 +39,6 @@ import {
     useUpdatePlayer,
 } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
-import { useAuth } from '~/lib/auth'
 
 export const PlayerDetailPage: React.FC = () => {
     const { id } = useParams()
@@ -73,6 +73,7 @@ export const PlayerDetailPage: React.FC = () => {
         const base = playerDivisions ?? []
         const afterRemove = base.filter((d) => !divisionEdits.removed.includes(d.division_id))
         const addedDivisions = (allDivisions ?? []).filter((d) => divisionEdits.added.includes(d.division_id))
+
         return [...afterRemove, ...addedDivisions]
     }, [playerDivisions, allDivisions, divisionEdits])
 
@@ -372,6 +373,7 @@ export const PlayerDetailPage: React.FC = () => {
                                         value={selectedDivisionId}
                                         onChange={(e) => {
                                             const id = e.target.value as number
+
                                             setDivisionEdits((prev) => ({
                                                 added: prev.added.includes(id) ? prev.added : [...prev.added, id],
                                                 removed: prev.removed.filter((r) => r !== id),
@@ -380,7 +382,7 @@ export const PlayerDetailPage: React.FC = () => {
                                             setAddingDivision(false)
                                         }}
                                         onClose={() => {
-                                            if (!selectedDivisionId) setAddingDivision(false)
+                                            if (!selectedDivisionId) {setAddingDivision(false)}
                                         }}
                                     >
                                         {availableDivisions.map((d) => (

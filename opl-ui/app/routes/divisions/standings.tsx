@@ -367,7 +367,7 @@ export const StandingsPage: React.FC = () => {
             ) : (
                 <>
                     {playerActiveSession && targetDivisionId && (
-                        <Typography color="text.secondary" gutterBottom variant="h5">
+                        <Typography gutterBottom color="text.secondary" variant="h5">
                             {divisionMap.get(targetDivisionId) ?? ''} - {playerActiveSession.name}
                         </Typography>
                     )}

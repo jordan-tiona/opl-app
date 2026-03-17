@@ -54,6 +54,7 @@ export const useUpdateSession = (): UseMutationResult<
         onSuccess: (_, { id, data }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.sessions })
             queryClient.invalidateQueries({ queryKey: queryKeys.session(id) })
+
             if (data.update_existing_matches) {
                 queryClient.invalidateQueries({ queryKey: ['matches'] })
             }

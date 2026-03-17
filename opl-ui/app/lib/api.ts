@@ -2,6 +2,8 @@ import type {
     Player,
     PlayerInput,
     Match,
+    MatchScoreSubmission,
+    Payment,
     Game,
     GameInput,
     ScheduleInput,
@@ -178,9 +180,11 @@ export const api = {
 
         scores: (sessionId: number, divisionId?: number): Promise<PlayerScore[]> => {
             const params = new URLSearchParams({ session_id: sessionId.toString() })
+
             if (divisionId !== undefined) {
                 params.set('division_id', divisionId.toString())
             }
+
             return fetchJson(`${API_BASE}/matches/scores/?${params.toString()}`)
         },
     },
@@ -265,6 +269,40 @@ export const api = {
             fetchJson(`${API_BASE}/messages/${id}/`, {
                 method: 'DELETE',
             }),
+    },
+
+    scoreSubmissions: {
+        get: (matchId: number): Promise<MatchScoreSubmission | null> =>
+            fetchJson(`${API_BASE}/matches/${matchId}/score/`),
+
+        submit: (matchId: number, games: GameInput[]): Promise<MatchScoreSubmission> =>
+            fetchJson(`${API_BASE}/matches/${matchId}/score/`, {
+                method: 'POST',
+                body: JSON.stringify(games),
+            }),
+
+        confirm: (matchId: number): Promise<MatchScoreSubmission> =>
+            fetchJson(`${API_BASE}/matches/${matchId}/score/confirm/`, { method: 'POST' }),
+
+        dispute: (matchId: number): Promise<MatchScoreSubmission> =>
+            fetchJson(`${API_BASE}/matches/${matchId}/score/dispute/`, { method: 'POST' }),
+    },
+
+    payments: {
+        listForPlayer: (playerId: number): Promise<Payment[]> =>
+            fetchJson(`${API_BASE}/payments/?player_id=${playerId}`),
+
+        listForMatch: (matchId: number): Promise<Payment[]> =>
+            fetchJson(`${API_BASE}/payments/${matchId}/`),
+
+        report: (matchId: number, paymentMethod: string): Promise<Payment> =>
+            fetchJson(`${API_BASE}/payments/${matchId}/`, {
+                method: 'POST',
+                body: JSON.stringify({ payment_method: paymentMethod }),
+            }),
+
+        confirm: (matchId: number, playerId: number): Promise<Payment> =>
+            fetchJson(`${API_BASE}/payments/${matchId}/${playerId}/confirm/`, { method: 'PATCH' }),
     },
 
     contact: {

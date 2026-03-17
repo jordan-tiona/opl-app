@@ -44,7 +44,8 @@ import { useSnackbar } from '../../lib/snackbar'
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const isInAppBrowser = () => {
-    if (typeof navigator === 'undefined') return false
+    if (typeof navigator === 'undefined') {return false}
+
     return /FBAN|FBAV|Instagram|FB_IAB/.test(navigator.userAgent)
 }
 
@@ -90,11 +91,9 @@ const InAppBrowserBanner: React.FC = () => {
 
     return (
         <Alert
-            severity="warning"
-            sx={{ borderRadius: 0 }}
             action={
                 intentUrl ? (
-                    <Button color="inherit" size="small" component="a" href={intentUrl}>
+                    <Button color="inherit" component="a" href={intentUrl} size="small">
                         Open in Browser
                     </Button>
                 ) : (
@@ -103,6 +102,8 @@ const InAppBrowserBanner: React.FC = () => {
                     </Button>
                 )
             }
+            severity="warning"
+            sx={{ borderRadius: 0 }}
         >
             Sign-in doesn't work inside Facebook or Instagram.{' '}
             {intentUrl ? 'Tap to open in your browser.' : 'Copy the link and paste it into Safari or Chrome.'}

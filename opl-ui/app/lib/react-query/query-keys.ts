@@ -20,4 +20,7 @@ export const queryKeys = {
     scores: (sessionId: number) => ['scores', sessionId] as const,
     messages: ['messages'] as const,
     message: (id: number) => ['messages', id] as const,
+    scoreSubmission: (matchId: number) => ['score-submission', matchId] as const,
+    payments: (matchId: number) => ['payments', matchId] as const,
+    playerPayments: (playerId: number) => ['payments', 'player', playerId] as const,
 }

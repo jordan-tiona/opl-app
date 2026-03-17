@@ -10,13 +10,13 @@ import {
 } from '@mui/material'
 
 import { useGames } from '~/lib/react-query'
-import type { Player } from '~/lib/types'
+import type { Match, Player } from '~/lib/types'
 
 interface MatchGamesDetailProps {
     matchId: number
     playerId: number
     players?: Player[]
-    match?: import('~/lib/types').Match
+    match?: Match
 }
 
 export const MatchGamesDetail: React.FC<MatchGamesDetailProps> = ({
