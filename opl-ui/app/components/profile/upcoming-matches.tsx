@@ -90,7 +90,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                                 ) : (
                                     <>
                                         <Typography sx={{ mb: 1 }} variant="h6">
-                                            vs. {opponentName} ({oppRating})
+                                            vs. {opponentName} ({currentOppRating})
                                         </Typography>
                                         <Typography color="primary" variant="body1">
                                             Weight: {weight}
@@ -143,7 +143,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                             <TableRow key={match.match_id}>
                                 <TableCell>{formattedDate}</TableCell>
                                 <TableCell>
-                                    {match.is_bye ? 'Bye week' : `vs. ${opponentName} (${oppRating})`}
+                                    {match.is_bye ? 'Bye week' : `vs. ${opponentName} (${currentOppRating})`}
                                 </TableCell>
                                 <TableCell>{match.is_bye ? '—' : weight}</TableCell>
                             </TableRow>
