@@ -13,6 +13,7 @@ from routers.game import router as game_router
 from routers.join import router as join_router
 from routers.match import router as match_router
 from routers.message import router as message_router
+from routers.payment import router as payment_router
 from routers.player import router as player_router
 from routers.session import router as session_router
 from services.auth import DEMO_MODE, JWT_ALGORITHM, JWT_SECRET
@@ -64,6 +65,7 @@ app.include_router(match_router)
 app.include_router(game_router)
 app.include_router(division_router)
 app.include_router(message_router)
+app.include_router(payment_router)
 app.include_router(contact_router)
 app.include_router(join_router)
 app.include_router(session_router)

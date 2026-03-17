@@ -1,3 +1,4 @@
+import json
 from datetime import date as date_type
 from datetime import datetime, timedelta
 
@@ -5,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
 from sqlmodel import Session, SQLModel, select
 
-from models import Division, DivisionPlayer, Game, Match, Player, User
+from models import Division, DivisionPlayer, Game, Match, MatchScoreSubmission, Message, MessageRecipient, Player, User
 from services.auth import get_current_user, require_admin
 from services.database import get_session
 
@@ -384,6 +385,184 @@ def mark_incompleted(match_id: int, session: Session = Depends(get_session), _ad
     session.commit()
     session.refresh(db_match)
     return db_match
+
+
+def _match_week_bounds(scheduled_date: datetime) -> tuple[datetime, datetime]:
+    """Return the Monday 00:00 and Sunday 23:59:59 of the week containing scheduled_date."""
+    monday = scheduled_date - timedelta(days=scheduled_date.weekday())
+    week_start = monday.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_end = week_start + timedelta(days=6, hours=23, minutes=59, seconds=59)
+    return week_start, week_end
+
+
+@router.get("/{match_id}/score/", response_model=MatchScoreSubmission | None)
+def get_match_score(
+    match_id: int,
+    session: Session = Depends(get_session),
+    _user: User = Depends(get_current_user),
+):
+    return session.exec(
+        select(MatchScoreSubmission).where(MatchScoreSubmission.match_id == match_id)
+    ).first()
+
+
+@router.post("/{match_id}/score/", response_model=MatchScoreSubmission)
+def submit_match_score(
+    match_id: int,
+    games: list[GameInput],
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if db_match.completed:
+        raise HTTPException(status_code=400, detail="Match is already completed")
+    if db_match.is_bye:
+        raise HTTPException(status_code=400, detail="Cannot score a bye match")
+    if not user.player_id:
+        raise HTTPException(status_code=403, detail="No player linked to this account")
+    if user.player_id not in (db_match.player1_id, db_match.player2_id):
+        raise HTTPException(status_code=403, detail="You are not a participant in this match")
+
+    # Enforce scoring window: Mon–Sun of the match week
+    week_start, week_end = _match_week_bounds(db_match.scheduled_date)
+    now = datetime.utcnow()
+    if not (week_start <= now <= week_end):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Match scoring is only available during the week of the match "
+                   f"({week_start.date()} – {week_end.date()})",
+        )
+
+    # Validate that submitted player IDs match the match participants
+    valid_player_ids = {db_match.player1_id, db_match.player2_id}
+    for g in games:
+        if g.winner_id not in valid_player_ids or g.loser_id not in valid_player_ids:
+            raise HTTPException(status_code=400, detail="Game player IDs must match match participants")
+        if g.winner_id == g.loser_id:
+            raise HTTPException(status_code=400, detail="Winner and loser cannot be the same player")
+
+    # Remove any prior submission (allow resubmission while still pending)
+    existing = session.exec(
+        select(MatchScoreSubmission).where(MatchScoreSubmission.match_id == match_id)
+    ).first()
+    if existing:
+        if existing.status == "confirmed":
+            raise HTTPException(status_code=400, detail="Score is already confirmed")
+        session.delete(existing)
+        session.flush()
+
+    submission = MatchScoreSubmission(
+        match_id=match_id,
+        submitted_by_player_id=user.player_id,
+        games_json=json.dumps([g.model_dump() for g in games]),
+        status="pending",
+    )
+    session.add(submission)
+    db_match.score_status = "pending"
+    session.add(db_match)
+    session.commit()
+    session.refresh(submission)
+    return submission
+
+
+@router.post("/{match_id}/score/confirm/", response_model=MatchScoreSubmission)
+def confirm_match_score(
+    match_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if not user.player_id:
+        raise HTTPException(status_code=403, detail="No player linked to this account")
+    if user.player_id not in (db_match.player1_id, db_match.player2_id):
+        raise HTTPException(status_code=403, detail="You are not a participant in this match")
+
+    submission = session.exec(
+        select(MatchScoreSubmission).where(MatchScoreSubmission.match_id == match_id)
+    ).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="No score submission found for this match")
+    if submission.status != "pending":
+        raise HTTPException(status_code=400, detail=f"Score is already {submission.status}")
+    if submission.submitted_by_player_id == user.player_id:
+        raise HTTPException(status_code=400, detail="You cannot confirm your own score submission")
+
+    submission.confirmed_by_player_id = user.player_id
+    submission.confirmed_at = datetime.utcnow()
+    submission.status = "confirmed"
+    db_match.score_status = "confirmed"
+    session.add(submission)
+    session.add(db_match)
+    session.commit()
+    session.refresh(submission)
+    return submission
+
+
+@router.post("/{match_id}/score/dispute/", response_model=MatchScoreSubmission)
+def dispute_match_score(
+    match_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_match = session.get(Match, match_id)
+    if not db_match or db_match.deleted:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if not user.player_id:
+        raise HTTPException(status_code=403, detail="No player linked to this account")
+    if user.player_id not in (db_match.player1_id, db_match.player2_id):
+        raise HTTPException(status_code=403, detail="You are not a participant in this match")
+
+    submission = session.exec(
+        select(MatchScoreSubmission).where(MatchScoreSubmission.match_id == match_id)
+    ).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="No score submission found for this match")
+    if submission.status != "pending":
+        raise HTTPException(status_code=400, detail=f"Score is already {submission.status}")
+    if submission.submitted_by_player_id == user.player_id:
+        raise HTTPException(status_code=400, detail="You cannot dispute your own score submission")
+
+    submission.disputed_by_player_id = user.player_id
+    submission.disputed_at = datetime.utcnow()
+    submission.status = "disputed"
+    db_match.score_status = "disputed"
+    session.add(submission)
+    session.add(db_match)
+
+    # Auto-create a system message to notify admin and both players
+    player1 = session.get(Player, db_match.player1_id)
+    player2 = session.get(Player, db_match.player2_id)
+    p1_name = f"{player1.first_name} {player1.last_name}" if player1 else f"Player {db_match.player1_id}"
+    p2_name = f"{player2.first_name} {player2.last_name}" if player2 else f"Player {db_match.player2_id}"
+
+    # Find an admin user to act as sender
+    from models.user import User as UserModel
+    admin_user = session.exec(select(UserModel).where(UserModel.is_admin == True)).first()  # noqa: E712
+    if admin_user:
+        msg = Message(
+            subject=f"Score Dispute – Match #{match_id}",
+            body=(
+                f"A score dispute has been submitted for the match between {p1_name} and {p2_name} "
+                f"(Match #{match_id}).\n\n"
+                f"The submitted score was disputed by {p1_name if user.player_id == db_match.player1_id else p2_name}. "
+                f"Please review and resolve the dispute."
+            ),
+            sender_id=admin_user.user_id,
+            recipient_type="player",
+        )
+        session.add(msg)
+        session.flush()
+
+        for pid in (db_match.player1_id, db_match.player2_id):
+            session.add(MessageRecipient(message_id=msg.message_id, player_id=pid))
+
+    session.commit()
+    session.refresh(submission)
+    return submission
 
 
 @router.delete("/{match_id}/")
