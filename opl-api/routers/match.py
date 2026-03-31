@@ -181,6 +181,11 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
 
     from utils import calculate_rating_change
 
+    player1 = session.get(Player, db_match.player1_id)
+    player2 = session.get(Player, db_match.player2_id)
+    db_match.player1_rating = player1.rating if player1 else db_match.player1_rating
+    db_match.player2_rating = player2.rating if player2 else db_match.player2_rating
+
     for game_input in games:
         winner = session.get(Player, game_input.winner_id)
         loser = session.get(Player, game_input.loser_id)
@@ -220,9 +225,6 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     session.add(db_match)
 
     # Update ratings in uncompleted, non-deleted matches for both players
-    player1 = session.get(Player, db_match.player1_id)
-    player2 = session.get(Player, db_match.player2_id)
-
     uncompleted_matches = session.exec(
         select(Match).where(
             not Match.completed,

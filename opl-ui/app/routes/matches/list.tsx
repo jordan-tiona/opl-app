@@ -24,10 +24,30 @@ const MatchesPage: React.FC = () => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-    const today = new Date().toISOString().split('T')[0]
-    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const toLocalDateString = (d: Date) => {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
 
-    const [dateRange, setDateRange] = useState({ start: today, end: nextWeek })
+        const day = String(d.getDate()).padStart(2, '0')
+
+        return `${y}-${m}-${day}`
+    }
+
+    const today = new Date()
+
+    const monday = new Date(today)
+
+    monday.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1))
+
+    const startOfWeek = toLocalDateString(monday)
+
+    const nextWeek = new Date(today)
+
+    nextWeek.setDate(today.getDate() + 7)
+
+    const endOfNextWeek = toLocalDateString(nextWeek)
+
+    const [dateRange, setDateRange] = useState({ start: startOfWeek, end: endOfNextWeek })
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
     const [sessionId, setSessionId] = useState<number | null>(null)
     const [divisionId, setDivisionId] = useState<number | null>(null)
