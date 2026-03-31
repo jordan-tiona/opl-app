@@ -57,6 +57,10 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
         const { data: existingGames } = useGames({
             match_id: expanded ? match.match_id : undefined,
         })
+        const weekEnd = new Date(match.scheduled_date)
+        weekEnd.setDate(weekEnd.getDate() - weekEnd.getDay() + 7)
+        const isPastDue = !match.completed && !match.incompleted && !match.is_bye && weekEnd < new Date()
+
         const p1Rating = match.completed ? (match.player1_rating ?? 0) : (player1?.rating ?? match.player1_rating ?? 0)
         const p2Rating = match.completed ? (match.player2_rating ?? 0) : (player2?.rating ?? match.player2_rating ?? 0)
         const [p1Weight, p2Weight] = match.is_bye
@@ -82,12 +86,12 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                         }}
                     >
                         <Chip
-                            color={match.is_bye ? 'default' : match.incompleted ? 'warning' : match.completed ? 'success' : 'primary'}
-                            label={match.is_bye ? 'Bye' : match.incompleted ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
+                            color={match.is_bye ? 'default' : (match.incompleted || isPastDue) ? 'warning' : match.completed ? 'success' : 'primary'}
+                            label={match.is_bye ? 'Bye' : (match.incompleted || isPastDue) ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
                         <Box sx={{ flex: 1 }} />
-                        {!match.completed && !match.incompleted && !match.is_bye && (
+                        {!match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Print score sheet">
                                 <IconButton
                                     size="small"
@@ -100,7 +104,7 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                                 </IconButton>
                             </Tooltip>
                         )}
-                        {onMarkIncompleted && !match.completed && !match.incompleted && !match.is_bye && (
+                        {onMarkIncompleted && !match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Mark as not played">
                                 <IconButton
                                     color="warning"

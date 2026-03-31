@@ -59,6 +59,10 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
         const { data: existingGames } = useGames({
             match_id: expanded ? match.match_id : undefined,
         })
+        const weekEnd = new Date(match.scheduled_date)
+        weekEnd.setDate(weekEnd.getDate() - weekEnd.getDay() + 7)
+        const isPastDue = !match.completed && !match.incompleted && !match.is_bye && weekEnd < new Date()
+
         const p1Rating = match.completed ? (match.player1_rating ?? 0) : (player1?.rating ?? match.player1_rating ?? 0)
         const p2Rating = match.completed ? (match.player2_rating ?? 0) : (player2?.rating ?? match.player2_rating ?? 0)
         const [p1Weight, p2Weight] = match.is_bye
@@ -131,11 +135,11 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             </Typography>
                         )}
                         <Chip
-                            color={match.is_bye ? 'default' : match.incompleted ? 'warning' : match.completed ? 'success' : 'primary'}
-                            label={match.is_bye ? 'Bye' : match.incompleted ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
+                            color={match.is_bye ? 'default' : (match.incompleted || isPastDue) ? 'warning' : match.completed ? 'success' : 'primary'}
+                            label={match.is_bye ? 'Bye' : (match.incompleted || isPastDue) ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
-                        {!match.completed && !match.incompleted && !match.is_bye && (
+                        {!match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Print score sheet">
                                 <IconButton
                                     size="small"
@@ -145,20 +149,6 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                                     }}
                                 >
                                     <PrintIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
-                        )}
-                        {onMarkIncompleted && !match.completed && !match.incompleted && !match.is_bye && (
-                            <Tooltip title="Mark as not played">
-                                <IconButton
-                                    color="warning"
-                                    size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onMarkIncompleted(match.match_id)
-                                    }}
-                                >
-                                    <BlockIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
                         )}
@@ -245,11 +235,26 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                                     </Box>
                                 )
                             ) : player1 && player2 ? (
-                                <GameRecorder
-                                    matchId={match.match_id}
-                                    player1={player1}
-                                    player2={player2}
-                                />
+                                <Box>
+                                    <GameRecorder
+                                        matchId={match.match_id}
+                                        player1={player1}
+                                        player2={player2}
+                                    />
+                                    {onMarkIncompleted && !match.incompleted && (
+                                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                                            <Tooltip title="Mark as not played">
+                                                <IconButton
+                                                    color="warning"
+                                                    size="small"
+                                                    onClick={() => onMarkIncompleted(match.match_id)}
+                                                >
+                                                    <BlockIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Box>
+                                    )}
+                                </Box>
                             ) : null}
                         </>
                     )}

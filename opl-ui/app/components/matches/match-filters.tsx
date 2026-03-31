@@ -12,6 +12,7 @@ import DatePicker from 'react-datepicker'
 
 import { useDivisions, useSessions } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
+import { toLocalDateString } from '~/lib/utils'
 
 export type CompletionFilter = 'all' | 'completed' | 'scheduled'
 
@@ -87,8 +88,8 @@ export const MatchFilters: React.FC<MatchFiltersProps> = ({
                 startDate={dateRange.start ? new Date(dateRange.start + 'T00:00:00') : null}
                 onChange={([start, end]) => {
                     onDateRangeChange({
-                        start: start ? start.toISOString().split('T')[0] : '',
-                        end: end ? end.toISOString().split('T')[0] : '',
+                        start: start ? toLocalDateString(start) : '',
+                        end: end ? toLocalDateString(end) : '',
                     })
                 }}
             />

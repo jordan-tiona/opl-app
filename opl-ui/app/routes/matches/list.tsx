@@ -17,30 +17,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { MatchAccordion, MatchCard, MatchFilters } from '~/components/matches'
 import type { CompletionFilter } from '~/components/matches/match-filters'
-import { useMatches, usePlayers } from '~/lib/react-query'
+import { useMarkIncompletedMatch, useMatches, usePlayers } from '~/lib/react-query'
 import type { Player } from '~/lib/types'
+import { toLocalDateString } from '~/lib/utils'
 
 const MatchesPage: React.FC = () => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-    const toLocalDateString = (d: Date) => {
-        const y = d.getFullYear()
-        const m = String(d.getMonth() + 1).padStart(2, '0')
-
-        const day = String(d.getDate()).padStart(2, '0')
-
-        return `${y}-${m}-${day}`
-    }
-
     const today = new Date()
-
     const monday = new Date(today)
 
     monday.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1))
 
     const startOfWeek = toLocalDateString(monday)
-
     const nextWeek = new Date(today)
 
     nextWeek.setDate(today.getDate() + 7)
@@ -82,8 +72,8 @@ const MatchesPage: React.FC = () => {
             oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
 
             setDateRange({
-                start: oneYearAgo.toISOString().split('T')[0],
-                end: oneYearFromNow.toISOString().split('T')[0],
+                start: toLocalDateString(oneYearAgo),
+                end: toLocalDateString(oneYearFromNow),
             })
             setHasExpandedDateRange(true)
         } else if (!selectedPlayer && hasExpandedDateRange) {
@@ -91,6 +81,8 @@ const MatchesPage: React.FC = () => {
             setHasExpandedDateRange(false)
         }
     }, [selectedPlayer, hasExpandedDateRange])
+
+    const markIncompletedMatch = useMarkIncompletedMatch()
 
     const handleToggle = useCallback((matchId: number) => {
         setExpandedMatch((prev) => (prev === matchId ? null : matchId))
@@ -151,9 +143,28 @@ const MatchesPage: React.FC = () => {
             return []
         }
 
+        const isPastDue = (m: typeof matches[0]) => {
+            if (m.completed || m.incompleted || m.is_bye) {
+                return false
+            }
+
+            const weekEnd = new Date(m.scheduled_date)
+
+            weekEnd.setDate(weekEnd.getDate() - weekEnd.getDay() + 7)
+
+            return weekEnd < new Date()
+        }
+
         return [...matches].sort((a, b) => {
             if (a.completed !== b.completed) {
                 return a.completed ? 1 : -1
+            }
+
+            const aPastDue = isPastDue(a)
+            const bPastDue = isPastDue(b)
+
+            if (aPastDue !== bPastDue) {
+                return aPastDue ? 1 : -1
             }
 
             return new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
@@ -253,6 +264,7 @@ const MatchesPage: React.FC = () => {
                                 key={match.match_id}
                                 match={match}
                                 players={players ?? []}
+                                onMarkIncompleted={(id) => markIncompletedMatch.mutate(id)}
                                 onToggle={handleToggle}
                             />
                         ) : (
@@ -261,6 +273,7 @@ const MatchesPage: React.FC = () => {
                                 key={match.match_id}
                                 match={match}
                                 players={players ?? []}
+                                onMarkIncompleted={(id) => markIncompletedMatch.mutate(id)}
                                 onToggle={handleToggle}
                             />
                         ),
