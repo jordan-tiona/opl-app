@@ -69,8 +69,3 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
 
-
-def require_non_demo(user: User = Depends(get_current_user)) -> User:
-    if DEMO_MODE:
-        raise HTTPException(status_code=403, detail="Demo mode: read-only")
-    return user

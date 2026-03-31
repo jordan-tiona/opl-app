@@ -19,6 +19,8 @@ import { useState } from 'react'
 import { api } from '../../lib/api'
 import { useSnackbar } from '../../lib/snackbar'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
 const NIGHTS = ['Tuesday', 'Wednesday', 'Thursday'] as const
 
 export const JoinPage: React.FC = () => {
@@ -50,6 +52,10 @@ export const JoinPage: React.FC = () => {
         const error = validate()
         if (error) {
             showSnackbar(error, 'error')
+            return
+        }
+        if (DEMO_MODE) {
+            showSnackbar('Join form is disabled in demo mode', 'info')
             return
         }
         if (!executeRecaptcha) {
@@ -147,10 +153,13 @@ export const JoinPage: React.FC = () => {
     )
 }
 
-const JoinPageWrapper: React.FC = () => (
-    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
-        <JoinPage />
-    </GoogleReCaptchaProvider>
-)
+const JoinPageWrapper: React.FC = () => {
+    if (DEMO_MODE) return <JoinPage />
+    return (
+        <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
+            <JoinPage />
+        </GoogleReCaptchaProvider>
+    )
+}
 
 export default JoinPageWrapper
