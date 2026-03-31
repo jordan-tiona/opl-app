@@ -44,13 +44,14 @@ interface MatchAccordionProps {
     match: Match
     players: Player[]
     expanded: boolean
+    focusPlayerId?: number
     onToggle: (matchId: number) => void
     onDelete?: (matchId: number) => void
     onMarkIncompleted?: (matchId: number) => void
 }
 
 export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
-    ({ match, players, expanded, onToggle, onDelete, onMarkIncompleted }: MatchAccordionProps) => {
+    ({ match, players, expanded, focusPlayerId, onToggle, onDelete, onMarkIncompleted }: MatchAccordionProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
         const [isEditing, setIsEditing] = useState(false)
@@ -139,6 +140,14 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                             label={match.is_bye ? 'Bye' : (match.incompleted || isPastDue) ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
+                        {focusPlayerId && match.completed && !match.is_bye && (
+                            <Chip
+                                color={match.winner_id === focusPlayerId ? 'success' : 'error'}
+                                label={match.winner_id === focusPlayerId ? 'Won' : 'Lost'}
+                                size="small"
+                                variant="outlined"
+                            />
+                        )}
                         {!match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Print score sheet">
                                 <IconButton

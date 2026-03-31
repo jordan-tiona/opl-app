@@ -122,6 +122,7 @@ export const ProfilePage: React.FC = () => {
             <RatingHistoryCard ratingHistory={ratingHistory} />
 
             <StatsCards
+                currentRating={player.rating}
                 gamesPlayed={player.games_played}
                 matchesWon={completedMatches.filter((m) => m.winner_id === player.player_id).length}
             />

@@ -399,6 +399,7 @@ export const PlayerDetailPage: React.FC = () => {
                             isMobile ? (
                                 <MatchCard
                                     expanded={expandedMatch === match.match_id}
+                                    focusPlayerId={playerId}
                                     key={match.match_id}
                                     match={match}
                                     players={allPlayers}
@@ -409,6 +410,7 @@ export const PlayerDetailPage: React.FC = () => {
                             ) : (
                                 <MatchAccordion
                                     expanded={expandedMatch === match.match_id}
+                                    focusPlayerId={playerId}
                                     key={match.match_id}
                                     match={match}
                                     players={allPlayers}

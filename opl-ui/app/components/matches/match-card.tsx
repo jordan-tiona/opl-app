@@ -44,13 +44,14 @@ interface MatchCardProps {
     match: Match
     players: Player[]
     expanded: boolean
+    focusPlayerId?: number
     onToggle: (matchId: number) => void
     onDelete?: (matchId: number) => void
     onMarkIncompleted?: (matchId: number) => void
 }
 
 export const MatchCard: React.FC<MatchCardProps> = memo(
-    ({ match, players, expanded, onToggle, onDelete, onMarkIncompleted }: MatchCardProps) => {
+    ({ match, players, expanded, focusPlayerId, onToggle, onDelete, onMarkIncompleted }: MatchCardProps) => {
         const player1 = players.find((p) => p.player_id === match.player1_id)
         const player2 = players.find((p) => p.player_id === match.player2_id)
 
@@ -90,6 +91,14 @@ export const MatchCard: React.FC<MatchCardProps> = memo(
                             label={match.is_bye ? 'Bye' : (match.incompleted || isPastDue) ? 'Not Played' : match.completed ? 'Completed' : 'Scheduled'}
                             size="small"
                         />
+                        {focusPlayerId && match.completed && !match.is_bye && (
+                            <Chip
+                                color={match.winner_id === focusPlayerId ? 'success' : 'error'}
+                                label={match.winner_id === focusPlayerId ? 'Won' : 'Lost'}
+                                size="small"
+                                variant="outlined"
+                            />
+                        )}
                         <Box sx={{ flex: 1 }} />
                         {!match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Print score sheet">
