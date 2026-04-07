@@ -23,7 +23,9 @@ The UI will be available at http://localhost:5173.
 
 ## Shortcut script to start both
 ```bash
-./start.sh
+./start.sh              # local API + local DB
+./start.sh --prod       # local API + prod DB (requires fly proxy)
+./start.sh --prod-api   # prod API only, no local API started
 ```
 
 ## Scripts

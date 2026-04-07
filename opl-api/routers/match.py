@@ -179,12 +179,18 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     if not db_match or db_match.deleted:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    from utils import calculate_rating_change
+    from utils import calculate_rating_change, get_match_weight
 
     player1 = session.get(Player, db_match.player1_id)
     player2 = session.get(Player, db_match.player2_id)
     db_match.player1_rating = player1.rating if player1 else db_match.player1_rating
     db_match.player2_rating = player2.rating if player2 else db_match.player2_rating
+
+    # Recalculate weights to match the actual ratings at play time
+    if player1 and player2:
+        w1, w2 = get_match_weight(player1.rating, player2.rating)
+        db_match.player1_weight = w1
+        db_match.player2_weight = w2
 
     for game_input in games:
         winner = session.get(Player, game_input.winner_id)
