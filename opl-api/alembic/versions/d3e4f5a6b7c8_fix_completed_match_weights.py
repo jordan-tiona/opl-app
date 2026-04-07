@@ -45,12 +45,12 @@ def get_match_weight(rating1: int, rating2: int) -> tuple[int, int]:
 
 
 def upgrade() -> None:
-    conn = op.get_bind()
+    conn = op.get_context().connection
     matches = conn.execute(
         sa.text(
             "SELECT match_id, player1_rating, player2_rating "
             "FROM matches "
-            "WHERE completed = 1 AND is_bye = 0 AND deleted = 0 "
+            "WHERE completed = TRUE AND is_bye = FALSE AND deleted = FALSE "
             "AND player2_rating IS NOT NULL"
         )
     ).fetchall()
