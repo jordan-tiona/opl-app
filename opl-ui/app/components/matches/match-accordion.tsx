@@ -100,7 +100,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                 slotProps={{ transition: { unmountOnExit: true } }}
                 onChange={handleToggle}
             >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} slotProps={{ root: { component: 'div' } }}>
                     <Box
                         sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', pr: 2 }}
                     >
@@ -151,6 +151,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                         {!match.completed && !match.incompleted && !match.is_bye && !isPastDue && (
                             <Tooltip title="Print score sheet">
                                 <IconButton
+                                    aria-label="Print score sheet"
                                     size="small"
                                     onClick={(e) => {
                                         e.stopPropagation()
@@ -164,6 +165,7 @@ export const MatchAccordion: React.FC<MatchAccordionProps> = memo(
                         {onDelete && (
                             <Tooltip title="Delete match">
                                 <IconButton
+                                    aria-label="Delete match"
                                     color="error"
                                     size="small"
                                     onClick={(e) => {
