@@ -20,6 +20,7 @@ import { useState } from 'react'
 
 import { useGames } from '~/lib/react-query'
 import type { Match, Player } from '~/lib/types'
+import { getMatchWeight } from '~/lib/utils'
 
 import { MatchGamesDetail } from './'
 
@@ -76,8 +77,10 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                 {matches.map((match) => {
                     const isPlayer1 = match.player1_id === player.player_id
                     const opponentId = isPlayer1 ? match.player2_id : match.player1_id
-                    const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
-                    const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
+                    const p1Rating = match.completed ? (match.player1_rating ?? 0) : (players?.find((p) => p.player_id === match.player1_id)?.rating ?? match.player1_rating ?? 0)
+                    const p2Rating = match.completed ? (match.player2_rating ?? 0) : (players?.find((p) => p.player_id === match.player2_id)?.rating ?? match.player2_rating ?? 0)
+                    const oppRating = isPlayer1 ? p2Rating : p1Rating
+                    const myRating = isPlayer1 ? p1Rating : p2Rating
                     const won = match.winner_id === player.player_id
                     const date = new Date(match.scheduled_date)
                     const datePart = date.toLocaleDateString('en-US', {
@@ -91,7 +94,12 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                         hour12: true,
                     })
                     const formattedDate = `${datePart} at ${timePart}`
-                    const [myWeight, oppWeight] = match.is_bye ? [null, null] : isPlayer1 ? [match.player1_weight, match.player2_weight] : [match.player2_weight, match.player1_weight]
+                    const [p1Weight, p2Weight] = match.is_bye
+                        ? [null, null]
+                        : match.completed
+                          ? [match.player1_weight, match.player2_weight]
+                          : getMatchWeight(p1Rating, p2Rating)
+                    const [myWeight, oppWeight] = isPlayer1 ? [p1Weight, p2Weight] : [p2Weight, p1Weight]
                     const weight = `${myWeight}:${oppWeight}`
                     const isExpanded = expandedMatch === match.match_id
                     const { wins, losses, totalRatingChange, games } = getMatchRecord(
@@ -205,8 +213,10 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                     {matches.map((match) => {
                         const isPlayer1 = match.player1_id === player.player_id
                         const opponentId = isPlayer1 ? match.player2_id : match.player1_id
-                        const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
-                        const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
+                        const p1Rating = match.completed ? (match.player1_rating ?? 0) : (players?.find((p) => p.player_id === match.player1_id)?.rating ?? match.player1_rating ?? 0)
+                        const p2Rating = match.completed ? (match.player2_rating ?? 0) : (players?.find((p) => p.player_id === match.player2_id)?.rating ?? match.player2_rating ?? 0)
+                        const oppRating = isPlayer1 ? p2Rating : p1Rating
+                        const myRating = isPlayer1 ? p1Rating : p2Rating
                         const won = match.winner_id === player.player_id
                         const date = new Date(match.scheduled_date)
                         const datePart = date.toLocaleDateString('en-US', {
@@ -220,7 +230,12 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                             hour12: true,
                         })
                         const formattedDate = `${datePart} at ${timePart}`
-                        const [myWeight, oppWeight] = match.is_bye ? [null, null] : isPlayer1 ? [match.player1_weight, match.player2_weight] : [match.player2_weight, match.player1_weight]
+                        const [p1Weight, p2Weight] = match.is_bye
+                            ? [null, null]
+                            : match.completed
+                              ? [match.player1_weight, match.player2_weight]
+                              : getMatchWeight(p1Rating, p2Rating)
+                        const [myWeight, oppWeight] = isPlayer1 ? [p1Weight, p2Weight] : [p2Weight, p1Weight]
                         const weight = `${myWeight}:${oppWeight}`
                         const isExpanded = expandedMatch === match.match_id
                         const { wins, losses, totalRatingChange, games } = getMatchRecord(
