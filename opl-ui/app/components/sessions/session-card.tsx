@@ -1,4 +1,5 @@
 import {
+    AttachMoney as AttachMoneyIcon,
     CalendarMonth as CalendarMonthIcon,
     Delete as DeleteIcon,
     Launch as LaunchIcon,
@@ -105,6 +106,12 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session, divisionName,
                     </Typography>
                 </Box>
 
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, color: 'text.secondary' }}>
+                    <AttachMoneyIcon fontSize="small" />
+                    <Typography variant="body2">
+                        Dues: ${session.dues}
+                    </Typography>
+                </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, color: 'text.secondary' }}>
                     <SportsScoreIcon fontSize="small" />
                     <Typography variant="body2">

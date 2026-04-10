@@ -108,6 +108,7 @@ export const SessionDetailPage: React.FC = () => {
                 data: {
                     name: formData.name ?? '',
                     match_time: formData.match_time ?? null,
+                    dues: Number(formData.dues ?? 0),
                     active: formData.active ?? true,
                     update_existing_matches: updateExistingMatches,
                 },
@@ -196,6 +197,15 @@ export const SessionDetailPage: React.FC = () => {
                             label="Name"
                             name="name"
                             value={formData.name ?? ''}
+                            onChange={handleInputChange}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Dues ($)"
+                            name="dues"
+                            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+                            type="number"
+                            value={formData.dues ?? 0}
                             onChange={handleInputChange}
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>

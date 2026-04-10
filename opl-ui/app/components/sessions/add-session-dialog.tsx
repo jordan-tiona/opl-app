@@ -18,6 +18,7 @@ import type { SessionInput } from '~/lib/types'
 const initialFormState: SessionInput = {
     name: '',
     match_time: null,
+    dues: 10,
     active: true,
 }
 
@@ -48,7 +49,7 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
 
     const handleSubmit = async () => {
         try {
-            await createSession.mutateAsync(formData)
+            await createSession.mutateAsync({ ...formData, dues: Number(formData.dues) })
             showSnackbar('Session created', 'success')
             onClose()
         } catch (err) {
@@ -67,6 +68,15 @@ export const AddSessionDialog: React.FC<AddSessionDialogProps> = ({
                         label="Name"
                         name="name"
                         value={formData.name}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Dues ($)"
+                        name="dues"
+                        slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+                        type="number"
+                        value={formData.dues}
                         onChange={handleInputChange}
                     />
                     <FormControlLabel
