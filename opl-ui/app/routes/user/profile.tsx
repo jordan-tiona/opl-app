@@ -1,9 +1,12 @@
 import {
+    Alert,
     Box,
+    Button,
     CircularProgress,
     Typography,
 } from '@mui/material'
 import { useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import {
     CompletedMatches,
@@ -23,14 +26,18 @@ import {
 
 export const ProfilePage: React.FC = () => {
     const { user } = useAuth()
-    const { data: player, isLoading: playerLoading } = usePlayer(user?.player_id ?? 0)
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const impersonateId = user?.is_admin ? Number(searchParams.get('player_id')) || null : null
+    const effectivePlayerId = impersonateId ?? user?.player_id ?? 0
+    const { data: player, isLoading: playerLoading } = usePlayer(effectivePlayerId)
     const { data: players } = usePlayers()
-    const { data: playerDivisions } = usePlayerDivisions(user?.player_id ?? 0, true)
+    const { data: playerDivisions } = usePlayerDivisions(effectivePlayerId, true)
     const division = playerDivisions?.[0]
     const { data: matches, isLoading: matchesLoading } = useMatches({
-        player_id: user?.player_id ?? undefined,
+        player_id: effectivePlayerId || undefined,
     })
-    const { data: games } = useGames({ player_id: user?.player_id ?? undefined })
+    const { data: games } = useGames({ player_id: effectivePlayerId || undefined })
     // Build rating history from games
     const ratingHistory = useMemo(() => {
         if (!games || !player) {
@@ -82,7 +89,7 @@ export const ProfilePage: React.FC = () => {
                     new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime(),
             ) ?? []
 
-    if (!user?.player_id) {
+    if (!effectivePlayerId) {
         return (
             <Box sx={{ textAlign: 'center', py: 8 }}>
                 <Typography color="text.secondary" variant="h5">
@@ -113,11 +120,24 @@ export const ProfilePage: React.FC = () => {
 
     return (
         <Box>
+            {impersonateId && (
+                <Alert
+                    severity="info"
+                    sx={{ mb: 2 }}
+                    action={
+                        <Button color="inherit" size="small" onClick={() => navigate(`/players/${impersonateId}`)}>
+                            Exit
+                        </Button>
+                    }
+                >
+                    Viewing as {player.first_name} {player.last_name}
+                </Alert>
+            )}
             <Typography sx={{ mb: 3 }} variant="h4">
-                My Profile
+                {impersonateId ? `${player.first_name}'s Profile` : 'My Profile'}
             </Typography>
 
-            <ProfileCard division={division} player={player} user={user} />
+            <ProfileCard division={division} player={player} user={user!} />
 
             <RatingHistoryCard ratingHistory={ratingHistory} />
 

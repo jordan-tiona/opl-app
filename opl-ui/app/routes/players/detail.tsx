@@ -1,4 +1,4 @@
-import { Add as AddIcon, ArrowBack as ArrowBackIcon, Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { Add as AddIcon, ArrowBack as ArrowBackIcon, Delete as DeleteIcon, Edit as EditIcon, Save as SaveIcon, Visibility as VisibilityIcon } from '@mui/icons-material'
 import {
     Alert,
     Box,
@@ -163,13 +163,22 @@ export const PlayerDetailPage: React.FC = () => {
 
     return (
         <Box>
-            <Button
-                startIcon={<ArrowBackIcon />}
-                sx={{ mb: 2, color: 'text.secondary' }}
-                onClick={() => navigate('/players')}
-            >
-                Back to Players
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    sx={{ color: 'text.secondary' }}
+                    onClick={() => navigate('/players')}
+                >
+                    Back to Players
+                </Button>
+                <Button
+                    startIcon={<VisibilityIcon />}
+                    variant="outlined"
+                    onClick={() => navigate(`/profile?player_id=${playerId}`)}
+                >
+                    View as Player
+                </Button>
+            </Box>
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
