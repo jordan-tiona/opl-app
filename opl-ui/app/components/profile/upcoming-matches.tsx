@@ -1,10 +1,17 @@
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import EditIcon from '@mui/icons-material/Edit'
+import ErrorIcon from '@mui/icons-material/Error'
+import PaidIcon from '@mui/icons-material/Paid'
+import PaymentsIcon from '@mui/icons-material/Payments'
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
+import ScheduleIcon from '@mui/icons-material/Schedule'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import {
     Box,
-    Button,
     Card,
     CardContent,
-    Chip,
     CircularProgress,
+    IconButton,
     Stack,
     Table,
     TableBody,
@@ -12,15 +19,17 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Tooltip,
     Typography,
     useMediaQuery,
     useTheme,
 } from '@mui/material'
+
 import { useState } from 'react'
 
 import { MatchScoreDialog } from '~/components/matches/match-score-dialog'
 import { PaymentDialog } from '~/components/matches/payment-dialog'
-import type { Match, Payment, Player } from '~/lib/types'
+import type { Match, Payment, Player, Session } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
 
 interface UpcomingMatchesProps {
@@ -28,6 +37,7 @@ interface UpcomingMatchesProps {
     player: Player
     players?: Player[]
     payments?: Payment[]
+    sessions?: Session[]
     isLoading: boolean
 }
 
@@ -47,24 +57,20 @@ function isMatchWeek(scheduledDate: string): boolean {
     return now >= monday && now <= sunday
 }
 
-function getScoreChip(scoreStatus: Match['score_status']) {
+function getScoreIcon(scoreStatus: Match['score_status']) {
     if (!scoreStatus) {return null}
 
-    const props = {
-        pending: { label: 'Score Pending', color: 'info' as const },
-        confirmed: { label: 'Score Confirmed', color: 'success' as const },
-        disputed: { label: 'Score Disputed', color: 'warning' as const },
-    }[scoreStatus]
-
-    return <Chip {...props} size="small" />
+    if (scoreStatus === 'pending') {return <Tooltip title="Score Pending"><ScheduleIcon color="info" fontSize="small" /></Tooltip>}
+    if (scoreStatus === 'confirmed') {return <Tooltip title="Score Confirmed"><CheckCircleIcon color="success" fontSize="small" /></Tooltip>}
+    if (scoreStatus === 'disputed') {return <Tooltip title="Score Disputed"><ErrorIcon color="warning" fontSize="small" /></Tooltip>}
 }
 
-function getPaymentChip(payment: Payment | undefined) {
+function getPaymentIcon(payment: Payment | undefined) {
     if (!payment || payment.status === 'unpaid') {return null}
 
-    if (payment.status === 'confirmed') {return <Chip color="success" label="Dues Paid" size="small" />}
+    if (payment.status === 'confirmed') {return <Tooltip title="Dues Paid"><PaidIcon color="success" fontSize="small" /></Tooltip>}
 
-    return <Chip color="warning" label="Payment Pending" size="small" />
+    return <Tooltip title="Payment Pending"><ScheduleIcon color="warning" fontSize="small" /></Tooltip>
 }
 
 export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
@@ -72,6 +78,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
     player,
     players,
     payments,
+    sessions,
     isLoading,
 }) => {
     const theme = useTheme()
@@ -98,40 +105,40 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
         const scoreConfirmed = match.score_status === 'confirmed'
         const paymentDone = myPayment?.status === 'confirmed'
         const canScore = inMatchWeek && !scoreConfirmed && match.score_status !== 'disputed'
-        const canPay = scoreConfirmed && !paymentDone
+        const sessionDues = sessions?.find((s) => s.session_id === match.session_id)?.dues ?? 10
+        const canPay = scoreConfirmed && !paymentDone && sessionDues > 0
 
         return (
-            <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 1 }}>
-                {getScoreChip(match.score_status)}
-                {getPaymentChip(myPayment)}
+            <Stack alignItems="center" direction="row" gap={0.5}>
+                {getScoreIcon(match.score_status)}
+                {getPaymentIcon(myPayment)}
                 {canScore && (
-                    <Button
-                        size="small"
-                        variant={match.score_status === 'pending' ? 'outlined' : 'contained'}
-                        onClick={() => setScoreDialogMatch(match)}
-                    >
-                        {match.score_status === 'pending' ? 'View Score' : 'Score Match'}
-                    </Button>
+                    <Tooltip title={match.score_status === 'pending' ? 'View Score' : 'Score Match'}>
+                        <IconButton size="small" onClick={() => setScoreDialogMatch(match)}>
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
                 )}
                 {match.score_status === 'pending' && !canScore && (
-                    <Button size="small" variant="outlined" onClick={() => setScoreDialogMatch(match)}>
-                        View Score
-                    </Button>
+                    <Tooltip title="View Score">
+                        <IconButton size="small" onClick={() => setScoreDialogMatch(match)}>
+                            <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
                 )}
                 {canPay && (
-                    <Button
-                        color="success"
-                        size="small"
-                        variant="contained"
-                        onClick={() => setPaymentDialogMatch(match)}
-                    >
-                        Pay Dues
-                    </Button>
+                    <Tooltip title="Pay Dues">
+                        <IconButton color="success" size="small" onClick={() => setPaymentDialogMatch(match)}>
+                            <PaymentsIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
                 )}
-                {scoreConfirmed && myPayment && myPayment.status !== 'confirmed' && (
-                    <Button size="small" variant="outlined" onClick={() => setPaymentDialogMatch(match)}>
-                        View Payment
-                    </Button>
+                {scoreConfirmed && myPayment && myPayment.status !== 'confirmed' && sessionDues > 0 && (
+                    <Tooltip title="View Payment">
+                        <IconButton size="small" onClick={() => setPaymentDialogMatch(match)}>
+                            <ReceiptLongIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
                 )}
             </Stack>
         )
@@ -185,17 +192,9 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                     const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
                     const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
                     const date = new Date(match.scheduled_date)
-                    const datePart = date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    })
-                    const timePart = date.toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                    })
-                    const formattedDate = `${datePart} at ${timePart}`
+                    const formattedDate = match.is_weekly
+                        ? `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                        : `${date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
                     const opponentName = getPlayerName(opponentId)
                     const currentMyRating = players?.find((p) => p.player_id === player.player_id)?.rating ?? myRating ?? 0
                     const currentOppRating = players?.find((p) => p.player_id === opponentId)?.rating ?? oppRating ?? 0
@@ -241,7 +240,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                             <TableCell>Date</TableCell>
                             <TableCell>Opponent</TableCell>
                             <TableCell>Weight</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -251,17 +250,9 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                             const myRating = isPlayer1 ? match.player1_rating : match.player2_rating
                             const oppRating = isPlayer1 ? match.player2_rating : match.player1_rating
                             const date = new Date(match.scheduled_date)
-                            const datePart = date.toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                            })
-                            const timePart = date.toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true,
-                            })
-                            const formattedDate = `${datePart} at ${timePart}`
+                            const formattedDate = match.is_weekly
+                                ? `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                                : `${date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
                             const opponentName = getPlayerName(opponentId)
                             const currentMyRating = players?.find((p) => p.player_id === player.player_id)?.rating ?? myRating ?? 0
                             const currentOppRating = players?.find((p) => p.player_id === opponentId)?.rating ?? oppRating ?? 0

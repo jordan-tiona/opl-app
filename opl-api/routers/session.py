@@ -16,6 +16,7 @@ from services.database import get_session
 class SessionUpdate(BaseModel):
     name: str
     match_time: str | None
+    dues: int = 10
     active: bool
     update_existing_matches: bool = False
 
@@ -45,6 +46,7 @@ def _build_session_responses(session: DBSession, sessions: list[Session]) -> lis
             session_id=s.session_id,
             name=s.name,
             match_time=s.match_time,
+            dues=s.dues,
             active=s.active,
             deleted=s.deleted,
             start_date=date_map.get(s.session_id, (None, None))[0],
@@ -87,6 +89,7 @@ def update_session(session_id: int, body: SessionUpdate, session: DBSession = De
 
     db_session.name = body.name
     db_session.match_time = body.match_time
+    db_session.dues = body.dues
     db_session.active = body.active
 
     if body.update_existing_matches and body.match_time is not None:

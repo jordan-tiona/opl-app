@@ -2,7 +2,7 @@ import argparse
 import json
 import random
 import sys
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from alembic.config import Config
@@ -46,6 +46,7 @@ def init_sessions_table():
         session.add(OPLSession(
             name="Spring 2026",
             match_time="19:00",
+            dues=0,
         ))
         session.commit()
 
@@ -108,7 +109,7 @@ def init_matches_table(start_date: datetime):
                 select(Player).join(DivisionPlayer, Player.player_id == DivisionPlayer.player_id)
                 .where(DivisionPlayer.division_id == division.division_id)
             ).all()
-            matches = schedule_round_robin(players, start_date, opl_session.session_id, division.division_id)
+            matches = schedule_round_robin(players, start_date, opl_session.session_id, division.division_id, is_weekly=True)
             session.add_all(matches)
             progress_bar(i + 1, len(divisions))
         session.commit()
@@ -122,9 +123,11 @@ def init_games_table():
     with Session(engine) as session:
         # Load all players into a dict to avoid per-match queries
         all_players = {p.player_id: p for p in session.exec(select(Player)).all()}
+        now = datetime.now(UTC).replace(tzinfo=None)
+        current_week_monday = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
         matches = session.exec(select(Match).order_by(Match.scheduled_date)).all()
-        completed_matches = matches[:len(matches) // 2]
-        uncompleted_matches = matches[len(matches) // 2:]
+        completed_matches = [m for m in matches if m.scheduled_date < current_week_monday]
+        uncompleted_matches = [m for m in matches if m.scheduled_date >= current_week_monday]
 
         # Index uncompleted matches by player_id for fast lookup
         uncompleted_by_player: dict[int, list[Match]] = {}
@@ -205,7 +208,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("Script starting...", flush=True)
-    start_date = datetime.strptime(args.start_date, "%Y-%m-%d") if args.start_date else datetime.now()
+    if args.start_date:
+        start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
+    else:
+        today = datetime.now()
+        current_monday = (today - timedelta(days=today.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = current_monday - timedelta(weeks=9)
 
     print(f"Connecting to database...\n  URL: {engine.url}", flush=True)
     for attempt in range(1, 13):
@@ -250,6 +258,10 @@ if __name__ == "__main__":
     print()
 
     print()
+
+    print("Scheduling matches...", flush=True)
+    init_matches_table(start_date)
+    print("  Done.\n", flush=True)
 
     print("Generating games...", flush=True)
     init_games_table()

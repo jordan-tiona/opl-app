@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import date as date_type
 from datetime import datetime, timedelta
 
@@ -6,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_
 from sqlmodel import Session, SQLModel, select
 
-from models import Division, DivisionPlayer, Game, Match, MatchScoreSubmission, Message, MessageRecipient, Player, User
+from models import Division, DivisionPlayer, Game, Match, MatchScoreSubmission, Message, MessageRecipient, Player, Session, User
 from services.auth import get_current_user, require_admin
 from services.database import get_session
 
@@ -453,14 +454,17 @@ def submit_match_score(
         session.delete(existing)
         session.flush()
 
+    demo_mode = os.environ.get("DEMO_MODE") == "true" or os.environ.get("AUTO_CONFIRM_SCORES") == "true"
     submission = MatchScoreSubmission(
         match_id=match_id,
         submitted_by_player_id=user.player_id,
         games_json=json.dumps([g.model_dump() for g in games]),
-        status="pending",
+        status="confirmed" if demo_mode else "pending",
+        confirmed_by_player_id=user.player_id if demo_mode else None,
+        confirmed_at=datetime.utcnow() if demo_mode else None,
     )
     session.add(submission)
-    db_match.score_status = "pending"
+    db_match.score_status = "confirmed" if demo_mode else "pending"
     session.add(db_match)
     session.commit()
     session.refresh(submission)
@@ -497,6 +501,13 @@ def confirm_match_score(
     db_match.score_status = "confirmed"
     session.add(submission)
     session.add(db_match)
+    session.flush()
+
+    opl_session = session.get(Session, db_match.session_id) if db_match.session_id else None
+    if opl_session and opl_session.dues == 0:
+        from routers.payment import _complete_match_from_submission
+        _complete_match_from_submission(db_match.match_id, db_match, session)
+
     session.commit()
     session.refresh(submission)
     return submission

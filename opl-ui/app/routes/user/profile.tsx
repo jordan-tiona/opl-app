@@ -23,6 +23,7 @@ import {
     useMatches,
     useGames,
     usePlayerPayments,
+    useSessions,
 } from '~/lib/react-query'
 
 export const ProfilePage: React.FC = () => {
@@ -40,6 +41,7 @@ export const ProfilePage: React.FC = () => {
     })
     const { data: games } = useGames({ player_id: effectivePlayerId || undefined })
     const { data: payments } = usePlayerPayments(user?.player_id ?? 0)
+    const { data: sessions } = useSessions()
     // Build rating history from games
     const ratingHistory = useMemo(() => {
         if (!games || !player) {
@@ -160,6 +162,7 @@ export const ProfilePage: React.FC = () => {
                 payments={payments}
                 player={player}
                 players={players}
+                sessions={sessions}
             />
 
             <Typography sx={{ mb: 2 }} variant="h5">

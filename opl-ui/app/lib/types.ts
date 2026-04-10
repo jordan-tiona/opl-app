@@ -100,6 +100,7 @@ export interface Session {
     start_date: string | null
     end_date: string | null
     match_time: string | null
+    dues: number
     active: boolean
     deleted: boolean
 }

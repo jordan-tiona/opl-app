@@ -18,13 +18,11 @@ if [[ "$1" == "--prod" ]]; then
 
     echo "Starting OPL API server (prod DB)..."
     cd opl-api && env $(cat .env | xargs) uv run fastapi dev main.py &
-    cd ..
 elif [[ "$1" == "--prod-api" ]]; then
     echo "Skipping local API — UI will connect to prod API."
 else
     echo "Starting OPL API server..."
-    cd opl-api && uv run fastapi dev main.py &
-    cd ..
+    cd opl-api && AUTO_CONFIRM_SCORES=true uv run fastapi dev main.py &
 fi
 
 echo "Starting OPL UI server..."

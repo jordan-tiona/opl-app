@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from models import Game, Match, MatchScoreSubmission, Payment, Player, User
+from models import Game, Match, MatchScoreSubmission, Payment, Player, Session, User
 from services.auth import get_current_user, require_admin
 from services.database import get_session
 
@@ -49,6 +49,9 @@ def report_payment(
         raise HTTPException(status_code=400, detail="Match is already completed")
     if db_match.is_bye:
         raise HTTPException(status_code=400, detail="Bye matches do not require payment")
+    opl_session = session.get(Session, db_match.session_id) if db_match.session_id else None
+    if opl_session and opl_session.dues == 0:
+        raise HTTPException(status_code=400, detail="This session does not require dues")
     if not user.player_id:
         raise HTTPException(status_code=403, detail="No player linked to this account")
     if user.player_id not in (db_match.player1_id, db_match.player2_id):
