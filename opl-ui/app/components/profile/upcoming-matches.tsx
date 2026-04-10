@@ -216,10 +216,12 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                                         <Typography sx={{ mb: 1 }} variant="h6">
                                             vs. {opponentName} ({currentOppRating})
                                         </Typography>
-                                        <Typography color="primary" sx={{ mb: 1 }} variant="body1">
-                                            Weight: {weight}
-                                        </Typography>
-                                        {renderActions(match)}
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Typography color="primary" variant="body1">
+                                                Weight: {weight}
+                                            </Typography>
+                                            {renderActions(match)}
+                                        </Box>
                                     </>
                                 )}
                             </CardContent>
