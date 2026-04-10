@@ -237,10 +237,10 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell sx={{ width: '1%', whiteSpace: 'nowrap' }} />
                             <TableCell>Date</TableCell>
                             <TableCell>Opponent</TableCell>
                             <TableCell>Weight</TableCell>
-                            <TableCell />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -261,12 +261,12 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
 
                             return (
                                 <TableRow key={match.match_id}>
+                                    <TableCell sx={{ width: '1%', whiteSpace: 'nowrap' }}>{renderActions(match)}</TableCell>
                                     <TableCell>{formattedDate}</TableCell>
                                     <TableCell>
                                         {match.is_bye ? 'Bye week' : `vs. ${opponentName} (${currentOppRating})`}
                                     </TableCell>
                                     <TableCell>{match.is_bye ? '—' : weight}</TableCell>
-                                    <TableCell>{renderActions(match)}</TableCell>
                                 </TableRow>
                             )
                         })}
