@@ -131,7 +131,7 @@ def confirm_payment(
 
 def _complete_match_from_submission(match_id: int, db_match: Match, session: Session) -> None:
     """Complete a match using the confirmed score submission."""
-    from utils import calculate_rating_change
+    from utils import calculate_rating_change, get_match_weight
 
     submission = session.exec(
         select(MatchScoreSubmission).where(MatchScoreSubmission.match_id == match_id)
@@ -141,6 +141,15 @@ def _complete_match_from_submission(match_id: int, db_match: Match, session: Ses
 
     import json
     games_data = json.loads(submission.games_json)
+
+    player1 = session.get(Player, db_match.player1_id)
+    player2 = session.get(Player, db_match.player2_id)
+    db_match.player1_rating = player1.rating if player1 else db_match.player1_rating
+    db_match.player2_rating = player2.rating if player2 else db_match.player2_rating
+    if player1 and player2:
+        w1, w2 = get_match_weight(player1.rating, player2.rating)
+        db_match.player1_weight = w1
+        db_match.player2_weight = w2
 
     for game_data in games_data:
         winner = session.get(Player, game_data["winner_id"])
