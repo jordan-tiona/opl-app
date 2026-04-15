@@ -1,5 +1,5 @@
 import type { CredentialResponse } from '@react-oauth/google'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 
 import { api } from './api'
@@ -30,8 +30,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             api.auth
                 .me()
                 .then(setUser)
-                .catch(() => {
-                    localStorage.removeItem(STORAGE_KEY)
+                .catch((err) => {
+                    // Only clear the token on an actual auth failure (401).
+                    // Network errors or server outages should not log the user out.
+                    if (err?.status === 401) {
+                        localStorage.removeItem(STORAGE_KEY)
+                    }
                     setUser(null)
                 })
                 .finally(() => setLoading(false))
@@ -46,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => window.removeEventListener('auth:expired', handleExpired)
     }, [])
 
-    const login = async (response: CredentialResponse) => {
+    const login = useCallback(async (response: CredentialResponse) => {
         const credential = response.credential
 
         if (!credential) {
@@ -65,9 +69,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             return { success: false, error: message }
         }
-    }
+    }, [])
 
-    const demoLogin = async (role: 'admin' | 'player') => {
+    const demoLogin = useCallback(async (role: 'admin' | 'player') => {
         try {
             const result = await api.auth.demoLogin(role)
 
@@ -80,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             return { success: false, error: message }
         }
-    }
+    }, [])
 
     const logout = () => {
         localStorage.removeItem(STORAGE_KEY)
