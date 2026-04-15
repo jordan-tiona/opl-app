@@ -2,7 +2,8 @@
 
 # Start OPL API and UI servers
 # Usage:
-#   ./start.sh               - local API + local DB
+#   ./start.sh               - local API + local DB (scores auto-confirmed)
+#   ./start.sh --no-autoconfirm  - local API + local DB (real submission flow)
 #   ./start.sh --prod        - local API + prod DB (requires fly proxy)
 #   ./start.sh --prod-api    - prod API only (no local API started)
 
@@ -20,6 +21,9 @@ if [[ "$1" == "--prod" ]]; then
     cd opl-api && env $(cat .env | xargs) uv run fastapi dev main.py &
 elif [[ "$1" == "--prod-api" ]]; then
     echo "Skipping local API — UI will connect to prod API."
+elif [[ "$1" == "--no-autoconfirm" ]]; then
+    echo "Starting OPL API server (real submission flow)..."
+    cd opl-api && uv run fastapi dev main.py &
 else
     echo "Starting OPL API server..."
     cd opl-api && AUTO_CONFIRM_SCORES=true uv run fastapi dev main.py &

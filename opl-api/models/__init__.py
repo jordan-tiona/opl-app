@@ -4,7 +4,7 @@ from models.match import Match
 from models.message import Message, MessageRecipient
 from models.payment import Payment
 from models.player import Player
-from models.score_submission import MatchScoreSubmission
+from models.score_submission import MatchScoreSubmission, ScoreSubmissionResponse
 from models.session import Session, SessionResponse
 from models.user import User
 
@@ -14,6 +14,7 @@ __all__ = [
     "Game",
     "Match",
     "MatchScoreSubmission",
+    "ScoreSubmissionResponse",
     "Message",
     "MessageRecipient",
     "Payment",

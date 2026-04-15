@@ -23,10 +23,13 @@ The UI will be available at http://localhost:5173.
 
 ## Shortcut script to start both
 ```bash
-./start.sh              # local API + local DB
-./start.sh --prod       # local API + prod DB (requires fly proxy)
-./start.sh --prod-api   # prod API only, no local API started
+./start.sh                   # local API + local DB (scores auto-confirmed)
+./start.sh --no-autoconfirm  # local API + local DB (real submission flow)
+./start.sh --prod            # local API + prod DB (requires fly proxy)
+./start.sh --prod-api        # prod API only, no local API started
 ```
+
+By default, `start.sh` sets `AUTO_CONFIRM_SCORES=true` so you can test the post-match payment flow without needing two accounts. Use `--no-autoconfirm` to test the full scoring flow where both players submit independently and scores are compared.
 
 ## Scripts
 
@@ -36,7 +39,7 @@ Populate the database with fake test data:
 
 ```bash
 cd opl-api
-python scripts/init_test_db.py
+uv run python scripts/init_test_db.py
 ```
 
 **Options:**
@@ -47,10 +50,10 @@ python scripts/init_test_db.py
 **Examples:**
 ```bash
 # Create 16 players starting on March 1st
-python scripts/init_test_db.py --num-players 16 --start-date 2026-03-01
+uv run python scripts/init_test_db.py --num-players 16 --start-date 2026-03-01
 
 # Create default players plus test players linked to your Google accounts
-python scripts/init_test_db.py --player-email you@gmail.com friend@gmail.com
+uv run python scripts/init_test_db.py --player-email you@gmail.com friend@gmail.com
 ```
 
 This script will drop and recreate all tables, create fake players, schedule round-robin matches, and generate games for the earliest half of matches.

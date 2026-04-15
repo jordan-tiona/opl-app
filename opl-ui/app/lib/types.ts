@@ -30,7 +30,7 @@ export interface Match {
     winner_id: number | null
     loser_id: number | null
     deleted: boolean
-    score_status: 'pending' | 'confirmed' | 'disputed' | null
+    score_status: 'pending' | 'confirmed' | 'needs_review' | 'disputed' | null
 }
 
 export interface MatchScoreSubmission {
@@ -39,11 +39,16 @@ export interface MatchScoreSubmission {
     submitted_by_player_id: number
     games_json: string
     submitted_at: string
-    confirmed_by_player_id: number | null
-    confirmed_at: string | null
-    disputed_by_player_id: number | null
-    disputed_at: string | null
-    status: 'pending' | 'confirmed' | 'disputed'
+    needs_review_since: string | null
+    status: 'pending' | 'confirmed' | 'needs_review' | 'disputed'
+}
+
+export interface ScoreSubmissionResponse {
+    my_submission: MatchScoreSubmission | null
+    /** True as soon as the opponent has submitted, even before their games are revealed */
+    opponent_submitted: boolean
+    /** Only populated once both players have submitted */
+    opponent_submission: MatchScoreSubmission | null
 }
 
 export interface Payment {

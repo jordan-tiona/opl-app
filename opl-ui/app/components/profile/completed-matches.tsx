@@ -15,6 +15,7 @@ import {
     useMediaQuery,
     useTheme,
 } from '@mui/material'
+import type { Game } from '~/lib/types'
 import { useState } from 'react'
 
 
@@ -168,19 +169,24 @@ export const CompletedMatches: React.FC<CompletedMatchesProps> = ({
                             {!match.is_bye && (
                                 <Collapse unmountOnExit in={isExpanded} timeout="auto">
                                     <CardContent sx={{ pt: 0 }}>
-                                        {games.map((game, index) => (
-                                            <Typography key={game.game_id} variant="body2">
-                                                Game {index + 1}:{' '}
-                                                <Typography
-                                                    component="span"
-                                                    sx={{ fontWeight: 600 }}
-                                                    variant="body2"
-                                                >
-                                                    {getPlayerName(game.winner_id)}
-                                                </Typography>{' '}
-                                                wins 8-{8 - game.balls_remaining}
-                                            </Typography>
-                                        ))}
+                                        {games.map((game: Game, index: number) => {
+                                            const iWon = game.winner_id === player.player_id
+                                            const mw = myWeight ?? 8
+                                            const ow = oppWeight ?? 8
+                                            const myScore = iWon ? mw : mw - game.balls_remaining
+                                            const oppScore = iWon ? ow - game.balls_remaining : ow
+                                            return (
+                                                <Typography key={game.game_id} variant="body2" sx={{ mb: 0.5 }}>
+                                                    Game {index + 1}: {player.first_name} {player.last_name} {iWon ? 'wins' : 'loses'}{' '}
+                                                    <Box
+                                                        component="strong"
+                                                        sx={{ color: iWon ? 'success.main' : 'error.main' }}
+                                                    >
+                                                        {myScore}:{oppScore}
+                                                    </Box>
+                                                </Typography>
+                                            )
+                                        })}
                                         {games.length === 0 && (
                                             <Typography color="text.secondary" variant="body2">
                                                 No games recorded.

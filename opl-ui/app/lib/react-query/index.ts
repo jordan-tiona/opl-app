@@ -23,7 +23,7 @@ export { useScores } from './scores'
 export { useMessages, useMessage, useCreateMessage, useMarkMessageRead, useDeleteMessage } from './messages'
 
 // Score submission hooks
-export { useMatchScoreSubmission, useSubmitMatchScore, useConfirmMatchScore, useDisputeMatchScore } from './score-submission'
+export { useMatchScoreSubmission, useSubmitMatchScore } from './score-submission'
 
 // Payment hooks
 export { useMatchPayments, usePlayerPayments, useReportPayment, useConfirmPayment } from './payment'

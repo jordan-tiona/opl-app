@@ -2,7 +2,7 @@ import type {
     Player,
     PlayerInput,
     Match,
-    MatchScoreSubmission,
+    ScoreSubmissionResponse,
     Payment,
     Game,
     GameInput,
@@ -275,20 +275,14 @@ export const api = {
     },
 
     scoreSubmissions: {
-        get: (matchId: number): Promise<MatchScoreSubmission | null> =>
+        get: (matchId: number): Promise<ScoreSubmissionResponse> =>
             fetchJson(`${API_BASE}/matches/${matchId}/score/`),
 
-        submit: (matchId: number, games: GameInput[]): Promise<MatchScoreSubmission> =>
+        submit: (matchId: number, games: GameInput[]): Promise<ScoreSubmissionResponse> =>
             fetchJson(`${API_BASE}/matches/${matchId}/score/`, {
                 method: 'POST',
                 body: JSON.stringify(games),
             }),
-
-        confirm: (matchId: number): Promise<MatchScoreSubmission> =>
-            fetchJson(`${API_BASE}/matches/${matchId}/score/confirm/`, { method: 'POST' }),
-
-        dispute: (matchId: number): Promise<MatchScoreSubmission> =>
-            fetchJson(`${API_BASE}/matches/${matchId}/score/dispute/`, { method: 'POST' }),
     },
 
     payments: {

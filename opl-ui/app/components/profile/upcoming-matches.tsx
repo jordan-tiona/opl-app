@@ -26,8 +26,8 @@ import {
 } from '@mui/material'
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
-import { MatchScoreDialog } from '~/components/matches/match-score-dialog'
 import { PaymentDialog } from '~/components/matches/payment-dialog'
 import type { Match, Payment, Player, Session } from '~/lib/types'
 import { getMatchWeight } from '~/lib/utils'
@@ -61,8 +61,9 @@ function getScoreIcon(scoreStatus: Match['score_status']) {
     if (!scoreStatus) {return null}
 
     if (scoreStatus === 'pending') {return <Tooltip title="Score Pending"><ScheduleIcon color="info" fontSize="small" /></Tooltip>}
+    if (scoreStatus === 'needs_review') {return <Tooltip title="Scores Don't Match"><ErrorIcon color="warning" fontSize="small" /></Tooltip>}
     if (scoreStatus === 'confirmed') {return <Tooltip title="Score Confirmed"><CheckCircleIcon color="success" fontSize="small" /></Tooltip>}
-    if (scoreStatus === 'disputed') {return <Tooltip title="Score Disputed"><ErrorIcon color="warning" fontSize="small" /></Tooltip>}
+    if (scoreStatus === 'disputed') {return <Tooltip title="Score Disputed — Admin Notified"><ErrorIcon color="error" fontSize="small" /></Tooltip>}
 }
 
 function getPaymentIcon(payment: Payment | undefined) {
@@ -83,7 +84,7 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
 }) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-    const [scoreDialogMatch, setScoreDialogMatch] = useState<Match | null>(null)
+    const navigate = useNavigate()
     const [paymentDialogMatch, setPaymentDialogMatch] = useState<Match | null>(null)
 
     const getPlayerById = (id: number | null) => players?.find((p) => p.player_id === id)
@@ -114,14 +115,14 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
                 {getPaymentIcon(myPayment)}
                 {canScore && (
                     <Tooltip title={match.score_status === 'pending' ? 'View Score' : 'Score Match'}>
-                        <IconButton size="small" onClick={() => setScoreDialogMatch(match)}>
+                        <IconButton size="small" onClick={() => navigate(`/score/${match.match_id}`)}>
                             <EditIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
                 )}
-                {match.score_status === 'pending' && !canScore && (
+                {(match.score_status === 'pending' || match.score_status === 'needs_review') && !canScore && (
                     <Tooltip title="View Score">
-                        <IconButton size="small" onClick={() => setScoreDialogMatch(match)}>
+                        <IconButton size="small" onClick={() => navigate(`/score/${match.match_id}`)}>
                             <VisibilityIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
@@ -156,31 +157,14 @@ export const UpcomingMatches: React.FC<UpcomingMatchesProps> = ({
         )
     }
 
-    const scoreDialogPlayer1 = scoreDialogMatch ? getPlayerById(scoreDialogMatch.player1_id) : null
-    const scoreDialogPlayer2 = scoreDialogMatch ? getPlayerById(scoreDialogMatch.player2_id) : null
-
-    const dialogs = (
-        <>
-            {scoreDialogMatch && scoreDialogPlayer1 && scoreDialogPlayer2 && (
-                <MatchScoreDialog
-                    currentPlayerId={player.player_id}
-                    match={scoreDialogMatch}
-                    open={!!scoreDialogMatch}
-                    player1={scoreDialogPlayer1}
-                    player2={scoreDialogPlayer2}
-                    onClose={() => setScoreDialogMatch(null)}
-                />
-            )}
-            {paymentDialogMatch && (
-                <PaymentDialog
-                    currentPlayer={player}
-                    match={paymentDialogMatch}
-                    open={!!paymentDialogMatch}
-                    onClose={() => setPaymentDialogMatch(null)}
-                />
-            )}
-        </>
-    )
+    const dialogs = paymentDialogMatch ? (
+        <PaymentDialog
+            currentPlayer={player}
+            match={paymentDialogMatch}
+            open={!!paymentDialogMatch}
+            onClose={() => setPaymentDialogMatch(null)}
+        />
+    ) : null
 
     if (isMobile) {
         return (

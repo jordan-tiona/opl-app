@@ -26,5 +26,6 @@ export default [
         route('standings', 'routes/divisions/standings.tsx'),
         route('contact', 'routes/public/contact.tsx'),
         route('profile', 'routes/user/profile.tsx'),
+        route('score/:matchId', 'routes/user/score.tsx'),
     ]),
 ] satisfies RouteConfig
