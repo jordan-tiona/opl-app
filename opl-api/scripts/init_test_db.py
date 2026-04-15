@@ -150,6 +150,9 @@ def init_games_table():
             p1 = all_players[match.player1_id]
             p2 = all_players[match.player2_id]
 
+            match.player1_rating = p1.rating
+            match.player2_rating = p2.rating
+
             game_wins: dict[int, int] = {p1.player_id: 0, p2.player_id: 0}
             while max(game_wins.values()) < 3:
                 winner, loser = random.sample([p1, p2], 2)
