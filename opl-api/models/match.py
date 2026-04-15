@@ -16,6 +16,7 @@ class Match(SQLModel, table=True):
     player2_rating: int | None = Field(default=None)
     player1_weight: int = Field(default=0)
     player2_weight: int | None = Field(default=None)
+    race: int = Field(default=3)
     scheduled_date: datetime
     completed: bool
     incompleted: bool = Field(default=False)

@@ -22,6 +22,7 @@ class ScheduleInput(SQLModel):
     session_id: int
     start_date: datetime
     double: bool = True
+    race: int = 3
 
 
 class PlayerScore(SQLModel):
@@ -154,7 +155,7 @@ def schedule_round_robin(
             # Snap to the correct day of week within the start week
             monday = body.start_date - timedelta(days=body.start_date.weekday())
             div_start_date = monday + timedelta(days=division.day_of_week)
-        matches = generate_schedule(players, div_start_date, body.session_id, division.division_id, double=body.double, is_weekly=is_weekly)
+        matches = generate_schedule(players, div_start_date, body.session_id, division.division_id, double=body.double, is_weekly=is_weekly, race=body.race)
         all_matches.extend(matches)
 
     if not all_matches:
@@ -180,6 +181,8 @@ def update_match(match_id: int, games: list[GameInput], session: Session = Depen
     db_match = session.get(Match, match_id)
     if not db_match or db_match.deleted:
         raise HTTPException(status_code=404, detail="Match not found")
+
+    _validate_games_for_race(games, db_match.race)
 
     from utils import calculate_rating_change, get_match_weight
 
@@ -268,6 +271,8 @@ def rescore_match(match_id: int, games: list[GameInput], session: Session = Depe
         raise HTTPException(status_code=404, detail="Match not found")
     if not db_match.completed:
         raise HTTPException(status_code=400, detail="Match is not completed; use the regular scoring endpoint")
+
+    _validate_games_for_race(games, db_match.race)
 
     from utils import calculate_rating_change
 
@@ -388,6 +393,31 @@ def mark_incompleted(match_id: int, session: Session = Depends(get_session), _ad
     return db_match
 
 
+def _validate_games_for_race(games: list[GameInput], race: int) -> None:
+    """Raise HTTPException if the submitted games don't form a valid race-to-N result."""
+    if not games:
+        raise HTTPException(status_code=400, detail="At least one game is required")
+
+    wins: dict[int, int] = {}
+    for g in games:
+        wins[g.winner_id] = wins.get(g.winner_id, 0) + 1
+
+    winner_id = max(wins, key=wins.get)
+    winner_wins = wins[winner_id]
+    loser_wins = sum(w for pid, w in wins.items() if pid != winner_id)
+
+    if winner_wins != race:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Winner must have exactly {race} wins for a race to {race} (got {winner_wins})",
+        )
+    if loser_wins >= race:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Loser cannot have {race} or more wins in a race to {race}",
+        )
+
+
 def _match_week_bounds(scheduled_date: datetime) -> tuple[datetime, datetime]:
     """Return the Monday 00:00 and Sunday 23:59:59 of the week containing scheduled_date."""
     monday = scheduled_date - timedelta(days=scheduled_date.weekday())
@@ -443,6 +473,8 @@ def submit_match_score(
             raise HTTPException(status_code=400, detail="Game player IDs must match match participants")
         if g.winner_id == g.loser_id:
             raise HTTPException(status_code=400, detail="Winner and loser cannot be the same player")
+
+    _validate_games_for_race(games, db_match.race)
 
     # Remove any prior submission (allow resubmission while still pending)
     existing = session.exec(

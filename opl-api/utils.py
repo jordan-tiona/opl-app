@@ -37,7 +37,7 @@ def get_match_weight(rating1: int, rating2: int) -> tuple[int, int]:
     return (low, high)
 
 
-def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int, division_id: int, *, double: bool = True, is_weekly: bool = False) -> list[Match]:
+def schedule_round_robin(players: list[Player], start_date: datetime, session_id: int, division_id: int, *, double: bool = True, is_weekly: bool = False, race: int = 3) -> list[Match]:
     """Generate a round robin schedule using the circle method.
 
     When *double* is True (default), each pairing plays twice (home-and-away).
@@ -88,6 +88,7 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
                         completed=False,
                         is_bye=True,
                         is_weekly=is_weekly,
+                        race=race,
                     ))
                     continue
                 # Swap home/away between legs
@@ -105,6 +106,7 @@ def schedule_round_robin(players: list[Player], start_date: datetime, session_id
                     scheduled_date=round_date,
                     completed=False,
                     is_weekly=is_weekly,
+                    race=race,
                 ))
 
     return matches

@@ -31,11 +31,13 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
     const { showSnackbar } = useSnackbar()
     const [startDate, setStartDate] = useState(defaultStartDate ?? '')
     const [double, setDouble] = useState(true)
+    const [race, setRace] = useState(3)
 
     useEffect(() => {
         if (open) {
             setStartDate(defaultStartDate ?? '')
             setDouble(true)
+            setRace(3)
         }
     }, [open, defaultStartDate])
 
@@ -45,6 +47,7 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
                 session_id: sessionId,
                 start_date: `${startDate}T00:00:00`,
                 double,
+                race,
             })
 
             showSnackbar(`Successfully scheduled ${scheduledMatches.length} matches`, 'success')
@@ -67,6 +70,15 @@ export const ScheduleRoundRobinDialog: React.FC<ScheduleRoundRobinDialogProps> =
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
+                    />
+                    <TextField
+                        fullWidth
+                        required
+                        label="Race to"
+                        type="number"
+                        slotProps={{ htmlInput: { min: 1 } }}
+                        value={race}
+                        onChange={(e) => setRace(Math.max(1, parseInt(e.target.value) || 1))}
                     />
                     <FormControlLabel
                         control={

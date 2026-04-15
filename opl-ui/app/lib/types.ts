@@ -23,6 +23,7 @@ export interface Match {
     player2_rating: number | null
     player1_weight: number
     player2_weight: number | null
+    race: number
     scheduled_date: string
     completed: boolean
     incompleted: boolean
@@ -79,6 +80,7 @@ export interface ScheduleInput {
     session_id: number
     start_date: string
     double?: boolean
+    race?: number
 }
 
 export type PlayerInput = Omit<Player, 'player_id' | 'deleted'>
