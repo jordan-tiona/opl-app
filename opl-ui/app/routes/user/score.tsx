@@ -67,7 +67,7 @@ export const ScoreRoute: React.FC = () => {
                         vs. {opponent.first_name} {opponent.last_name}
                     </Typography>
                     <Typography color="text.secondary" variant="body2">
-                        Race to {myWeight}:{oppWeight}
+                        Weight: {myWeight}:{oppWeight}
                     </Typography>
                 </Box>
             </Box>
