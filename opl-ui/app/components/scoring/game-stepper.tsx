@@ -26,7 +26,7 @@ const PlayerStepper: React.FC<PlayerStepperProps> = ({ label, value, min, max, o
             disabled={value <= min}
             size="large"
             sx={{ p: 1.5 }}
-            onPointerDown={(e) => { e.preventDefault(); if (value > min) onChange(value - 1) }}
+            onClick={() => { if (value > min) onChange(value - 1) }}
         >
             <RemoveIcon />
         </IconButton>
@@ -45,7 +45,7 @@ const PlayerStepper: React.FC<PlayerStepperProps> = ({ label, value, min, max, o
             disabled={value >= max}
             size="large"
             sx={{ p: 1.5 }}
-            onPointerDown={(e) => { e.preventDefault(); if (value < max) onChange(value + 1) }}
+            onClick={() => { if (value < max) onChange(value + 1) }}
         >
             <AddIcon />
         </IconButton>
