@@ -141,8 +141,8 @@ export const ScoringPage: React.FC<ScoringPageProps> = ({ match, me, opponent })
     const handleSubmit = async () => {
         const gameInputs = scoresToGameInputs(
             games,
-            iAmP1 ? me.player_id : opponent.player_id,
-            iAmP1 ? opponent.player_id : me.player_id,
+            me.player_id,
+            opponent.player_id,
             myP1Weight,
             myP2Weight,
         )
@@ -161,7 +161,7 @@ export const ScoringPage: React.FC<ScoringPageProps> = ({ match, me, opponent })
             const parsed: GameInput[] = JSON.parse(submission.my_submission.games_json)
             const asScores = gameInputsToScores(
                 parsed,
-                iAmP1 ? me.player_id : opponent.player_id,
+                me.player_id,
                 myP1Weight,
                 myP2Weight,
             )
