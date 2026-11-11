@@ -1,7 +1,57 @@
-# opl-app
-API and UI for One Pocket League management
+# CSOPL — Colorado Springs One Pocket League
 
-## Running the API
+A league-management web app for a real, weekly one-pocket pool league. Admins run the league from it; players use it to see their schedule, score their matches, and track their rating.
+
+- **Live site:** https://www.csopl.com (requires a league account)
+- **Try the demo:** https://csopl-demo-ui.fly.dev — read-only, seeded with sample data, no sign-in needed. Use **Try Admin** or **Try Player** on the login screen.
+
+## Screenshots
+
+**Admin dashboard** — league-wide stats, session leaders, and top-rated players.
+
+![Admin dashboard](docs/screenshots/admin-dashboard.png)
+
+**Match management** — every match in a session, expandable to the game-by-game results with the rating change each game produced.
+
+![Match management](docs/screenshots/admin-matches.png)
+
+**Player profile** — rating history, record, and upcoming matches from the player's side.
+
+![Player profile](docs/screenshots/player-profile.png)
+
+## What it does
+
+**For admins**
+- Add players and group them into divisions
+- Create sessions with an auto-generated double round-robin schedule
+- Review and correct match scores, and manage league-wide messaging
+
+**For players**
+- Profile with rating history, match history, and upcoming matches
+- Score matches in the app; both players submit independently and disagreements go to a dispute flow
+- Submit league dues after a match, which officially records the result and updates ratings and standings
+- Standings per division and a message center
+
+**Rating and handicapping**
+- Custom Elo-style rating; everyone starts at 600 and ratings move with every reported game
+- The rating gap between two players sets the match handicap (8-8, 8-7, 9-7, 10-6, and so on), so mismatched players still get a fair match
+
+League rules and how the rating weights work are in [about.md](about.md).
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Frontend | React 19, TypeScript, React Router 7, Material UI, MUI X Charts, TanStack Query, Vite, Jest + Testing Library |
+| Backend | Python 3.12, FastAPI, SQLModel, Alembic migrations, PyJWT, Google sign-in |
+| Database | PostgreSQL |
+| Hosting | Fly.io (separate prod and demo deployments), deployed from `main` via GitHub Actions |
+
+Monorepo layout: `opl-ui/` is the frontend, `opl-api/` is the API.
+
+## Development
+
+### Running the API
 
 ```bash
 cd opl-api
@@ -11,7 +61,7 @@ fastapi dev
 
 The API will be available at http://localhost:8000.
 
-## Running the UI
+### Running the UI
 
 ```bash
 cd opl-ui
@@ -21,7 +71,7 @@ yarn dev
 
 The UI will be available at http://localhost:5173.
 
-## Shortcut script to start both
+### Shortcut script to start both
 ```bash
 ./start.sh                   # local API + local DB (scores auto-confirmed)
 ./start.sh --no-autoconfirm  # local API + local DB (real submission flow)
@@ -31,9 +81,9 @@ The UI will be available at http://localhost:5173.
 
 By default, `start.sh` sets `AUTO_CONFIRM_SCORES=true` so you can test the post-match payment flow without needing two accounts. Use `--no-autoconfirm` to test the full scoring flow where both players submit independently and scores are compared.
 
-## Scripts
+### Scripts
 
-### Initialize Test Database
+#### Initialize Test Database
 
 Populate the database with fake test data:
 
@@ -58,11 +108,11 @@ uv run python scripts/init_test_db.py --player-email you@gmail.com friend@gmail.
 
 This script will drop and recreate all tables, create fake players, schedule round-robin matches, and generate games for the earliest half of matches.
 
-## Fly.io Deployment
+### Fly.io Deployment
 
 Both apps are deployed from the repo root using separate config files.
 
-### API Secrets
+#### API Secrets
 
 ```bash
 fly secrets set -a csopl-api \
@@ -72,13 +122,13 @@ fly secrets set -a csopl-api \
   CORS_ORIGINS="https://csopl-ui.fly.dev"
 ```
 
-### Deploy API
+#### Deploy API
 
 ```bash
 fly deploy -c fly.api.toml --remote-only --depot=false
 ```
 
-### Deploy UI
+#### Deploy UI
 
 The UI requires build args since Vite embeds environment variables at build time:
 
@@ -92,7 +142,7 @@ fly deploy -c fly.ui.toml \
 
 These are also configured in `fly.ui.toml` under `[build.args]`.
 
-### Deploy Script
+#### Deploy Script
 
 Use `deploy.sh` to deploy either environment:
 
@@ -106,7 +156,7 @@ Use `deploy.sh` to deploy either environment:
 
 Pushes to `main` automatically deploy both prod and demo via GitHub Actions.
 
-### Seed Database on Fly.io
+#### Seed Database on Fly.io
 
 Use `seed-db.sh` to seed a deployed database. This temporarily scales the machine to 1GB RAM, runs the seed script, then scales back to 256MB.
 
@@ -116,21 +166,21 @@ Use `seed-db.sh` to seed a deployed database. This temporarily scales the machin
 ./seed-db.sh prod --player-email you@gmail.com       # seeds prod DB with specified email
 ```
 
-## Demo Mode
+### Demo Mode
 
 A read-only demo instance allows potential employers to explore the app without Google OAuth. It runs as a separate Fly.io deployment with its own database.
 
 - **Demo UI:** https://csopl-demo-ui.fly.dev
 - **Demo API:** https://csopl-demo-api.fly.dev
 
-### How It Works
+#### How It Works
 
 - When `DEMO_MODE=true` is set on the API, a `POST /auth/demo-login` endpoint is available that returns a JWT for a demo admin or player account without Google auth
 - All non-GET requests (except `/auth/*`) are blocked with `403 "Demo mode: read-only"` for authenticated users
 - When `VITE_DEMO_MODE=true` is set on the UI, "Try Admin" and "Try Player" buttons replace the Google Sign In, and a persistent banner indicates data is read-only
 - The demo player account is controlled by the `DEMO_PLAYER_EMAIL` env var (defaults to `demo@csopl.com`)
 
-### Environment Variables
+#### Environment Variables
 
 | Variable | Where | Purpose |
 |---|---|---|
@@ -138,7 +188,7 @@ A read-only demo instance allows potential employers to explore the app without 
 | `DEMO_PLAYER_EMAIL` | API (`fly.demo-api.toml`) | Email of the demo player account (default: `demo@csopl.com`) |
 | `VITE_DEMO_MODE` | UI (`fly.demo-ui.toml`) | Shows demo login buttons and read-only banner |
 
-### Initial Setup
+#### Initial Setup
 
 ```bash
 # Create Fly apps
