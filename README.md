@@ -19,6 +19,10 @@ A league-management web app for a real, weekly one-pocket pool league. Admins ru
 
 ![Player profile](docs/screenshots/player-profile.png)
 
+**On a phone** — the whole app is built mobile-first, since league night happens at a pool hall, not at a desk. The player's match list, with game-by-game results and rating changes:
+
+<img src="docs/screenshots/player-matches-mobile.png" alt="Player match list on mobile" width="320">
+
 ## What it does
 
 **For admins**
